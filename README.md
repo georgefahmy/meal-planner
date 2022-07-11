@@ -7,7 +7,7 @@ This program helps you (and your SO) plan meals weekly. Cooking food, buying foo
 The meat of the program is a sql database with multiple tables keeping track of all different kinds of foods that you like. There are multiple interfaces for inserting food choices in different categories - Meats (beef, poultry, etc.), Veggies (salad, asparagus, brussle sprouts, etc.), Starches (rice, potatoes, quinoa, etc.), or anything other category with items. The goal is to be flexible in how you want to plan your meals
 
 
-###TODO
+### TODO
 
 * Create underlying database functions for inserting tables, and items within those tables
 * build interface for adding items, and new categories (tables)
@@ -17,3 +17,7 @@ The meat of the program is a sql database with multiple tables keeping track of 
 * auto generate shopping list and quantities based on ingredients for larger recipes
 * email report?
 * table of past recipes that include links and can be referenced in the interface and opens up a the website (or downloads a pdf and saves it to the database)
+
+### Required Items
+* sqlite3
+* pysimplegui
