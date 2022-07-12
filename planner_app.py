@@ -1,12 +1,13 @@
 import PySimpleGUI as sg
 import os
 import datetime
+import textwrap
 
 from utils.sql_functions import add_meal, read_all_meals, search_meals, create_connection
 
 # --------------------------------- Define Layout ---------------------------------
 # Top left quadrant - three columns, list of meals, selection checkboxes, submit or cancel
-left_col = [
+left_column = [
     [
         sg.Text(
             "Meal Selection",
@@ -38,7 +39,7 @@ left_col = [
     ],
 ]
 
-right_column = [
+middle_column = [
     sg.Column(
         [
             [
@@ -54,9 +55,33 @@ right_column = [
     )
 ]
 
+right_column = [
+    [
+        sg.Text(
+            "Ingredients",
+            font=("Ariel", 14),
+            size=(20, 1),
+            justification="l",
+            expand_x=True,
+        )
+    ],
+    [
+        sg.Listbox(
+            values=[],
+            size=(16, 10),
+            font=("Ariel"),
+            key="-MEAL INGREDIENTS LIST-",
+            auto_size_text=True,
+            enable_events=False,
+            select_mode=sg.LISTBOX_SELECT_MODE_EXTENDED,
+        )
+    ],
+]
+
 item_selection_section = [
-    sg.Column(left_col, element_justification="c"),
-    sg.Column([right_column], element_justification="l"),
+    sg.Column(left_column, element_justification="c", pad=((0, 0), (0, 0))),
+    sg.Column([middle_column], element_justification="l", pad=((0, 0), (0, 0))),
+    sg.Column(right_column, element_justification="c", pad=((0, 0), (0, 0))),
 ]
 
 # Bottom left quadrant - New meal submission - meal, ingredients, links, submit, clear
@@ -231,9 +256,19 @@ full_layout = [
     ]
 ]
 
-window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1000, 600))
+window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1200, 600))
 
-meals = [meal.capitalize() for meal in read_all_meals().keys()]
+
+meals = {meal: ingredients.split(", ") for meal, ingredients in read_all_meals().items()}
+
+
+def matchingKeys(dictionary, searchString):
+    return [
+        key
+        for key, val in dictionary.items()
+        if searchString.lower() in key.lower()
+        or any(searchString.lower() in s.lower() for s in val)
+    ]
 
 
 while True:
@@ -245,5 +280,10 @@ while True:
         print(event, values)
 
     if event == "-FILTER-":
-        filtered_meals = [meal for meal in meals if values["-FILTER-"].lower() in meal.lower()]
+        filtered_meals = [meal.capitalize() for meal in matchingKeys(meals, values["-FILTER-"])]
         window["-MEAL LIST-"].update(filtered_meals)
+
+    if event == "-MEAL LIST-":
+        selected_meal = values["-MEAL LIST-"][0].lower()
+        ingredients_list = meals[selected_meal]
+        window["-MEAL INGREDIENTS LIST-"].update(ingredients_list)
