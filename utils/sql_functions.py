@@ -38,8 +38,11 @@ def read_all_meals():
     cur = conn.cursor()
     cur.execute("SELECT meal, ingredients FROM meals")
     all_meals = cur.fetchall()
+    meals = {}
+    for meal in all_meals:
+        meals[meal[0]] = meal[1]
     conn.close()
-    return all_meals
+    return meals
 
 
 def search_meals(keyword):

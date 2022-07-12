@@ -20,12 +20,10 @@ create_plan_table = """
 """
 
 conn = s.connect("meals_database.db")
-c = database_conn.cursor()
+c = conn.cursor()
 
 if conn:
-    c.execute(create_categories_table)
     c.execute(create_meals_table)
-    c.execute(create_ingredients_table)
     c.execute(create_plan_table)
     conn.commit()
 else:
