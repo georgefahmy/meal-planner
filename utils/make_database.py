@@ -14,8 +14,9 @@ create_plan_table = """
     CREATE TABLE IF NOT EXISTS plans
     (
         id integer PRIMARY KEY,
-        week_date text NOT NULL,
-        meals list NOT NULL
+        week_date text NOT NULL UNIQUE,
+        meals text NOT NULL,
+        ingredients text
     );
 """
 
