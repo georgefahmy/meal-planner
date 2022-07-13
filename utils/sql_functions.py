@@ -19,8 +19,8 @@ def create_connection(db_file=db_file):
     return conn
 
 
-def add_meal(meal, ingredients=None, recipe_link=None):
-    conn = create_connection()
+def add_meal(db_file, meal, ingredients=None, recipe_link=None):
+    conn = create_connection(db_file)
     """
     Create a new category in the Categories table
     :param conn:
@@ -36,8 +36,8 @@ def add_meal(meal, ingredients=None, recipe_link=None):
     return
 
 
-def read_all_meals():
-    conn = create_connection()
+def read_all_meals(db_file):
+    conn = create_connection(db_file)
     cur = conn.cursor()
     cur.execute("SELECT meal, ingredients FROM meals")
     all_meals = cur.fetchall()
@@ -48,8 +48,8 @@ def read_all_meals():
     return meals
 
 
-def add_plan(date, meal_plan, ingredients):
-    conn = create_connection()
+def add_plan(ddb_file, ate, meal_plan, ingredients):
+    conn = create_connection(db_file)
     """
     Create a new category in the Categories table
     :param conn:
@@ -65,8 +65,8 @@ def add_plan(date, meal_plan, ingredients):
     return
 
 
-def read_all_plans():
-    conn = create_connection()
+def read_all_plans(db_file):
+    conn = create_connection(db_file)
     cur = conn.cursor()
     cur.execute("SELECT week_date, meals, ingredients FROM plans")
     all_plans = cur.fetchall()

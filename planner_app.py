@@ -11,6 +11,10 @@ from utils.sql_functions import (
     read_all_plans,
     create_connection,
 )
+from utils.make_database import make_database
+
+settings = json.load(open("settings.json", "r"))
+db_file = settings["database_file"]
 
 table_data = [
     ["Monday", ""],
@@ -36,7 +40,7 @@ left_column = [
     ],
     [
         sg.Listbox(
-            values=sorted([meal.title() for meal in read_all_meals().keys()]),
+            values=sorted([meal.title() for meal in read_all_meals(db_file).keys()]),
             size=(20, 10),
             font=("Arial"),
             key="-MEAL_LIST-",
@@ -258,7 +262,26 @@ main_right_column = [
 # ----- Full layout -----
 full_layout = [
     [
-        [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True,)],
+        [
+            sg.Button("New Database", font=("Arial", 12), key="-NEWDB-"),
+            sg.In(size=(20, 1), visible=False, enable_events=True, key="-LOADDB-"),
+            sg.FileBrowse(
+                button_text="Load Database",
+                initial_folder="databases/",
+                file_types=(("ALL Files", "*.* *"),),
+                font=("Arial", 12),
+                key="-BROWSE-",
+                enable_events=True,
+            ),
+            sg.Text(
+                f"db: {db_file}",
+                font=("Arial", 10),
+                justification="r",
+                expand_x=True,
+                key="-DBFILENAME-",
+            ),
+        ],
+        [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True,),],
         [sg.HorizontalSeparator()],
         sg.Column([main_left_column], size=(400, 600), element_justification="c", expand_x=True),
         sg.VSeperator(),
@@ -279,11 +302,10 @@ def matchingKeys(dictionary, searchString):
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
 window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1200, 650), finalize=True)
-settings = json.load(open("settings.json", "r"))
-db_file = settings["database_file"]
+
 
 # Get meal and ingredient information from the database
-meals = {meal: ingredients.split(", ") for meal, ingredients in read_all_meals().items()}
+meals = {meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()}
 
 today = datetime.date.today()
 start = today - datetime.timedelta(days=today.weekday())
@@ -296,8 +318,6 @@ while True:
     event, values = window.read()
 
     if event == sg.WIN_CLOSED:
-        # if the close button is pressed, stop the loop
-        full_layout = []
         break
 
     if event:
@@ -310,8 +330,54 @@ while True:
         filtered_meals = sorted([meal.title() for meal in matchingKeys(meals, values["-FILTER-"])])
         window["-MEAL_LIST-"].update(filtered_meals)
 
+    if event == "-LOADDB-":
+        loaded_db_file = values["-LOADDB-"]
+        settings["database_file"] = loaded_db_file
+        with open("settings.json", "w") as fp:
+            json.dump(settings, fp, sort_keys=True, indent=4)
+
+        db_file = settings["database_file"]
+        window["-DBFILENAME-"].update(f"db: {db_file}")
+        meals = {
+            meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()
+        }
+        window["-MEAL_LIST-"].update(
+            sorted([meal.title() for meal in read_all_meals(db_file).keys()])
+        )
+
+    if event == "-NEWDB-":
+        _, new_db_file = sg.Window(
+            "New Database",
+            [
+                [sg.Text("Create a New Database", font=("Arial", 14), justification="c")],
+                [sg.Input(key="-NEWDBFILE-", enable_events=False)],
+                [sg.Button("Okay")],
+            ],
+            disable_close=False,
+            size=(225, 100),
+        ).read(close=True)
+        new_db_file = new_db_file["-NEWDBFILE-"]
+        database_folder = "databases/"
+        if not new_db_file.endswith(".db"):
+            new_db_file = new_db_file + ".db"
+        db_file_path = database_folder + new_db_file
+        make_database(db_file_path)
+        settings["database_file"] = db_file_path
+        with open("settings.json", "w") as fp:
+            json.dump(settings, fp, sort_keys=True, indent=4)
+        db_file = settings["database_file"]
+        window["-DBFILENAME-"].update(f"db: {db_file}")
+        meals = {
+            meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()
+        }
+        window["-MEAL_LIST-"].update(
+            sorted([meal.title() for meal in read_all_meals(db_file).keys()])
+        )
+
     if event == "-MEAL_LIST-":
         # Choosing an item from the list of meals will update the ingredients list for that meal
+        if not values["-MEAL_LIST-"]:
+            continue
         selected_meal = values["-MEAL_LIST-"][0].lower()
         ingredients_list = meals[selected_meal]
         window["-MEAL_INGREDIENTS_LIST-"].update(
@@ -343,9 +409,10 @@ while True:
         new_ingredients = values["-INGREDIENTS-"].lower()
         new_recipe = values["-RECIPE-"].lower()
         if new_meal:
-            add_meal(new_meal, ingredients=new_ingredients, recipe_link=new_recipe)
+            add_meal(db_file, new_meal, ingredients=new_ingredients, recipe_link=new_recipe)
             meals = {
-                meal: ingredients.split(", ") for meal, ingredients in read_all_meals().items()
+                meal: ingredients.split(", ")
+                for meal, ingredients in read_all_meals(db_file).items()
             }
             window["-MEAL_LIST-"].update(sorted([meal.title() for meal in meals.keys()]))
             window["-MEAL-"].update(value="")
@@ -452,7 +519,7 @@ while True:
         if plan_ingredients:
             plan_ingredients = ", ".join(plan_ingredients)
 
-            add_plan(week_date, plan, plan_ingredients)
+            add_plan(db_file, week_date, plan, plan_ingredients)
             okay = sg.popup_ok(
                 f"Meal Plan submitted for {week_date}",
                 font=("Arial", 16),
@@ -478,7 +545,7 @@ while True:
             window["-MEAL_INGREDIENTS_LIST-"].update([])
 
     if event == "-AVAILABLE_PLANS-":
-        plans = read_all_plans()
+        plans = read_all_plans(db_file)
         plan_text = []
         for date, meal_options in plans.items():
             days_text = []
