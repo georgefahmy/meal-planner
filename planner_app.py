@@ -15,6 +15,7 @@ from utils.make_database import make_database
 
 settings = json.load(open("settings.json", "r"))
 db_file = settings["database_file"]
+db_file_name = db_file.split("/")[-1]
 
 table_data = [
     ["Monday", ""],
@@ -64,25 +65,47 @@ middle_column = [
     sg.Column(
         [
             [
-                sg.Text("Search"),
-                sg.Input("Filter", size=(10, 1), key="-FILTER-", enable_events=True),
+                sg.Text("Search", font=("Arial", 12),),
+                sg.Input(
+                    "Filter", font=("Arial", 12), size=(10, 1), key="-FILTER-", enable_events=True
+                ),
             ],
-            [sg.Checkbox("Mon", default=False, key="-MON-", enable_events=False)],
-            [sg.Checkbox("Tue", default=False, key="-TUE-", enable_events=False)],
-            [sg.Checkbox("Wed", default=False, key="-WED-", enable_events=False)],
-            [sg.Checkbox("Thu", default=False, key="-THU-", enable_events=False)],
-            [sg.Checkbox("Fri", default=False, key="-FRI-", enable_events=False)],
+            [
+                sg.Checkbox(
+                    "Mon", font=("Arial", 12), default=False, key="-MON-", enable_events=False
+                )
+            ],
+            [
+                sg.Checkbox(
+                    "Tue", font=("Arial", 12), default=False, key="-TUE-", enable_events=False
+                )
+            ],
+            [
+                sg.Checkbox(
+                    "Wed", font=("Arial", 12), default=False, key="-WED-", enable_events=False
+                )
+            ],
+            [
+                sg.Checkbox(
+                    "Thu", font=("Arial", 12), default=False, key="-THU-", enable_events=False
+                )
+            ],
+            [
+                sg.Checkbox(
+                    "Fri", font=("Arial", 12), default=False, key="-FRI-", enable_events=False
+                )
+            ],
         ]
     )
 ]
 
 right_column = [
-    [sg.Text("Ingredients", font=("Arial", 14), size=(20, 1), justification="l", expand_x=True,)],
+    [sg.Text("Ingredients", font=("Arial", 16), size=(20, 1), justification="c", expand_x=True,)],
     [
         sg.Listbox(
             values=[],
             size=(16, 10),
-            font=("Arial"),
+            font=("Arial", 14),
             key="-MEAL_INGREDIENTS_LIST-",
             auto_size_text=True,
             enable_events=False,
@@ -109,7 +132,7 @@ input_section = [
                     "Meal", font=("Arial", 14), size=(10, 1), justification="center", expand_x=True,
                 )
             ],
-            [sg.Input(size=(20, 2), font=("Arial", 12), key="-MEAL-", enable_events=False)],
+            [sg.Input(size=(20, 2), font=("Arial", 14), key="-MEAL-", enable_events=False)],
         ],
         element_justification="c",
     ),
@@ -124,7 +147,7 @@ input_section = [
                     expand_x=True,
                 )
             ],
-            [sg.In(size=(20, 2), font=("Arial", 12), key="-INGREDIENTS-", enable_events=False)],
+            [sg.In(size=(20, 2), font=("Arial", 14), key="-INGREDIENTS-", enable_events=False)],
         ],
         element_justification="c",
     ),
@@ -139,7 +162,7 @@ input_section = [
                     expand_x=True,
                 )
             ],
-            [sg.In(size=(20, 2), font=("Arial", 12), key="-RECIPE-", enable_events=False)],
+            [sg.In(size=(20, 2), font=("Arial", 14), key="-RECIPE-", enable_events=False)],
         ],
         element_justification="c",
     ),
@@ -274,7 +297,7 @@ full_layout = [
                 enable_events=True,
             ),
             sg.Text(
-                f"db: {db_file}",
+                f"db: {db_file_name}",
                 font=("Arial", 10),
                 justification="r",
                 expand_x=True,
@@ -337,7 +360,8 @@ while True:
             json.dump(settings, fp, sort_keys=True, indent=4)
 
         db_file = settings["database_file"]
-        window["-DBFILENAME-"].update(f"db: {db_file}")
+        db_file_name = db_file.split("/")[-1]
+        window["-DBFILENAME-"].update(f"db: {db_file_name}")
         meals = {
             meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()
         }
@@ -366,7 +390,8 @@ while True:
         with open("settings.json", "w") as fp:
             json.dump(settings, fp, sort_keys=True, indent=4)
         db_file = settings["database_file"]
-        window["-DBFILENAME-"].update(f"db: {db_file}")
+        db_file_name = db_file.split("/")[-1]
+        window["-DBFILENAME-"].update(f"db: {db_file_name}")
         meals = {
             meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()
         }
