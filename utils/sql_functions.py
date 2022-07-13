@@ -48,7 +48,45 @@ def read_all_meals(db_file):
     return meals
 
 
-def add_plan(ddb_file, ate, meal_plan, ingredients):
+def read_specific_meals(db_file, meal_name):
+    conn = create_connection(db_file)
+    cur = conn.cursor()
+    cur.execute(f"SELECT meal, ingredients FROM meals WHERE meal LIKE '{meal_name}'")
+    raw_meal = cur.fetchall()[0]
+    meal = {}
+    meal[raw_meal[0]] = raw_meal[1].split(", ")
+    conn.close()
+    return meal
+
+
+def update_meal_name(db_file, new_meal_name, selected_meal):
+    conn = create_connection(db_file)
+    cur = conn.cursor()
+    cur.execute(f"UPDATE meals SET meal = '{new_meal_name}' WHERE meal LIKE '{selected_meal}'")
+    conn.commit()
+    conn.close()
+    return
+
+
+def update_meal_ingredients(db_file, meal_name, ingredients):
+    conn = create_connection(db_file)
+    cur = conn.cursor()
+    cur.execute(f"UPDATE meals SET ingredients = '{ingredients}' WHERE meal LIKE '{meal_name}'")
+    conn.commit()
+    conn.close()
+    return
+
+
+def remove_meal(db_file, meal_name):
+    conn = create_connection(db_file)
+    cur = conn.cursor()
+    cur.execute(f"DELETE FROM meals WHERE meal LIKE '{meal_name}'")
+    conn.commit()
+    conn.close()
+    return
+
+
+def add_plan(db_file, date, meal_plan, ingredients):
     conn = create_connection(db_file)
     """
     Create a new category in the Categories table

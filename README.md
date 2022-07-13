@@ -28,5 +28,10 @@ The planning table shows the meals chosen for each day of the week.
 This ingredients list is a unique list of all the items you may need for all the meals. It does not double count, so if you need the same item for multiple meals, you'll have to account for that in the quantities purchased.
 * TODO: improve this list to include quantities based on meal recipes or ingredients
 
-###Menu Updates
+### Menu Updates
 * TODO: add a menu where you can have options to edit meals, edit ingredients, edit database name, etc.
+
+#### Building The Application
+
+* Make the setup file `py2applet --make-setup planner_app.py`
+* Finally make the application: run `python setup.py py2app`.

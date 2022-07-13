@@ -1,12 +1,14 @@
 import PySimpleGUI as sg
-import os
 import datetime
-import textwrap
 import json
 
 from utils.sql_functions import (
     add_meal,
     read_all_meals,
+    read_specific_meals,
+    update_meal_name,
+    update_meal_ingredients,
+    remove_meal,
     add_plan,
     read_all_plans,
     create_connection,
@@ -27,8 +29,27 @@ table_data = [
 
 # --------------------------------- Define Layout ---------------------------------
 
-# ---------------------------MAIN LEFT COLUMN---------------------------
+# --------------------------------MAIN LEFT COLUMN---------------------------------
 # Top left quadrant - three columns, list of meals, selection checkboxes, submit or cancel
+
+meal_selection_rightclick_menu_def = [
+    [],
+    [
+        "&Edit Meal",
+        [
+            "Change Meal Name",
+            "Edit Ingredients",
+            ["Add Ingredient", "Edit Ingredients"],
+            "Delete Meal",
+        ],
+    ],
+]
+ingredient_rightclick_menu_def = [
+    [],
+    ["&Edit Ingredient", ["Rename Ingredient", "Remove Ingredient"],],
+]
+
+
 left_column = [
     [
         sg.Text(
@@ -45,8 +66,10 @@ left_column = [
             size=(20, 10),
             font=("Arial"),
             key="-MEAL_LIST-",
+            tooltip="Right click for more options",
             enable_events=True,
             auto_size_text=True,
+            right_click_menu=meal_selection_rightclick_menu_def,
         )
     ],
     [
@@ -109,7 +132,8 @@ right_column = [
             key="-MEAL_INGREDIENTS_LIST-",
             auto_size_text=True,
             enable_events=False,
-            select_mode=sg.LISTBOX_SELECT_MODE_EXTENDED,
+            select_mode=sg.LISTBOX_SELECT_MODE_SINGLE,
+            right_click_menu=ingredient_rightclick_menu_def,
         )
     ],
 ]
@@ -285,13 +309,14 @@ main_right_column = [
 # ----- Full layout -----
 full_layout = [
     [
+        [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True,)],
         [
             sg.Button("New Database", font=("Arial", 12), key="-NEWDB-"),
             sg.In(size=(20, 1), visible=False, enable_events=True, key="-LOADDB-"),
             sg.FileBrowse(
                 button_text="Load Database",
                 initial_folder="databases/",
-                file_types=(("ALL Files", "*.* *"),),
+                file_types=(("*.db"),),
                 font=("Arial", 12),
                 key="-BROWSE-",
                 enable_events=True,
@@ -304,7 +329,6 @@ full_layout = [
                 key="-DBFILENAME-",
             ),
         ],
-        [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True,),],
         [sg.HorizontalSeparator()],
         sg.Column([main_left_column], size=(400, 600), element_justification="c", expand_x=True),
         sg.VSeperator(),
@@ -346,6 +370,133 @@ while True:
     if event:
         # DEBUG to print out the events and values
         print(event, values)
+
+    if event == "Change Meal Name":
+        selected_meal = values["-MEAL_LIST-"][0].lower()
+        _, new_meal_name = sg.Window(
+            "Change Meal Name",
+            [
+                [sg.Text("Change Name of Meal", font=("Arial", 14), justification="c")],
+                [sg.Input(key="-NEWMEALNAME-", enable_events=False)],
+                [sg.Button("Okay")],
+            ],
+            disable_close=False,
+            size=(225, 100),
+        ).read(close=True)
+        new_meal_name = new_meal_name["-NEWMEALNAME-"].lower()
+        update_meal_name(db_file, new_meal_name, selected_meal)
+        meals = {
+            meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()
+        }
+        window["-MEAL_LIST-"].update(
+            sorted([meal.title() for meal in read_all_meals(db_file).keys()])
+        )
+
+    if event == "Add Ingredient":
+        selected_meal = values["-MEAL_LIST-"][0].lower()
+        ingredients = read_specific_meals(db_file, selected_meal)[selected_meal]
+        _, new_ingredients = sg.Window(
+            "Add Ingredients",
+            [
+                [
+                    sg.Text(
+                        "Add Ingredient(s) - Separate w/ comma",
+                        font=("Arial", 14),
+                        justification="c",
+                    )
+                ],
+                [sg.Input(key="-NEWINGREDIENTS-", enable_events=False)],
+                [sg.Button("Okay")],
+            ],
+            disable_close=False,
+            size=(325, 100),
+        ).read(close=True)
+        new_ingredients = new_ingredients["-NEWINGREDIENTS-"].lower().split(", ")
+        ingredients.extend(
+            [ingredient for ingredient in new_ingredients if ingredient not in ingredients]
+        )
+        updated_ingredients = ", ".join(ingredients)
+        update_meal_ingredients(db_file, selected_meal, updated_ingredients)
+        meals = {
+            meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()
+        }
+        ingredients_list = meals[selected_meal]
+        window["-MEAL_INGREDIENTS_LIST-"].update(
+            [ingredient.title() for ingredient in ingredients_list]
+        )
+
+    if event == "Edit Ingredients":
+        selected_meal = values["-MEAL_LIST-"][0].lower()
+        ingredients = read_specific_meals(db_file, selected_meal)[selected_meal]
+        _, edited_ingredients = sg.Window(
+            "Edit Ingredients",
+            [
+                [sg.Text("Edit Ingredient(s)", font=("Arial", 14), justification="c",)],
+                [
+                    sg.Multiline(
+                        default_text=", ".join(sorted(ingredients)).title(),
+                        key="-EDITINGREDIENTS-",
+                        enable_events=False,
+                        autoscroll=True,
+                        rstrip=True,
+                        size=(200, 5),
+                    )
+                ],
+                [sg.Button("Okay")],
+            ],
+            disable_close=False,
+            size=(400, 150),
+        ).read(close=True)
+        edited_ingredients = edited_ingredients["-EDITINGREDIENTS-"].lower().split(", ")
+        edited_ingredients = ", ".join(sorted(list(set(edited_ingredients))))
+        update_meal_ingredients(db_file, selected_meal, edited_ingredients)
+        meals = {
+            meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()
+        }
+        ingredients_list = meals[selected_meal]
+        window["-MEAL_INGREDIENTS_LIST-"].update(
+            [ingredient.title() for ingredient in ingredients_list]
+        )
+
+    if event == "Delete Meal":
+        selected_meal = values["-MEAL_LIST-"][0].lower()
+        confirm_delete = sg.popup_yes_no(f"Confirm delete: {selected_meal}")
+        if confirm_delete == "Yes":
+            remove_meal(db_file, selected_meal)
+            meals = {
+                meal: ingredients.split(", ")
+                for meal, ingredients in read_all_meals(db_file).items()
+            }
+            window["-MEAL_LIST-"].update(
+                sorted([meal.title() for meal in read_all_meals(db_file).keys()])
+            )
+            window["-MEAL_INGREDIENTS_LIST-"].update([])
+            sg.Window(
+                "DELETED",
+                [
+                    [sg.Text(f"{selected_meal} deleted", font=("Arial", 14), justification="c")],
+                    [sg.Button("Okay")],
+                ],
+                disable_close=False,
+                size=(200, 100),
+            ).read(close=True)
+        else:
+            sg.Window(
+                "Canceled",
+                [
+                    [
+                        sg.Text(
+                            f"Canceled\n{selected_meal} was not deleted",
+                            font=("Arial", 14),
+                            justification="c",
+                            expand_x=True,
+                        )
+                    ],
+                    [sg.Button("Okay")],
+                ],
+                disable_close=False,
+                size=(200, 100),
+            ).read(close=True)
 
     if event == "-FILTER-":
         # Typing in the search box will filter the main meal list based on the name of the meal
@@ -406,7 +557,7 @@ while True:
         selected_meal = values["-MEAL_LIST-"][0].lower()
         ingredients_list = meals[selected_meal]
         window["-MEAL_INGREDIENTS_LIST-"].update(
-            [ingredient.title() for ingredient in ingredients_list]
+            sorted([ingredient.title() for ingredient in ingredients_list])
         )
 
     if event == "-CANCEL-":
@@ -582,9 +733,9 @@ while True:
             plan_text.append(f"{date}\n\n{days_text}")
         plan_text = "\n\n".join(plan_text)
         sg.Window(
-            "Previous Meal Plans",
+            "Available Meal Plans",
             [
-                [sg.Text("Previous Meal Plans", font=("Arial", 16), justification="c")],
+                [sg.Text("Available Meal Plans", font=("Arial", 16), justification="c")],
                 [sg.Text(f"{plan_text}\n", font=("Arial", 12))],
                 [sg.Button("Okay")],
             ],
