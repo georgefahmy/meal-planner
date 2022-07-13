@@ -1,7 +1,11 @@
 import sqlite3 as s
+import json
+
+settings = json.load(open("settings.json", "r"))
+db_file = settings["database_file"]
 
 
-def make_database(database_name="meals_database.db"):
+def make_database(db_file=db_file):
     create_meals_table = """
         CREATE TABLE IF NOT EXISTS meals
         (
@@ -22,7 +26,7 @@ def make_database(database_name="meals_database.db"):
         );
     """
 
-    conn = s.connect(database_name)
+    conn = s.connect(db_file)
     c = conn.cursor()
 
     if conn:
