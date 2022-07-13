@@ -1,7 +1,9 @@
+from random import choice
 import PySimpleGUI as sg
 import datetime
 import json
 import textwrap
+import base64
 
 from utils.sql_functions import (
     add_meal,
@@ -19,6 +21,7 @@ from utils.make_database import make_database
 
 settings = json.load(open("settings.json", "r"))
 db_file = settings["database_file"]
+make_database(db_file)
 db_file_name = db_file.split("/")[-1]
 
 today = datetime.date.today()
@@ -321,25 +324,6 @@ main_right_column = [
 full_layout = [
     [
         [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True,)],
-        [
-            sg.Button("New Database", font=("Arial", 12), key="-NEWDB-"),
-            sg.In(size=(20, 1), visible=False, enable_events=True, key="-LOADDB-"),
-            sg.FileBrowse(
-                button_text="Load Database",
-                initial_folder="databases/",
-                file_types=(("*.db"),),
-                font=("Arial", 12),
-                key="-BROWSE-",
-                enable_events=True,
-            ),
-            sg.Text(
-                f"db: {db_file_name}",
-                font=("Arial", 10),
-                justification="r",
-                expand_x=True,
-                key="-DBFILENAME-",
-            ),
-        ],
         [sg.HorizontalSeparator()],
         sg.Column([main_left_column], size=(400, 600), element_justification="c", expand_x=True),
         sg.VSeperator(),
@@ -359,6 +343,12 @@ def matchingKeys(dictionary, searchString):
 
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
+icon_file = "/Users/GFahmy/Documents/projects/meal-planner/resources/burger-10956.png"
+sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
+themes = sg.theme_list()
+chosen_theme = choice(themes)
+sg.theme(chosen_theme)
+print(chosen_theme)
 window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1200, 650), finalize=True)
 
 
@@ -519,63 +509,6 @@ while True:
         filtered_meals = sorted([meal.title() for meal in matchingKeys(meals, values["-FILTER-"])])
         window["-MEAL_LIST-"].update(filtered_meals)
 
-    if event == "-LOADDB-":
-        loaded_db_file = values["-LOADDB-"]
-        settings["database_file"] = loaded_db_file
-        with open("settings.json", "w") as fp:
-            json.dump(settings, fp, sort_keys=True, indent=4)
-
-        db_file = settings["database_file"]
-        db_file_name = db_file.split("/")[-1]
-        window["-DBFILENAME-"].update(f"db: {db_file_name}")
-        meals = {
-            meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()
-        }
-        window["-MEAL_LIST-"].update(
-            sorted([meal.title() for meal in read_all_meals(db_file).keys()])
-        )
-        current_plan = read_current_plans(db_file, str(start))
-        if not current_plan:
-            current_plan_table = table_data
-        else:
-            current_plan = current_plan[str(start)]
-            current_plan_table = [] if current_plan[str(start)] else table_data
-            for day in current_plan:
-                meal = current_plan[day]
-                current_plan_table.append([day, meal])
-            table_data = current_plan_table
-        window["-TABLE-"].update(table_data)
-
-    if event == "-NEWDB-":
-        _, new_db_file = sg.Window(
-            "New Database",
-            [
-                [sg.Text("Create a New Database", font=("Arial", 14), justification="c")],
-                [sg.Input(key="-NEWDBFILE-", enable_events=False)],
-                [sg.Button("Okay")],
-            ],
-            disable_close=False,
-            size=(225, 100),
-        ).read(close=True)
-        new_db_file = new_db_file["-NEWDBFILE-"]
-        database_folder = "databases/"
-        if not new_db_file.endswith(".db"):
-            new_db_file = new_db_file + ".db"
-        db_file_path = database_folder + new_db_file
-        make_database(db_file_path)
-        settings["database_file"] = db_file_path
-        with open("settings.json", "w") as fp:
-            json.dump(settings, fp, sort_keys=True, indent=4)
-        db_file = settings["database_file"]
-        db_file_name = db_file.split("/")[-1]
-        window["-DBFILENAME-"].update(f"db: {db_file_name}")
-        meals = {
-            meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()
-        }
-        window["-MEAL_LIST-"].update(
-            sorted([meal.title() for meal in read_all_meals(db_file).keys()])
-        )
-
     if event == "-MEAL_LIST-":
         # Choosing an item from the list of meals will update the ingredients list for that meal
         if not values["-MEAL_LIST-"]:
@@ -696,7 +629,7 @@ while True:
         # Update the table information with the plan meals and get the ingredients for those meals
         # then create a unique list that is sorted and put it into the ingredients listbox
         plan_meals = list(
-            set(", ".join([day[1].lower() for day in table_data if day[1]]).split(", "))
+            set(", ".join([day[1].lower() for day in table_data[:-1] if day[1]]).split(", "))
         )
         plan_ingredients = sorted(
             list(

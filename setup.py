@@ -11,11 +11,13 @@ APP = ["planner_app.py"]
 DATA_FILES = [
     "databases/",
     "settings.json",
+    "resources/",
 ]
-OPTIONS = {}
+OPTIONS = {"iconfile": "/Users/GFahmy/Documents/projects/meal-planner/resources/burger.icns"}
 
 setup(
     app=APP,
+    name="Meal Planner PRO",
     data_files=DATA_FILES,
     options={"py2app": OPTIONS},
     setup_requires=["py2app", "PySimpleGUI"],

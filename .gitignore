@@ -129,6 +129,6 @@ dmypy.json
 .pyre/
 
 # Custom
-databases/
+database.db
 .DS_Store
 settings.json
