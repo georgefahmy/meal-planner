@@ -27,7 +27,7 @@ left_column = [
     [
         sg.Text(
             "Meal Selection",
-            font=("Ariel", 18),
+            font=("Arial", 18),
             size=(20, 1),
             justification="center",
             expand_x=True,
@@ -37,7 +37,7 @@ left_column = [
         sg.Listbox(
             values=sorted([meal.title() for meal in read_all_meals().keys()]),
             size=(20, 10),
-            font=("Ariel"),
+            font=("Arial"),
             key="-MEAL_LIST-",
             enable_events=True,
             auto_size_text=True,
@@ -72,20 +72,12 @@ middle_column = [
 ]
 
 right_column = [
-    [
-        sg.Text(
-            "Ingredients",
-            font=("Ariel", 14),
-            size=(20, 1),
-            justification="l",
-            expand_x=True,
-        )
-    ],
+    [sg.Text("Ingredients", font=("Arial", 14), size=(20, 1), justification="l", expand_x=True,)],
     [
         sg.Listbox(
             values=[],
             size=(16, 10),
-            font=("Ariel"),
+            font=("Arial"),
             key="-MEAL_INGREDIENTS_LIST-",
             auto_size_text=True,
             enable_events=False,
@@ -102,21 +94,17 @@ item_selection_section = [
 
 # Bottom left quadrant - New meal submission - meal, ingredients, links, submit, clear
 input_text = [
-    sg.Text("New Meal", font=("Ariel", 18), size=(50, 1), justification="c"),
+    sg.Text("New Meal", font=("Arial", 18), size=(50, 1), justification="c"),
 ]
 input_section = [
     sg.Column(
         [
             [
                 sg.Text(
-                    "Meal",
-                    font=("Ariel", 14),
-                    size=(10, 1),
-                    justification="center",
-                    expand_x=True,
+                    "Meal", font=("Arial", 14), size=(10, 1), justification="center", expand_x=True,
                 )
             ],
-            [sg.Input(size=(20, 2), font=("Ariel", 12), key="-MEAL-", enable_events=False)],
+            [sg.Input(size=(20, 2), font=("Arial", 12), key="-MEAL-", enable_events=False)],
         ],
         element_justification="c",
     ),
@@ -125,13 +113,13 @@ input_section = [
             [
                 sg.Text(
                     "Ingredients",
-                    font=("Ariel", 14),
+                    font=("Arial", 14),
                     size=(10, 1),
                     justification="center",
                     expand_x=True,
                 )
             ],
-            [sg.In(size=(20, 2), font=("Ariel", 12), key="-INGREDIENTS-", enable_events=False)],
+            [sg.In(size=(20, 2), font=("Arial", 12), key="-INGREDIENTS-", enable_events=False)],
         ],
         element_justification="c",
     ),
@@ -140,13 +128,13 @@ input_section = [
             [
                 sg.Text(
                     "Recipe Link",
-                    font=("Ariel", 14),
+                    font=("Arial", 14),
                     size=(10, 1),
                     justification="center",
                     expand_x=True,
                 )
             ],
-            [sg.In(size=(20, 2), font=("Ariel", 12), key="-RECIPE-", enable_events=False)],
+            [sg.In(size=(20, 2), font=("Arial", 12), key="-RECIPE-", enable_events=False)],
         ],
         element_justification="c",
     ),
@@ -186,15 +174,12 @@ meal_plan_section = [
                 sg.Text(
                     "Week's Plan",
                     size=(36, 1),
-                    font=("Ariel", 18),
+                    font=("Arial", 18),
                     justification="c",
                     key="-WEEK-",
                     expand_x=True,
                 ),
-                sg.Button(
-                    "Available Plans",
-                    key="-AVAILABLE_PLANS-",
-                ),
+                sg.Button("Available Plans", key="-AVAILABLE_PLANS-",),
             ],
             [
                 sg.Table(
@@ -203,7 +188,7 @@ meal_plan_section = [
                     justification="l",
                     num_rows=5,
                     headings=["Day", "Meal"],
-                    font=("Ariel", 13),
+                    font=("Arial", 13),
                     text_color="black",
                     alternating_row_color="lightgray",
                     key="-TABLE-",
@@ -241,7 +226,7 @@ ingredients_list_section = [
                 sg.Text(
                     "Plan Ingredients List",
                     size=(40, 1),
-                    font=("Ariel", 16),
+                    font=("Arial", 16),
                     justification="c",
                     expand_x=True,
                 )
@@ -249,7 +234,7 @@ ingredients_list_section = [
             [
                 sg.Listbox(
                     values=[],
-                    font=("Ariel", 12),
+                    font=("Arial", 12),
                     size=(40, 20),
                     key="-PLAN_INGREDIENTS_LIST-",
                     enable_events=False,
@@ -272,14 +257,7 @@ main_right_column = [
 # ----- Full layout -----
 full_layout = [
     [
-        [
-            sg.Text(
-                "Meal Planner PRO",
-                font=("Ariel", 20),
-                justification="center",
-                expand_x=True,
-            )
-        ],
+        [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True,)],
         [sg.HorizontalSeparator()],
         sg.Column([main_left_column], size=(400, 600), element_justification="c", expand_x=True),
         sg.VSeperator(),
@@ -371,6 +349,16 @@ while True:
             window["-MEAL-"].update(value="")
             window["-INGREDIENTS-"].update(value="")
             window["-RECIPE-"].update(value="")
+        else:
+            sg.Window(
+                "ERROR",
+                [
+                    [sg.Text("No Meal Added", font=("Arial", 16), justification="c")],
+                    [sg.Button("Okay")],
+                ],
+                disable_close=False,
+                size=(150, 80),
+            ).read(close=True)
 
     if event == "-PLAN-CLEAR-":
         # Empty out the table and return it to the default values
@@ -386,7 +374,15 @@ while True:
         # If no meal is selected when the 'add to plan' button is pressed
         # show popup warning and do nothing
         if not selected_meal:
-            sg.popup_ok("No Meal Selected", font=("Ariel", 14), line_width=18, no_titlebar=True)
+            sg.Window(
+                "ERROR",
+                [
+                    [sg.Text("No Meal Selected", font=("Arial", 16), justification="c")],
+                    [sg.Button("Okay")],
+                ],
+                disable_close=False,
+                size=(150, 80),
+            ).read(close=True)
             continue
         days_of_week = {
             "Monday": values["-MON-"],
@@ -401,7 +397,15 @@ while True:
         # If no day is selected when the 'add to plan' button is pressed
         # show popup warning and do nothing
         if not selected_days:
-            sg.popup_ok("No Day Selected", font=("Ariel", 14), line_width=18, no_titlebar=True)
+            sg.Window(
+                "ERROR",
+                [
+                    [sg.Text("No Day Selected", font=("Arial", 16), justification="c")],
+                    [sg.Button("Okay")],
+                ],
+                disable_close=False,
+                size=(150, 80),
+            ).read(close=True)
             continue
 
         # For each data selected when the 'add to plan' button is pressed, update the appropriate
@@ -442,20 +446,28 @@ while True:
         window["-FRI-"].update(value=False)
 
     if event == "-PLAN-SUBMIT-":
-        if not plan_ingredients:
-            sg.popup_ok("No Plan Submitted", font=("Ariel", 14), line_width=18, no_titlebar=True)
-            continue
         plan = ", ".join([": ".join(day) for day in table_data])
-        plan_ingredients = ", ".join(
-            [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
-        )
-        add_plan(week_date, plan, plan_ingredients)
-        okay = sg.popup_ok(
-            f"Meal Plan submitted for {week_date}",
-            font=("Ariel", 16),
-            auto_close=True,
-            auto_close_duration=20,
-        )
+        if plan_ingredients:
+            plan_ingredients = ", ".join(plan_ingredients)
+
+            add_plan(week_date, plan, plan_ingredients)
+            okay = sg.popup_ok(
+                f"Meal Plan submitted for {week_date}",
+                font=("Arial", 16),
+                auto_close=True,
+                auto_close_duration=10,
+            )
+        else:
+            sg.Window(
+                "ERROR",
+                [
+                    [sg.Text("Plan is Empty", font=("Arial", 16), justification="c")],
+                    [sg.Button("Okay")],
+                ],
+                disable_close=False,
+                size=(150, 80),
+            ).read(close=True)
+            continue
         if okay:
             for row in table_data:
                 row[1] = ""
@@ -478,8 +490,8 @@ while True:
         sg.Window(
             "Previous Meal Plans",
             [
-                [sg.Text("Previous Meal Plans", font=("Ariel", 16), justification="c")],
-                [sg.Text(f"{plan_text}\n", font=("Ariel", 12))],
+                [sg.Text("Previous Meal Plans", font=("Arial", 16), justification="c")],
+                [sg.Text(f"{plan_text}\n", font=("Arial", 12))],
                 [sg.Button("Okay")],
             ],
             disable_close=False,

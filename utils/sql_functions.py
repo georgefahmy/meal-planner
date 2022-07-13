@@ -53,7 +53,7 @@ def add_plan(date, meal_plan, ingredients):
     :return id:
     """
     values = (date, meal_plan, ingredients)
-    sql = f""" INSERT OR IGNORE INTO plans (week_date, meals, ingredients) VALUES(?,?,?)"""
+    sql = f"""INSERT OR IGNORE INTO plans (week_date, meals, ingredients) VALUES(?,?,?)"""
     cur = conn.cursor()
     cur.execute(sql, values)
     conn.commit()
