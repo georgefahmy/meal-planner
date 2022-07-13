@@ -6,7 +6,7 @@ This program helps you (and your SO) plan meals weekly. Cooking food, buying foo
 The meat of the program is a sql database with multiple tables keeping track of all different kinds of foods that you like. There are multiple interfaces for inserting food choices in different categories - Meats (beef, poultry, etc.), Veggies (salad, asparagus, brussle sprouts, etc.), Starches (rice, potatoes, quinoa, etc.), or anything other category with items. The goal is to be flexible in how you want to plan your meals
 
 ### Multiple Databases supported!
-You can have multiple databases, maybe have one for dinners, desserts, or breakfasts. 
+You can have multiple databases, maybe have one for dinners, desserts, or breakfasts.
 
 
 ## Usage
@@ -27,3 +27,6 @@ The planning table shows the meals chosen for each day of the week.
 
 This ingredients list is a unique list of all the items you may need for all the meals. It does not double count, so if you need the same item for multiple meals, you'll have to account for that in the quantities purchased.
 * TODO: improve this list to include quantities based on meal recipes or ingredients
+
+###Menu Updates
+* TODO: add a menu where you can have options to edit meals, edit ingredients, edit database name, etc.
