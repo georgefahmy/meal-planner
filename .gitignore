@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 # Custom
-meals_database.db
+databases/
 .DS_Store
