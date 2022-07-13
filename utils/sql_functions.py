@@ -1,7 +1,11 @@
 import sqlite3
+import json
+
+settings = json.load(open("settings.json", "r"))
+db_file = settings["database_file"]
 
 
-def create_connection(db_file="meals_database.db"):
+def create_connection(db_file=db_file):
     """create a database connection to the SQLite database
         specified by db_file
     :param db_file: database file

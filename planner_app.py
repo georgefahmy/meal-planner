@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 import os
 import datetime
 import textwrap
+import json
 
 from utils.sql_functions import (
     add_meal,
@@ -278,7 +279,8 @@ def matchingKeys(dictionary, searchString):
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
 window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1200, 650), finalize=True)
-
+settings = json.load(open("settings.json", "r"))
+db_file = settings["database_file"]
 
 # Get meal and ingredient information from the database
 meals = {meal: ingredients.split(", ") for meal, ingredients in read_all_meals().items()}
