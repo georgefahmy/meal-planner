@@ -10,6 +10,7 @@ from utils.sql_functions import (
     read_all_meals,
     read_specific_meals,
     update_meal_name,
+    update_meal_category,
     update_meal_ingredients,
     remove_meal,
     add_plan,
@@ -108,8 +109,8 @@ middle_column = [
                         [
                             sg.Text("Meal Category", font=("Arial", 12),),
                             sg.Combo(
-                                default_value="Dinner",
-                                values=["Dinner", "Lunch", "Breakfast", "Dessert"],
+                                default_value="All",
+                                values=["All", "Dinner", "Lunch", "Breakfast", "Dessert"],
                                 font=("Arial", 12),
                                 size=(10, 1),
                                 key="-CFILTER-",
@@ -258,7 +259,7 @@ input_section = [
                     "Meal", font=("Arial", 14), size=(10, 1), justification="center", expand_x=True,
                 )
             ],
-            [sg.Input(size=(20, 2), font=("Arial", 14), key="-MEAL-", enable_events=False)],
+            [sg.Input(size=(15, 2), font=("Arial", 14), key="-MEAL-", enable_events=False)],
         ],
         element_justification="c",
     ),
@@ -273,7 +274,7 @@ input_section = [
                     expand_x=True,
                 )
             ],
-            [sg.In(size=(20, 2), font=("Arial", 14), key="-INGREDIENTS-", enable_events=False,)],
+            [sg.In(size=(15, 2), font=("Arial", 14), key="-INGREDIENTS-", enable_events=False,)],
         ],
         element_justification="c",
     ),
@@ -288,7 +289,32 @@ input_section = [
                     expand_x=True,
                 )
             ],
-            [sg.In(size=(20, 2), font=("Arial", 14), key="-RECIPE-", enable_events=False)],
+            [sg.In(size=(15, 2), font=("Arial", 14), key="-RECIPE-", enable_events=False)],
+        ],
+        element_justification="c",
+    ),
+    sg.Column(
+        [
+            [
+                sg.Text(
+                    "Meal Category",
+                    font=("Arial", 14),
+                    size=(10, 1),
+                    justification="center",
+                    expand_x=True,
+                )
+            ],
+            [
+                sg.Combo(
+                    values=["Dinner", "Lunch", "Breakfast", "Dessert"],
+                    font=("Arial", 12),
+                    size=(15, 1),
+                    key="-NEWCATEGORY-",
+                    enable_events=False,
+                    readonly=True,
+                    expand_x=True,
+                ),
+            ],
         ],
         element_justification="c",
     ),
@@ -350,7 +376,7 @@ meal_plan_section = [
                     "Week's Plan",
                     size=(36, 1),
                     font=("Arial", 18),
-                    justification="c",
+                    justification="l",
                     key="-WEEK-",
                     expand_x=True,
                 ),
@@ -396,7 +422,6 @@ plan_section_buttons = [
 ingredients_list_section = [
     sg.Column(
         [
-            [sg.HorizontalSeparator()],
             [
                 sg.Text(
                     "Plan Ingredients List",
@@ -424,7 +449,27 @@ ingredients_list_section = [
 
 main_right_column = [
     sg.Column(
-        [meal_plan_section, plan_section_buttons, ingredients_list_section],
+        [
+            [
+                sg.Frame(
+                    "Weekly Plan",
+                    layout=[meal_plan_section, plan_section_buttons],
+                    element_justification="c",
+                    size=(600, 200),
+                    pad=(0, 0),
+                )
+            ],
+            [sg.HorizontalSeparator()],
+            [
+                sg.Frame(
+                    "Shopping List",
+                    layout=[ingredients_list_section],
+                    element_justification="c",
+                    size=(600, 360),
+                    pad=(0, 0),
+                )
+            ],
+        ],
         element_justification="c",
     )
 ]
@@ -502,6 +547,34 @@ while True:
             continue
         new_meal_name = new_meal_name["-NEWMEALNAME-"].lower()
         update_meal_name(db_file, new_meal_name, selected_meal)
+        meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+        window["-MEAL_LIST-"].update(
+            sorted([meal.title() for meal in read_all_meals(db_file).keys()])
+        )
+
+    if event == "Edit Category":
+        selected_meal = values["-MEAL_LIST-"][0].lower()
+        _, new_category = sg.Window(
+            "Change Meal Category",
+            [
+                [sg.Text("Change Meal Category", font=("Arial", 14), justification="c")],
+                [
+                    sg.Combo(
+                        values=["Dinner", "Lunch", "Breakfast", "Dessert"],
+                        font=("Arial", 14),
+                        key="-NEWMEALCATEGORY-",
+                        enable_events=False,
+                    )
+                ],
+                [sg.Button("Okay")],
+            ],
+            disable_close=False,
+            size=(225, 100),
+        ).read(close=True)
+        if not new_category["-NEWMEALCATEGORY-"]:
+            continue
+        new_category = new_category["-NEWMEALCATEGORY-"].lower()
+        update_meal_category(db_file, new_category, selected_meal)
         meals = {meal: info for meal, info in read_all_meals(db_file).items()}
         window["-MEAL_LIST-"].update(
             sorted([meal.title() for meal in read_all_meals(db_file).keys()])
@@ -604,14 +677,16 @@ while True:
             ).read(close=True)
 
     if event == "-CFILTER-":
-        # Typing in the search box will filter the main meal list based on the name of the meal
-        # as well as ingredients in any meal
+        if values["-CFILTER-"] == "All":
+            values["-CFILTER-"] = ""
         filtered_meals = sorted([meal.title() for meal in matchingKeys(meals, values["-CFILTER-"])])
         window["-MEAL_LIST-"].update(filtered_meals)
         window["-MFILTER_TEXT-"].update(visible=True)
         window["-MFILTER-"].update(visible=True)
 
     if event == "-MFILTER-":
+        # Typing in the search box will filter the main meal list based on the name of the meal
+        # as well as ingredients in any meal
         filtered_meals = sorted([meal.title() for meal in matchingKeys(meals, values["-MFILTER-"])])
         window["-MEAL_LIST-"].update(filtered_meals)
 
@@ -649,8 +724,15 @@ while True:
         new_meal = values["-MEAL-"].lower()
         new_ingredients = values["-INGREDIENTS-"].lower()
         new_recipe = values["-RECIPE-"].lower()
+        new_category = values["-NEWCATEGORY-"].lower()
         if new_meal:
-            add_meal(db_file, new_meal, ingredients=new_ingredients, recipe_link=new_recipe)
+            add_meal(
+                db_file,
+                new_meal,
+                ingredients=new_ingredients,
+                recipe_link=new_recipe,
+                category=new_category,
+            )
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             window["-MEAL_LIST-"].update(sorted([meal.title() for meal in meals.keys()]))
             window["-MEAL-"].update(value="")

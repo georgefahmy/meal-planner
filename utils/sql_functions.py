@@ -72,6 +72,15 @@ def update_meal_name(db_file, new_meal_name, selected_meal):
     return
 
 
+def update_meal_category(db_file, new_category, selected_meal):
+    conn = create_connection(db_file)
+    cur = conn.cursor()
+    cur.execute(f"UPDATE meals SET category = '{new_category}' WHERE meal LIKE '{selected_meal}'")
+    conn.commit()
+    conn.close()
+    return
+
+
 def update_meal_ingredients(db_file, meal_name, ingredients):
     conn = create_connection(db_file)
     cur = conn.cursor()
