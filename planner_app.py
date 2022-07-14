@@ -321,6 +321,57 @@ input_section = [
         element_justification="c",
     ),
 ]
+advanced_section = [
+    sg.Column(
+        [
+            [
+                sg.Column(
+                    [
+                        [
+                            sg.Text(
+                                "Genre",
+                                font=("Arial", 14),
+                                size=(10, 1),
+                                justification="center",
+                                expand_x=True,
+                            )
+                        ],
+                        [
+                            sg.Input(
+                                size=(15, 2), font=("Arial", 14), key="-GENRE-", enable_events=False
+                            )
+                        ],
+                    ],
+                    element_justification="c",
+                ),
+                sg.Column(
+                    [
+                        [
+                            sg.Text(
+                                "Serving Size",
+                                font=("Arial", 14),
+                                size=(10, 1),
+                                justification="center",
+                                expand_x=True,
+                            )
+                        ],
+                        [
+                            sg.In(
+                                size=(15, 2),
+                                font=("Arial", 14),
+                                key="-SERVINGS-",
+                                enable_events=False,
+                            )
+                        ],
+                    ],
+                    element_justification="c",
+                ),
+            ],
+        ],
+        visible=False,
+        key="-ADV_SECTION-",
+    ),
+]
 
 input_section_buttons = [
     sg.Column(
@@ -328,6 +379,7 @@ input_section_buttons = [
             [
                 sg.Button("Add to Database", visible=True, key="-MEAL_SUBMIT-", enable_events=True),
                 sg.Button("Clear", visible=True, key="-MEAL-CLEAR-", enable_events=True),
+                sg.Button("More Options", visible=False, key="-MORE-OPTIONS-", enable_events=True),
             ]
         ],
         element_justification="c",
@@ -347,7 +399,7 @@ main_left_column = [
                 sg.Frame(
                     "New Meals",
                     element_justification="c",
-                    layout=[input_text, input_section, input_section_buttons],
+                    layout=[input_text, input_section_buttons, input_section, advanced_section],
                     pad=(0, 0),
                     size=(600, 200),
                 )
@@ -538,6 +590,13 @@ while True:
     if event:
         # DEBUG to print out the events and values
         print(event, values)
+
+    # Future to expand for more options - will need to update the databse for additional columns
+    if event == "-MORE-OPTIONS-":
+        if window["-ADV_SECTION-"].visible:
+            window["-ADV_SECTION-"].update(visible=False)
+        else:
+            window["-ADV_SECTION-"].update(visible=True)
 
     if event == "Change Meal Name":
         selected_meal = values["-MEAL_LIST-"][0].lower()
