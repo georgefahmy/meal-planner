@@ -36,6 +36,8 @@ blank_table_data = table_data = [
     ["Wednesday", ""],
     ["Thursday", ""],
     ["Friday", ""],
+    ["Saturday", ""],
+    ["Sunday", ""],
 ]
 
 # --------------------------------- Define Layout ---------------------------------
@@ -441,9 +443,9 @@ meal_plan_section = [
                     values=current_plan_table,
                     display_row_numbers=False,
                     justification="l",
-                    num_rows=5,
+                    num_rows=7,
                     headings=["Day", "Meal"],
-                    font=("Arial", 13),
+                    font=("Arial", 14),
                     text_color="black",
                     alternating_row_color="lightgray",
                     key="-TABLE-",
@@ -501,8 +503,8 @@ ingredients_list_section = [
             [
                 sg.Listbox(
                     values=plan_ingredients,
-                    font=("Arial", 12),
-                    size=(40, 20),
+                    font=("Arial", 14),
+                    size=(40, 18),
                     key="-PLAN_INGREDIENTS_LIST-",
                     enable_events=False,
                     pad=(0, 0),
@@ -522,7 +524,7 @@ main_right_column = [
                     "Weekly Plan",
                     layout=[meal_plan_section, plan_section_buttons],
                     element_justification="c",
-                    size=(600, 200),
+                    size=(600, 230),
                     pad=(0, 0),
                 )
             ],
@@ -532,7 +534,7 @@ main_right_column = [
                     "Shopping List",
                     layout=[ingredients_list_section],
                     element_justification="c",
-                    size=(600, 360),
+                    size=(600, 340),
                     pad=(0, 0),
                 )
             ],
@@ -544,7 +546,7 @@ main_right_column = [
 # ----- Full layout -----
 full_layout = [
     [
-        [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True,)],
+        [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True)],
         [sg.HorizontalSeparator()],
         sg.Column([main_left_column], size=(400, 600), element_justification="c", expand_x=True),
         sg.VSeperator(),
@@ -780,6 +782,8 @@ while True:
         window["-WED-"].update(value=False)
         window["-THU-"].update(value=False)
         window["-FRI-"].update(value=False)
+        window["-SAT-"].update(value=False)
+        window["-SUN-"].update(value=False)
         window["-CFILTER-"].update(value="")
         window["-MEAL_LIST-"].update(sorted([meal.title() for meal in meals.keys()]))
         window["-MEAL_INGREDIENTS_LIST-"].update([])
@@ -853,8 +857,18 @@ while True:
             "Wednesday": values["-WED-"],
             "Thursday": values["-THU-"],
             "Friday": values["-FRI-"],
+            "Saturday": values["-SAT-"],
+            "Sunday": values["-SUN-"],
         }
-        day_index = {"Monday": 0, "Tuesday": 1, "Wednesday": 2, "Thursday": 3, "Friday": 4}
+        day_index = {
+            "Monday": 0,
+            "Tuesday": 1,
+            "Wednesday": 2,
+            "Thursday": 3,
+            "Friday": 4,
+            "Saturday": 5,
+            "Sunday": 6,
+        }
         selected_days = [day for day, val in days_of_week.items() if val == True]
 
         # If no day is selected when the 'add to plan' button is pressed
@@ -911,6 +925,8 @@ while True:
         window["-WED-"].update(value=False)
         window["-THU-"].update(value=False)
         window["-FRI-"].update(value=False)
+        window["-SAT-"].update(value=False)
+        window["-SUN-"].update(value=False)
 
     if event == "-PLAN-SUBMIT-":
         plan = ", ".join([": ".join(day) for day in table_data[:-1]])
