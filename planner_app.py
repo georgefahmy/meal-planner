@@ -681,8 +681,6 @@ while True:
             values["-CFILTER-"] = ""
         filtered_meals = sorted([meal.title() for meal in matchingKeys(meals, values["-CFILTER-"])])
         window["-MEAL_LIST-"].update(filtered_meals)
-        window["-MFILTER_TEXT-"].update(visible=True)
-        window["-MFILTER-"].update(visible=True)
 
     if event == "-MFILTER-":
         # Typing in the search box will filter the main meal list based on the name of the meal
@@ -717,6 +715,7 @@ while True:
         window["-MEAL-"].update(value="")
         window["-INGREDIENTS-"].update(value="")
         window["-RECIPE-"].update(value="")
+        window["-NEWCATEGORY-"].update(value="")
 
     if event == "-MEAL_SUBMIT-":
         # Submit a new meal and the ingredients and recipe (if available) then add the meal to
