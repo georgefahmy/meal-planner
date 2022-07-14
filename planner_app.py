@@ -426,7 +426,7 @@ plan_meals = list(set(", ".join([day[1].lower() for day in table_data[:-1] if da
 plan_ingredients = sorted(
     list(
         set(
-            ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals])
+            ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals if meal])
             .title()
             .split(", ")
         )
