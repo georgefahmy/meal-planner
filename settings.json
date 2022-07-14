@@ -1,3 +1,11 @@
 {
-    "database_file": "Meal Planner PRO.app/Contents/Resources/database.db"
+    "database_file": "database.db",
+    "meal_categories": [
+        "All",
+        "Dinner",
+        "Lunch",
+        "Breakfast",
+        "Dessert",
+        "Fasting"
+    ]
 }

@@ -19,7 +19,7 @@ def create_connection(db_file=db_file):
     return conn
 
 
-def add_meal(db_file, meal, ingredients=None, recipe_link=None, category="Dinner"):
+def add_meal(db_file, meal, ingredients=None, recipe_link=None, category=None):
     conn = create_connection(db_file)
     """
     Create a new category in the Categories table

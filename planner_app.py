@@ -22,6 +22,7 @@ from utils.make_database import make_database
 
 settings = json.load(open("settings.json", "r"))
 db_file = settings["database_file"]
+meal_categories = settings["meal_categories"]
 make_database(db_file)
 db_file_name = db_file.split("/")[-1]
 
@@ -110,7 +111,7 @@ middle_column = [
                             sg.Text("Meal Category", font=("Arial", 12),),
                             sg.Combo(
                                 default_value="All",
-                                values=["All", "Dinner", "Lunch", "Breakfast", "Dessert"],
+                                values=meal_categories,
                                 font=("Arial", 12),
                                 size=(10, 1),
                                 key="-CFILTER-",
@@ -306,7 +307,8 @@ input_section = [
             ],
             [
                 sg.Combo(
-                    values=["Dinner", "Lunch", "Breakfast", "Dessert"],
+                    default_value=meal_categories[1],
+                    values=meal_categories[1:],
                     font=("Arial", 12),
                     size=(15, 1),
                     key="-NEWCATEGORY-",
@@ -560,7 +562,7 @@ while True:
                 [sg.Text("Change Meal Category", font=("Arial", 14), justification="c")],
                 [
                     sg.Combo(
-                        values=["Dinner", "Lunch", "Breakfast", "Dessert"],
+                        values=meal_categories[1:],
                         font=("Arial", 14),
                         key="-NEWMEALCATEGORY-",
                         enable_events=False,
