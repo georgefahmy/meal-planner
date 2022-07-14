@@ -738,6 +738,7 @@ while True:
             window["-MEAL-"].update(value="")
             window["-INGREDIENTS-"].update(value="")
             window["-RECIPE-"].update(value="")
+            window["-NEWCATEGORY-"].update(value="")
         else:
             sg.Window(
                 "ERROR",
