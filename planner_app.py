@@ -419,7 +419,20 @@ plan_section_buttons = [
         element_justification="c",
     )
 ]
-
+# Get meal and ingredient information from the database
+meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+plan = ", ".join([": ".join(day) for day in table_data[:-1]])
+plan_meals = list(set(", ".join([day[1].lower() for day in table_data[:-1] if day[1]]).split(", ")))
+plan_ingredients = sorted(
+    list(
+        set(
+            ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals])
+            .title()
+            .split(", ")
+        )
+    )
+)
+plan_ingredients = [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
 # Bottom Right Quadrant - Table of ingredients
 ingredients_list_section = [
     sg.Column(
@@ -435,7 +448,7 @@ ingredients_list_section = [
             ],
             [
                 sg.Listbox(
-                    values=[],
+                    values=plan_ingredients,
                     font=("Arial", 12),
                     size=(40, 20),
                     key="-PLAN_INGREDIENTS_LIST-",
@@ -841,7 +854,22 @@ while True:
         window["-FRI-"].update(value=False)
 
     if event == "-PLAN-SUBMIT-":
-        plan = ", ".join([": ".join(day) for day in table_data])
+        plan = ", ".join([": ".join(day) for day in table_data[:-1]])
+        plan_meals = list(
+            set(", ".join([day[1].lower() for day in table_data[:-1] if day[1]]).split(", "))
+        )
+        plan_ingredients = sorted(
+            list(
+                set(
+                    ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals])
+                    .title()
+                    .split(", ")
+                )
+            )
+        )
+        plan_ingredients = [
+            plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
+        ]
         if plan_ingredients:
             plan_ingredients = ", ".join(plan_ingredients)
 
