@@ -12,7 +12,8 @@ def make_database(db_file=db_file):
             id integer PRIMARY KEY,
             meal text NOT NULL,
             ingredients text,
-            recipe_link text
+            recipe_link text,
+            category text
         );
     """
 

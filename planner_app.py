@@ -47,6 +47,7 @@ meal_selection_rightclick_menu_def = [
         "&Edit Meal",
         [
             "Change Meal Name",
+            "Edit Category",
             "Edit Ingredients",
             ["Add Ingredient", "Edit Ingredients"],
             "Delete Meal",
@@ -56,95 +57,193 @@ meal_selection_rightclick_menu_def = [
 
 
 left_column = [
-    [
-        sg.Text(
-            "Meal Selection",
-            font=("Arial", 18),
-            size=(20, 1),
-            justification="center",
-            expand_x=True,
-        )
-    ],
-    [
-        sg.Listbox(
-            values=sorted([meal.title() for meal in read_all_meals(db_file).keys()]),
-            size=(20, 10),
-            font=("Arial"),
-            key="-MEAL_LIST-",
-            enable_events=True,
-            auto_size_text=True,
-            right_click_menu=meal_selection_rightclick_menu_def,
-        )
-    ],
-    [
-        sg.Column(
+    sg.Frame(
+        "Meals",
+        element_justification="c",
+        layout=[
             [
-                [
-                    sg.Button("Add to Plan", visible=True, key="-ADD_TO_PLAN-", enable_events=True),
-                    sg.Button("Cancel", visible=True, key="-CANCEL-", enable_events=True),
-                ]
-            ]
-        )
-    ],
+                sg.Text(
+                    "Meal Selection",
+                    font=("Arial", 18),
+                    size=(20, 1),
+                    justification="center",
+                    expand_x=True,
+                )
+            ],
+            [
+                sg.Listbox(
+                    values=sorted([meal.title() for meal in read_all_meals(db_file).keys()]),
+                    size=(20, 10),
+                    font=("Arial"),
+                    key="-MEAL_LIST-",
+                    enable_events=True,
+                    auto_size_text=True,
+                    right_click_menu=meal_selection_rightclick_menu_def,
+                )
+            ],
+            [
+                sg.Column(
+                    [
+                        [
+                            sg.Button(
+                                "Add to Plan", visible=True, key="-ADD_TO_PLAN-", enable_events=True
+                            ),
+                            sg.Button("Cancel", visible=True, key="-CANCEL-", enable_events=True),
+                        ]
+                    ]
+                )
+            ],
+        ],
+    )
 ]
 
 middle_column = [
     sg.Column(
         [
             [
-                sg.Text("Search", font=("Arial", 12),),
-                sg.Input(
-                    "Filter", font=("Arial", 12), size=(10, 1), key="-FILTER-", enable_events=True
+                sg.Frame(
+                    title="Filters",
+                    element_justification="c",
+                    layout=[
+                        [
+                            sg.Text("Meal Category", font=("Arial", 12),),
+                            sg.Combo(
+                                default_value="Dinner",
+                                values=["Dinner", "Lunch", "Breakfast", "Dessert"],
+                                font=("Arial", 12),
+                                size=(10, 1),
+                                key="-CFILTER-",
+                                enable_events=True,
+                                readonly=True,
+                                expand_x=True,
+                            ),
+                        ],
+                        [
+                            sg.Text("Meal Filter", key="-MFILTER_TEXT-", font=("Arial", 12),),
+                            sg.Input(
+                                font=("Arial", 12),
+                                size=(10, 1),
+                                key="-MFILTER-",
+                                enable_events=True,
+                                expand_x=True,
+                            ),
+                        ],
+                    ],
+                    size=(180, 100),
+                    pad=(0, 0),
+                )
+            ],
+            [sg.HorizontalSeparator(pad=22)],
+            [
+                sg.Frame(
+                    "Day Selection",
+                    element_justification="c",
+                    layout=[
+                        [
+                            sg.Checkbox(
+                                "Mon",
+                                font=("Arial", 12),
+                                default=False,
+                                key="-MON-",
+                                enable_events=False,
+                                size=(6, 10),
+                            ),
+                            sg.Checkbox(
+                                "Tue",
+                                font=("Arial", 12),
+                                default=False,
+                                key="-TUE-",
+                                enable_events=False,
+                                size=(6, 10),
+                            ),
+                            sg.Checkbox(
+                                "Wed",
+                                font=("Arial", 12),
+                                default=False,
+                                key="-WED-",
+                                enable_events=False,
+                                size=(6, 10),
+                            ),
+                        ],
+                        [
+                            sg.Checkbox(
+                                "Thu",
+                                font=("Arial", 12),
+                                default=False,
+                                key="-THU-",
+                                enable_events=False,
+                                size=(6, 10),
+                            ),
+                            sg.Checkbox(
+                                "Fri",
+                                font=("Arial", 12),
+                                default=False,
+                                key="-FRI-",
+                                enable_events=False,
+                                size=(6, 10),
+                            ),
+                        ],
+                        [
+                            sg.Checkbox(
+                                "Sat",
+                                font=("Arial", 12),
+                                default=False,
+                                key="-SAT-",
+                                enable_events=False,
+                                size=(6, 10),
+                            ),
+                            sg.Checkbox(
+                                "Sun",
+                                font=("Arial", 12),
+                                default=False,
+                                key="-SUN-",
+                                enable_events=False,
+                                size=(6, 10),
+                            ),
+                        ],
+                    ],
+                    size=(180, 100),
+                    pad=(0, 0),
                 ),
-            ],
-            [
-                sg.Checkbox(
-                    "Mon", font=("Arial", 12), default=False, key="-MON-", enable_events=False
-                )
-            ],
-            [
-                sg.Checkbox(
-                    "Tue", font=("Arial", 12), default=False, key="-TUE-", enable_events=False
-                )
-            ],
-            [
-                sg.Checkbox(
-                    "Wed", font=("Arial", 12), default=False, key="-WED-", enable_events=False
-                )
-            ],
-            [
-                sg.Checkbox(
-                    "Thu", font=("Arial", 12), default=False, key="-THU-", enable_events=False
-                )
-            ],
-            [
-                sg.Checkbox(
-                    "Fri", font=("Arial", 12), default=False, key="-FRI-", enable_events=False
-                )
             ],
         ]
     )
 ]
 
 right_column = [
-    [sg.Text("Ingredients", font=("Arial", 16), size=(20, 1), justification="c", expand_x=True,)],
-    [
-        sg.Listbox(
-            values=[],
-            size=(16, 10),
-            font=("Arial", 14),
-            key="-MEAL_INGREDIENTS_LIST-",
-            auto_size_text=True,
-            enable_events=False,
-            select_mode=sg.LISTBOX_SELECT_MODE_SINGLE,
-        )
-    ],
+    sg.Frame(
+        "Ingredients",
+        layout=[
+            [
+                sg.Text(
+                    "Ingredients",
+                    font=("Arial", 16),
+                    size=(20, 1),
+                    justification="c",
+                    expand_x=True,
+                )
+            ],
+            [
+                sg.Listbox(
+                    values=[],
+                    size=(16, 10),
+                    font=("Arial", 14),
+                    key="-MEAL_INGREDIENTS_LIST-",
+                    auto_size_text=True,
+                    enable_events=False,
+                    select_mode=sg.LISTBOX_SELECT_MODE_SINGLE,
+                )
+            ],
+        ],
+    )
 ]
 
 item_selection_section = [
-    sg.Column(left_column, element_justification="c", pad=((0, 0), (0, 0))),
-    sg.Column([middle_column], element_justification="l", pad=((0, 0), (0, 0))),
-    sg.Column(right_column, element_justification="c", pad=((0, 0), (0, 0))),
+    [
+        sg.Column([left_column], element_justification="c", pad=((0, 0), (0, 0))),
+        sg.Column([middle_column], element_justification="c", pad=((0, 0), (0, 0))),
+        sg.Column([right_column], element_justification="c", pad=((0, 0), (0, 0))),
+    ]
 ]
 
 # Bottom left quadrant - New meal submission - meal, ingredients, links, submit, clear
@@ -174,7 +273,7 @@ input_section = [
                     expand_x=True,
                 )
             ],
-            [sg.In(size=(20, 2), font=("Arial", 14), key="-INGREDIENTS-", enable_events=False)],
+            [sg.In(size=(20, 2), font=("Arial", 14), key="-INGREDIENTS-", enable_events=False,)],
         ],
         element_justification="c",
     ),
@@ -210,11 +309,21 @@ input_section_buttons = [
 main_left_column = [
     sg.Column(
         [
-            item_selection_section,
-            [sg.Text("_" * 300, size=(400, 1), expand_x=True)],
-            input_text,
-            input_section,
-            input_section_buttons,
+            [
+                sg.Frame(
+                    "Item Selection", layout=item_selection_section, pad=(0, 0), size=(600, 300)
+                )
+            ],
+            [sg.HorizontalSeparator()],
+            [
+                sg.Frame(
+                    "New Meals",
+                    element_justification="c",
+                    layout=[input_text, input_section, input_section_buttons],
+                    pad=(0, 0),
+                    size=(600, 200),
+                )
+            ],
         ]
     )
 ]
@@ -337,7 +446,8 @@ def matchingKeys(dictionary, searchString):
         key
         for key, val in dictionary.items()
         if searchString.lower() in key.lower()
-        or any(searchString.lower() in s.lower() for s in val)
+        or any(searchString.lower() in s.lower() for s in val["ingredients"])
+        or searchString.lower() in val["category"]
     ]
 
 
@@ -348,12 +458,12 @@ sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
 themes = sg.theme_list()
 chosen_theme = choice(themes)
 sg.theme(chosen_theme)
-print(chosen_theme)
-window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1200, 650), finalize=True)
+
+window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1280, 660), finalize=True)
 
 
 # Get meal and ingredient information from the database
-meals = {meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()}
+meals = {meal: info for meal, info in read_all_meals(db_file).items()}
 
 
 window["-WEEK-"].update(value=week_date)
@@ -362,7 +472,6 @@ plan_ingredients = None
 # Start the window loop
 while True:
     event, values = window.read()
-
     if event == sg.WIN_CLOSED:
         break
 
@@ -393,9 +502,7 @@ while True:
             continue
         new_meal_name = new_meal_name["-NEWMEALNAME-"].lower()
         update_meal_name(db_file, new_meal_name, selected_meal)
-        meals = {
-            meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()
-        }
+        meals = {meal: info for meal, info in read_all_meals(db_file).items()}
         window["-MEAL_LIST-"].update(
             sorted([meal.title() for meal in read_all_meals(db_file).keys()])
         )
@@ -427,10 +534,8 @@ while True:
         )
         updated_ingredients = ", ".join(ingredients)
         update_meal_ingredients(db_file, selected_meal, updated_ingredients)
-        meals = {
-            meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()
-        }
-        ingredients_list = meals[selected_meal]
+        meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+        ingredients_list = meals[selected_meal]["ingredients"]
         window["-MEAL_INGREDIENTS_LIST-"].update(
             [ingredient.title() for ingredient in ingredients_list]
         )
@@ -463,10 +568,8 @@ while True:
         edited_ingredients = edited_ingredients["-EDITINGREDIENTS-"].lower().split(", ")
         edited_ingredients = ", ".join(sorted(list(set(edited_ingredients))))
         update_meal_ingredients(db_file, selected_meal, edited_ingredients)
-        meals = {
-            meal: ingredients.split(", ") for meal, ingredients in read_all_meals(db_file).items()
-        }
-        ingredients_list = meals[selected_meal]
+        meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+        ingredients_list = meals[selected_meal]["ingredients"]
         window["-MEAL_INGREDIENTS_LIST-"].update(
             [ingredient.title() for ingredient in ingredients_list]
         )
@@ -476,10 +579,7 @@ while True:
         confirm_delete = sg.popup_yes_no(f"Confirm delete: {selected_meal}")
         if confirm_delete == "Yes":
             remove_meal(db_file, selected_meal)
-            meals = {
-                meal: ingredients.split(", ")
-                for meal, ingredients in read_all_meals(db_file).items()
-            }
+            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             window["-MEAL_LIST-"].update(
                 sorted([meal.title() for meal in read_all_meals(db_file).keys()])
             )
@@ -503,10 +603,16 @@ while True:
                 size=(200, 100),
             ).read(close=True)
 
-    if event == "-FILTER-":
+    if event == "-CFILTER-":
         # Typing in the search box will filter the main meal list based on the name of the meal
         # as well as ingredients in any meal
-        filtered_meals = sorted([meal.title() for meal in matchingKeys(meals, values["-FILTER-"])])
+        filtered_meals = sorted([meal.title() for meal in matchingKeys(meals, values["-CFILTER-"])])
+        window["-MEAL_LIST-"].update(filtered_meals)
+        window["-MFILTER_TEXT-"].update(visible=True)
+        window["-MFILTER-"].update(visible=True)
+
+    if event == "-MFILTER-":
+        filtered_meals = sorted([meal.title() for meal in matchingKeys(meals, values["-MFILTER-"])])
         window["-MEAL_LIST-"].update(filtered_meals)
 
     if event == "-MEAL_LIST-":
@@ -514,7 +620,7 @@ while True:
         if not values["-MEAL_LIST-"]:
             continue
         selected_meal = values["-MEAL_LIST-"][0].lower()
-        ingredients_list = meals[selected_meal]
+        ingredients_list = meals[selected_meal]["ingredients"]
         window["-MEAL_INGREDIENTS_LIST-"].update(
             sorted([ingredient.title() for ingredient in ingredients_list])
         )
@@ -527,7 +633,7 @@ while True:
         window["-WED-"].update(value=False)
         window["-THU-"].update(value=False)
         window["-FRI-"].update(value=False)
-        window["-FILTER-"].update(value="")
+        window["-CFILTER-"].update(value="")
         window["-MEAL_LIST-"].update(sorted([meal.title() for meal in meals.keys()]))
         window["-MEAL_INGREDIENTS_LIST-"].update([])
 
@@ -545,10 +651,7 @@ while True:
         new_recipe = values["-RECIPE-"].lower()
         if new_meal:
             add_meal(db_file, new_meal, ingredients=new_ingredients, recipe_link=new_recipe)
-            meals = {
-                meal: ingredients.split(", ")
-                for meal, ingredients in read_all_meals(db_file).items()
-            }
+            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             window["-MEAL_LIST-"].update(sorted([meal.title() for meal in meals.keys()]))
             window["-MEAL-"].update(value="")
             window["-INGREDIENTS-"].update(value="")
@@ -633,7 +736,11 @@ while True:
         )
         plan_ingredients = sorted(
             list(
-                set(", ".join([", ".join(meals[meal]) for meal in plan_meals]).title().split(", "))
+                set(
+                    ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals])
+                    .title()
+                    .split(", ")
+                )
             )
         )
         plan_ingredients = [
