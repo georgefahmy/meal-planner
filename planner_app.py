@@ -802,6 +802,10 @@ while True:
         new_ingredients = values["-INGREDIENTS-"].lower()
         new_recipe = values["-RECIPE-"].lower()
         new_category = values["-NEWCATEGORY-"].lower()
+
+        if not new_ingredients:
+            new_ingredients = new_meal
+
         if new_meal:
             add_meal(
                 db_file,
@@ -993,5 +997,4 @@ while True:
                 [sg.Button("Okay")],
             ],
             disable_close=False,
-            size=(200, 200),
         ).read(close=True)
