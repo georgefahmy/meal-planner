@@ -9,7 +9,7 @@ from setuptools import setup
 
 APP = ["planner_app.py"]
 DATA_FILES = [
-    "databases/",
+    "database.db",
     "settings.json",
     "resources/",
 ]
