@@ -396,7 +396,6 @@ main_left_column = [
                     "Item Selection", layout=item_selection_section, pad=(0, 0), size=(600, 300)
                 )
             ],
-            [sg.HorizontalSeparator()],
             [
                 sg.Frame(
                     "New Meals",
@@ -504,7 +503,7 @@ ingredients_list_section = [
                 sg.Listbox(
                     values=plan_ingredients,
                     font=("Arial", 14),
-                    size=(40, 18),
+                    size=(40, 17),
                     key="-PLAN_INGREDIENTS_LIST-",
                     enable_events=False,
                     pad=(0, 0),
@@ -528,13 +527,12 @@ main_right_column = [
                     pad=(0, 0),
                 )
             ],
-            [sg.HorizontalSeparator()],
             [
                 sg.Frame(
                     "Shopping List",
                     layout=[ingredients_list_section],
                     element_justification="c",
-                    size=(600, 340),
+                    size=(600, 350),
                     pad=(0, 0),
                 )
             ],
