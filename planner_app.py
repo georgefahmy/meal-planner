@@ -38,15 +38,17 @@ today = datetime.date.today()
 start = today - datetime.timedelta(days=today.weekday())
 week_date = f"Week of {str(start)}"
 
-blank_table_data = table_data = [
-    ["Monday", ""],
-    ["Tuesday", ""],
-    ["Wednesday", ""],
-    ["Thursday", ""],
-    ["Friday", ""],
-    ["Saturday", ""],
-    ["Sunday", ""],
-]
+blank_table = {
+    "Monday": [""],
+    "Tuesday": [""],
+    "Wednesday": [""],
+    "Thursday": [""],
+    "Friday": [""],
+    "Saturday": [""],
+    "Sunday": [""],
+}
+blank_gui_table = [[day] + meals for day, meals in blank_table.items()]
+
 
 # --------------------------------- Define Layout ---------------------------------
 
@@ -421,15 +423,13 @@ main_left_column = [
 # Top right quadrant - Meal Plan - Date, Meal Name, Link (if any)
 
 current_plan = read_current_plans(db_file, str(start))
+
 if not current_plan:
-    current_plan_table = table_data
+    current_plan_dict = blank_table
 else:
-    current_plan = current_plan[str(start)]
-    current_plan_table = [] if current_plan else table_data
-    for day in current_plan:
-        meal = current_plan[day]
-        current_plan_table.append([day, meal])
-    table_data = current_plan_table
+    current_plan_dict = current_plan[str(start)]
+
+gui_table = [[day] + meals for day, meals in current_plan_dict.items()]
 
 meal_plan_section = [
     sg.Column(
@@ -447,15 +447,15 @@ meal_plan_section = [
             ],
             [
                 sg.Table(
-                    values=current_plan_table,
+                    values=gui_table,
                     display_row_numbers=False,
                     justification="l",
                     num_rows=7,
                     headings=["Day", "Meal"],
                     font=("Arial", 14),
                     text_color="black",
-                    alternating_row_color="lightgray",
-                    key="-TABLE-",
+                    background_color="lightgray",
+                    alternating_row_color="white",
                     auto_size_columns=False,
                     col_widths=(10, 30),
                     selected_row_colors="lightblue on blue",
@@ -463,6 +463,7 @@ meal_plan_section = [
                     enable_click_events=False,
                     size=(40, 40),
                     hide_vertical_scroll=True,
+                    key="-TABLE-",
                 )
             ],
         ],
@@ -482,8 +483,8 @@ plan_section_buttons = [
 ]
 # Get meal and ingredient information from the database
 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-plan = ", ".join([": ".join(day) for day in table_data[:-1]])
-plan_meals = list(set(", ".join([day[1].lower() for day in table_data[:-1] if day[1]]).split(", ")))
+plan = "; ".join([": ".join(day) for day in gui_table])
+plan_meals = list(set(", ".join([day[1].lower() for day in gui_table if day[1]]).split(", ")))
 plan_ingredients = sorted(
     list(
         set(
@@ -554,9 +555,21 @@ full_layout = [
     [
         [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True)],
         [sg.HorizontalSeparator()],
-        sg.Column([main_left_column], size=(400, 600), element_justification="c", expand_x=True),
+        sg.Column(
+            [main_left_column],
+            size=(400, 600),
+            element_justification="c",
+            expand_x=True,
+            scrollable=True,
+        ),
         sg.VSeperator(),
-        sg.Column([main_right_column], size=(400, 600), element_justification="c", expand_x=True),
+        sg.Column(
+            [main_right_column],
+            size=(400, 600),
+            element_justification="c",
+            expand_x=True,
+            scrollable=True,
+        ),
     ]
 ]
 
@@ -573,7 +586,7 @@ def matchingKeys(dictionary, searchString):
 
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
-icon_file = wd + "/burger-10956.png"
+icon_file = wd + "/resources/burger-10956.png"
 sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
 themes = sg.theme_list()
 chosen_theme = choice(themes)
@@ -790,7 +803,6 @@ while True:
         window["-FRI-"].update(value=False)
         window["-SAT-"].update(value=False)
         window["-SUN-"].update(value=False)
-        window["-CFILTER-"].update(value="")
         window["-MEAL_LIST-"].update(sorted([meal.title() for meal in meals.keys()]))
         window["-MEAL_INGREDIENTS_LIST-"].update([])
 
@@ -839,9 +851,8 @@ while True:
 
     if event == "-PLAN-CLEAR-":
         # Empty out the table and return it to the default values
-        for row in table_data:
-            row[1] = ""
-        window["-TABLE-"].update(blank_table_data)
+
+        window["-TABLE-"].update(blank_gui_table)
         window["-PLAN_INGREDIENTS_LIST-"].update([])
 
     if event == "-ADD_TO_PLAN-":
@@ -899,20 +910,21 @@ while True:
         # row in the plan table to reflect the meal selection, check if there is already an
         # item in place, and if so, add to it (useful for adding salad + main meal)
         for day in selected_days:
+            if not current_plan_dict[day][0]:
+                current_plan_dict[day] = [selected_meal]
 
-            if not table_data[day_index[day]][1]:
-                table_data[day_index[day]][1] = selected_meal
-
-            elif table_data[day_index[day]][1] == selected_meal:
+            elif current_plan_dict[day][0] == selected_meal:
                 continue
 
             else:
-                table_data[day_index[day]][1] = table_data[day_index[day]][1] + ", " + selected_meal
+                current_plan_dict[day] = current_plan_dict[day] + [selected_meal]
+
+        gui_table = [[day] + [", ".join(meals)] for day, meals in current_plan_dict.items()]
 
         # Update the table information with the plan meals and get the ingredients for those meals
         # then create a unique list that is sorted and put it into the ingredients listbox
         plan_meals = list(
-            set(", ".join([day[1].lower() for day in table_data[:-1] if day[1]]).split(", "))
+            set(", ".join([day[1] for day in gui_table if day[1]]).lower().split(", "))
         )
         plan_ingredients = sorted(
             list(
@@ -928,7 +940,7 @@ while True:
         ]
 
         # Update and clear the checkboxes once the meal is submitted to the plan
-        window["-TABLE-"].update(values=table_data)
+        window["-TABLE-"].update(values=gui_table)
         window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
         window["-MON-"].update(value=False)
         window["-TUE-"].update(value=False)
@@ -939,32 +951,72 @@ while True:
         window["-SUN-"].update(value=False)
 
     if event == "-PLAN-SUBMIT-":
-        plan = ", ".join([": ".join(day) for day in table_data[:-1]])
+        plan = "; ".join([": ".join(day) for day in gui_table])
         plan_meals = list(
-            set(", ".join([day[1].lower() for day in table_data[:-1] if day[1]]).split(", "))
+            set(", ".join([day[1].lower() for day in gui_table if day[1]]).split(", "))
         )
-        plan_ingredients = sorted(
-            list(
-                set(
-                    ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals])
-                    .title()
-                    .split(", ")
+        if plan_meals:
+            plan_ingredients = sorted(
+                list(
+                    set(
+                        ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals])
+                        .title()
+                        .split(", ")
+                    )
                 )
             )
-        )
-        plan_ingredients = [
-            plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
-        ]
-        if plan_ingredients:
+            plan_ingredients = [
+                plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
+            ]
+
             plan_ingredients = ", ".join(plan_ingredients)
 
-            add_plan(db_file, start, plan, plan_ingredients)
-            okay = sg.popup_ok(
-                f"Meal Plan submitted for {week_date}",
-                font=("Arial", 16),
-                auto_close=True,
-                auto_close_duration=10,
-            )
+            if read_current_plans(db_file, str(start)):
+                confirm_overwrite = sg.popup_yes_no(f"Overwrite existing plan?")
+                new = False
+            else:
+                confirm_overwrite = "No"
+                new = True
+
+            if not new and confirm_overwrite == "Yes":
+                overwrite = True
+            else:
+                overwrite = False
+
+            add_plan(db_file, start, plan, plan_ingredients, overwrite)
+
+            if new:
+                okay = sg.popup_ok(
+                    f"Meal Plan submitted for {week_date}",
+                    font=("Arial", 16),
+                    auto_close=True,
+                    auto_close_duration=10,
+                )
+            else:
+                if overwrite:
+                    okay = sg.popup_ok(
+                        f"Meal Plan updated for {week_date}",
+                        font=("Arial", 16),
+                        auto_close=True,
+                        auto_close_duration=10,
+                    )
+                else:
+                    sg.Window(
+                        "ERROR",
+                        [
+                            [
+                                sg.Text(
+                                    "Meal Plan not overwritten",
+                                    font=("Arial", 16),
+                                    justification="c",
+                                )
+                            ],
+                            [sg.Button("Okay")],
+                        ],
+                        disable_close=False,
+                    ).read(close=True)
+                    continue
+
         else:
             sg.Window(
                 "ERROR",
@@ -976,12 +1028,6 @@ while True:
                 size=(150, 80),
             ).read(close=True)
             continue
-        if okay:
-            for row in table_data:
-                row[1] = ""
-            window["-TABLE-"].update(table_data)
-            window["-PLAN_INGREDIENTS_LIST-"].update([])
-            window["-MEAL_INGREDIENTS_LIST-"].update([])
 
     if event == "-AVAILABLE_PLANS-":
         plans = read_all_plans(db_file)

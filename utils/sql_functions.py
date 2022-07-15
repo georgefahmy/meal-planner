@@ -7,6 +7,7 @@ try:
     wd = sys._MEIPASS
 except AttributeError:
     wd = os.getcwd()
+
 file_path = os.path.join(wd, "settings.json")
 
 settings = json.load(open(file_path, "r"))
@@ -107,7 +108,7 @@ def remove_meal(db_file, meal_name):
     return
 
 
-def add_plan(db_file, date, meal_plan, ingredients):
+def add_plan(db_file, date, meal_plan, ingredients, overwrite=False):
     conn = create_connection(db_file)
     """
     Create a new category in the Categories table
@@ -115,10 +116,12 @@ def add_plan(db_file, date, meal_plan, ingredients):
     :param kwargs:
     :return id:
     """
-    values = (date, meal_plan, ingredients)
-    sql = f"""INSERT OR IGNORE INTO plans (week_date, meals, ingredients) VALUES(?,?,?)"""
+    if overwrite:
+        sql = f"""UPDATE plans SET week_date = '{date}', meals = '{meal_plan}', ingredients = '{ingredients}'"""
+    else:
+        sql = f"""INSERT OR IGNORE INTO plans (week_date, meals, ingredients) VALUES('{date}','{meal_plan}','{ingredients}')"""
     cur = conn.cursor()
-    cur.execute(sql, values)
+    cur.execute(sql)
     conn.commit()
     conn.close()
     return
@@ -132,7 +135,7 @@ def read_all_plans(db_file):
     plans = {}
     for plan in all_plans:
         date = plan[0]
-        meals = {day.split(": ")[0]: day.split(": ")[1] for day in plan[1].split(", ")}
+        meals = {day.split(": ")[0]: day.split(": ")[1] for day in plan[1].split("; ")}
         meals["ingredients"] = plan[2].split(", ")
         plans[date] = meals
     conn.close()
@@ -142,19 +145,16 @@ def read_all_plans(db_file):
 def read_current_plans(db_file, week_date):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(
-        f"SELECT week_date, meals, ingredients FROM plans WHERE week_date LIKE '{week_date}'"
-    )
+    cur.execute(f"SELECT week_date, meals FROM plans WHERE week_date LIKE '{week_date}'")
     current_plan = cur.fetchall()
     if not current_plan:
-        return
+        return False
     else:
         current_plan = current_plan[0]
     plan = {}
-
     date = current_plan[0]
-    meals = {day.split(": ")[0]: day.split(": ")[1] for day in current_plan[1].split(", ")}
-    meals["ingredients"] = current_plan[2].split(", ")
+    meals = {day.split(": ")[0]: [day.split(": ")[1]] for day in current_plan[1].split("; ")}
+    # meals["ingredients"] = current_plan[2].split(", ")
     plan[date] = meals
     conn.close()
     return plan
