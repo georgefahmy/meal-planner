@@ -56,16 +56,13 @@ blank_gui_table = [[day] + meals for day, meals in blank_table.items()]
 # Top left quadrant - three columns, list of meals, selection checkboxes, submit or cancel
 
 meal_selection_rightclick_menu_def = [
-    [],
+    "&Right",
     [
-        "&Edit Meal",
-        [
-            "Change Meal Name",
-            "Edit Category",
-            "Edit Ingredients",
-            ["Add Ingredient", "Edit Ingredients"],
-            "Delete Meal",
-        ],
+        "Change Meal Name",
+        "Edit Category",
+        "Edit Ingredients",
+        ["Add Ingredient", "Edit Ingredients"],
+        "Delete Meal",
     ],
 ]
 
@@ -474,7 +471,7 @@ plan_section_buttons = [
     sg.Column(
         [
             [
-                sg.Button("Finalize Plan", visible=True, key="-PLAN-SUBMIT-", enable_events=True),
+                sg.Button("Save Plan", visible=True, key="-PLAN-SUBMIT-", enable_events=True),
                 sg.Button("Clear", visible=True, key="-PLAN-CLEAR-", enable_events=True),
             ]
         ],
