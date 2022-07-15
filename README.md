@@ -5,9 +5,6 @@ This program helps you (and your SO) plan meals weekly. Cooking food, buying foo
 ## Database
 The meat of the program is a sql database with multiple tables keeping track of all different kinds of foods that you like. There are multiple interfaces for inserting food choices in different categories - Meats (beef, poultry, etc.), Veggies (salad, asparagus, brussle sprouts, etc.), Starches (rice, potatoes, quinoa, etc.), or anything other category with items. The goal is to be flexible in how you want to plan your meals
 
-### Multiple Databases supported!
-You can have multiple databases, maybe have one for dinners, desserts, or breakfasts.
-
 
 ## Usage
 ### Meal Selection
@@ -16,7 +13,6 @@ Choose from the available meals and choose a day of the week, then add it to the
 
 ### New Meal
 Add new meals to the database along with any ingredients and a link to a recipe
-* TODO: Add a better recipe interface with steps and proportions
 
 
 ### Planning table
@@ -26,13 +22,33 @@ The planning table shows the meals chosen for each day of the week.
 ### Plan Ingredients List (Shopping List)
 
 This ingredients list is a unique list of all the items you may need for all the meals. It does not double count, so if you need the same item for multiple meals, you'll have to account for that in the quantities purchased.
-* TODO: improve this list to include quantities based on meal recipes or ingredients
 
-### Menu Updates
-* TODO: add a menu where you can have options to edit meals, edit ingredients, edit database name, etc.
 
 #### Building The Application
 
 NOTE: DO NOT DO THIS STEP FROM WITHIN A VIRTUAL ENVIRONMENT
 * Make the setup file `py2applet --make-setup planner_app.py`
 * Finally make the application: run `python3 setup.py py2app`.
+
+
+### TODO
+* TODO: Add functional menu options
+    * add meal, ingredients
+    * edit meal, ingredients
+    * about
+    * maybe feedback?
+* TODO: improve this list to include quantities based on meal recipes or ingredients
+* TODO: Add a better recipe interface with steps and proportions
+
+* Feedback
+    * For each main GUI box, add a sentence with instructions (e.g., add a comma separating multiple ingredients).
+    * Multiple item select in the meals list by holding down Command.
+    * Change 'Finalize Plan' to 'Save' - It should ask if you want to save your new meal plan before you close the app. (I added a plan but didn’t “finalize” it, and it didn’t save.) Maybe you should change “Finalize” to “Save.”
+    * Clear a single day from the plan (Right click and remove it)
+    * You should be able to add a new category by typing a new one into the New Meal, Meal Category field. If it exists, it’s on the list, if not, it adds it.
+    * When you click on a Meal Selection, you should be able to see somewhere what category it’s in.
+    * Change "Meal Filter" to "Keyword Filter".
+    * Export Meal plan & Ingredients list to a txt file or note
+    * increase font size for error messages
+    * (this is done) The shopping list should not list duplicates;
+    * Shopping list should add quantities together to provide total
