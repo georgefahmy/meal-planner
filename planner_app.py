@@ -2,7 +2,8 @@ from random import choice
 import PySimpleGUI as sg
 import datetime
 import json
-import textwrap
+import os
+import sys
 import base64
 
 from utils.sql_functions import (
@@ -20,7 +21,14 @@ from utils.sql_functions import (
 )
 from utils.make_database import make_database
 
-settings = json.load(open("settings.json", "r"))
+try:
+    wd = sys._MEIPASS
+except AttributeError:
+    wd = os.getcwd()
+
+file_path = os.path.join(wd, "settings.json")
+
+settings = json.load(open(file_path, "r"))
 db_file = settings["database_file"]
 meal_categories = settings["meal_categories"]
 make_database(db_file)
@@ -565,7 +573,7 @@ def matchingKeys(dictionary, searchString):
 
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
-icon_file = "/Users/GFahmy/Documents/projects/meal-planner/resources/burger-10956.png"
+icon_file = wd + "/burger-10956.png"
 sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
 themes = sg.theme_list()
 chosen_theme = choice(themes)

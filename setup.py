@@ -12,6 +12,7 @@ DATA_FILES = [
     "database.db",
     "settings.json",
     "resources/",
+    "utils/",
 ]
 OPTIONS = {"iconfile": "/Users/GFahmy/Documents/projects/meal-planner/resources/burger.icns"}
 

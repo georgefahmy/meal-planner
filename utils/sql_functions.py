@@ -1,7 +1,15 @@
 import sqlite3
 import json
+import os
+import sys
 
-settings = json.load(open("settings.json", "r"))
+try:
+    wd = sys._MEIPASS
+except AttributeError:
+    wd = os.getcwd()
+file_path = os.path.join(wd, "settings.json")
+
+settings = json.load(open(file_path, "r"))
 db_file = settings["database_file"]
 
 

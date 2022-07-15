@@ -33,9 +33,6 @@ This ingredients list is a unique list of all the items you may need for all the
 
 #### Building The Application
 
+NOTE: DO NOT DO THIS STEP FROM WITHIN A VIRTUAL ENVIRONMENT
 * Make the setup file `py2applet --make-setup planner_app.py`
-* Finally make the application: run `python setup.py py2app`.
-
-#### TODO
-
-have a category filter option, along with another filter option within a category, have the ability to export meals of different categories all to the same shopping list, have ability to add more categories in the future if we wish, have an option to just see ALL meals instead of just one category if desired,
+* Finally make the application: run `python3 setup.py py2app`.
