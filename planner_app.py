@@ -36,17 +36,17 @@ meal_categories = list(dict.fromkeys(settings["meal_categories"]))
 make_database(db_file)
 
 today = datetime.date.today()
-start = today - datetime.timedelta(days=today.weekday())
+start = today - datetime.timedelta(days=today.weekday() - 1)
 week_date = f"Week of {str(start)}"
 
 blank_table = {
+    "Sunday": [""],
     "Monday": [""],
     "Tuesday": [""],
     "Wednesday": [""],
     "Thursday": [""],
     "Friday": [""],
     "Saturday": [""],
-    "Sunday": [""],
 }
 blank_gui_table = [[day] + meals for day, meals in blank_table.items()]
 
@@ -466,6 +466,7 @@ meal_plan_section = [
     sg.Column(
         [
             [
+                sg.Button("Pick Date", key="-PICK_DATE-"),
                 sg.Text(
                     "Week's Plan",
                     size=(36, 1),
@@ -637,6 +638,12 @@ while True:
     if event:
         # DEBUG to print out the events and values
         print(event, values)
+
+    if event == "-PICK_DATE-":
+        month, day, year = sg.popup_get_date()
+        start = datetime.date(year=year, month=month, day=day)
+        picked_date = f"Week of {str(start)}"
+        window["-WEEK-"].update(picked_date)
 
     if event == "-EXPORT_PLAN-":
         export_plan_path = sg.popup_get_file(
@@ -1018,22 +1025,22 @@ while True:
             ).read(close=True)
             continue
         days_of_week = {
+            "Sunday": values["-SUN-"],
             "Monday": values["-MON-"],
             "Tuesday": values["-TUE-"],
             "Wednesday": values["-WED-"],
             "Thursday": values["-THU-"],
             "Friday": values["-FRI-"],
             "Saturday": values["-SAT-"],
-            "Sunday": values["-SUN-"],
         }
         day_index = {
-            "Monday": 0,
-            "Tuesday": 1,
-            "Wednesday": 2,
-            "Thursday": 3,
-            "Friday": 4,
-            "Saturday": 5,
-            "Sunday": 6,
+            "Sunday": 0,
+            "Monday": 1,
+            "Tuesday": 2,
+            "Wednesday": 3,
+            "Thursday": 4,
+            "Friday": 5,
+            "Saturday": 6,
         }
         selected_days = [day for day, val in days_of_week.items() if val == True]
 
