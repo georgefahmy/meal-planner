@@ -19,11 +19,11 @@ OPTIONS = {"iconfile": "/Users/GFahmy/Documents/projects/meal-planner/resources/
 
 setup(
     app=APP,
-    name="Meal Planner PRO",
+    name="Meal Planner PRO V2",
     data_files=DATA_FILES,
     options={"py2app": OPTIONS},
     setup_requires=["py2app", "PySimpleGUI"],
-    version="1.0.2",
+    version="2.0.0",
     author="George Fahmy",
     description="Meal Planner PRO",
     long_description="""Meal Planner PRO""",

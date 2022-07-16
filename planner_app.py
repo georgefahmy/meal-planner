@@ -5,6 +5,8 @@ import json
 import os
 import sys
 import base64
+import shutil
+import textwrap
 
 from utils.sql_functions import (
     add_meal,
@@ -29,10 +31,9 @@ except AttributeError:
 file_path = os.path.join(wd, "settings.json")
 
 settings = json.load(open(file_path, "r"))
-db_file = settings["database_file"]
-meal_categories = settings["meal_categories"]
+db_file = os.path.join(wd, "database.db")
+meal_categories = list(dict.fromkeys(settings["meal_categories"]))
 make_database(db_file)
-db_file_name = db_file.split("/")[-1]
 
 today = datetime.date.today()
 start = today - datetime.timedelta(days=today.weekday())
@@ -138,6 +139,24 @@ middle_column = [
                                 size=(10, 1),
                                 key="-MFILTER-",
                                 enable_events=True,
+                                expand_x=True,
+                                tooltip="Search meals and ingredients for a keyword",
+                            ),
+                        ],
+                        [
+                            sg.Text(
+                                "Meal Category:",
+                                font=("Arial", 12),
+                                justification="l",
+                                visible=True,
+                                expand_x=True,
+                            ),
+                            sg.Text(
+                                "category",
+                                key="-CATEGORY_TEXT-",
+                                font=("Arial", 12),
+                                justification="l",
+                                visible=False,
                                 expand_x=True,
                             ),
                         ],
@@ -332,7 +351,7 @@ input_section = [
                     size=(15, 1),
                     key="-NEWCATEGORY-",
                     enable_events=False,
-                    readonly=True,
+                    readonly=False,
                     expand_x=True,
                 ),
             ],
@@ -438,6 +457,11 @@ else:
 
 gui_table = [[day] + meals for day, meals in current_plan_dict.items()]
 
+table_right_click = [
+    "&Right",
+    ["Delete::table"],
+]
+
 meal_plan_section = [
     sg.Column(
         [
@@ -450,6 +474,7 @@ meal_plan_section = [
                     key="-WEEK-",
                     expand_x=True,
                 ),
+                sg.Button("Export Plan", key="-EXPORT_PLAN-",),
                 sg.Button("Available Plans", key="-AVAILABLE_PLANS-",),
             ],
             [
@@ -468,6 +493,8 @@ meal_plan_section = [
                     selected_row_colors="lightblue on blue",
                     enable_events=True,
                     enable_click_events=False,
+                    right_click_menu=table_right_click,
+                    tooltip="Right click to remove items",
                     size=(40, 40),
                     hide_vertical_scroll=True,
                     key="-TABLE-",
@@ -556,10 +583,15 @@ main_right_column = [
         element_justification="c",
     )
 ]
+menu_bar_layout = [
+    ["&File", ["Load Database", "Export Database"]],
+    ["&Edit", ["Edit Meal", "Edit Ingredients", "Edit Plan"]],
+]
 
 # ----- Full layout -----
 full_layout = [
     [
+        [sg.Menu(menu_bar_layout, font=("Arial", "12"), key="-MENU-")],
         [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True)],
         [sg.HorizontalSeparator()],
         sg.Column([main_left_column], size=(400, 600), element_justification="c", expand_x=True,),
@@ -606,7 +638,104 @@ while True:
         # DEBUG to print out the events and values
         print(event, values)
 
-    # Future to expand for more options - will need to update the databse for additional columns
+    if event == "-EXPORT_PLAN-":
+        export_plan_path = sg.popup_get_file(
+            "Export Plan",
+            title="Export Plan",
+            save_as=True,
+            default_extension=".txt",
+            file_types=((".txt"),),
+            font=("Arial", 12),
+        )
+        if not export_plan_path:
+            continue
+        if not str(start) in export_plan_path:
+            export_plan_path = export_plan_path.split(".")[0] + f"_{str(start)}.txt"
+
+        day_plan = []
+        day_plan.append(f"Plan for the {week_date}\n")
+        for day in gui_table:
+            if not day[1]:
+                day_plan.append(day[0])
+                day_plan.append("No Planned Meal\n\n")
+                continue
+            day_plan.append(day[0])
+            for meal in day[1].split(", "):
+                if meal:
+                    day_plan.append(meal)
+                    day_plan.append("Ingredients:")
+                    wrapped_ingredients = textwrap.wrap(
+                        ", ".join(meals[meal.lower()]["ingredients"]), 50
+                    )
+                    day_plan.append("\n".join(wrapped_ingredients))
+                    day_plan.append("\n")
+
+        plan_text = "\n".join(day_plan)
+        with open(export_plan_path, "w") as fp:
+            fp.write(plan_text)
+            fp.close()
+
+    if event == "Delete::table":
+        for row in values["-TABLE-"]:
+            print(gui_table[row][1])
+            gui_table[row][1] = ""
+            window["-TABLE-"].update(values=gui_table)
+
+    if event == "Load Database":
+
+        new_file_path = sg.popup_get_file(
+            "Load new Database", title="Load Database", file_types=((".db"),), font=("Arial", 12)
+        )
+        if not new_file_path:
+            continue
+        shutil.copy(new_file_path, db_file)
+        window["-MEAL_LIST-"].update(
+            values=[meal.title() for meal in read_all_meals(db_file).keys()]
+        )
+        meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+        current_plan = read_current_plans(db_file, str(start))
+
+        if not current_plan:
+            current_plan_dict = blank_table
+        else:
+            current_plan_dict = current_plan[str(start)]
+
+        gui_table = [[day] + meals for day, meals in current_plan_dict.items()]
+
+        plan_meals = list(
+            set(", ".join([day[1] for day in gui_table if day[1]]).lower().split(", "))
+        )
+        plan_ingredients = sorted(
+            list(
+                set(
+                    ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals])
+                    .title()
+                    .split(", ")
+                )
+            )
+        )
+        plan_ingredients = [
+            plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
+        ]
+
+        # Update and clear the checkboxes once the database is loaded
+        window["-TABLE-"].update(values=gui_table)
+        window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
+
+    if event == "Export Database":
+        export_database_path = sg.popup_get_file(
+            "Export Database",
+            title="Export Database",
+            save_as=True,
+            default_extension=".db",
+            file_types=((".db"),),
+            font=("Arial", 12),
+        )
+        if not export_database_path:
+            continue
+        shutil.copy(db_file, export_database_path)
+
+        # Future to expand for more options - will need to update the databse for additional columns
     if event == "-MORE-OPTIONS-":
         if window["-ADV_SECTION-"].visible:
             window["-ADV_SECTION-"].update(visible=False)
@@ -665,11 +794,19 @@ while True:
             if not new_category["-NEWMEALCATEGORY-"]:
                 continue
             new_category = new_category["-NEWMEALCATEGORY-"].lower()
+            meal_categories = list(dict.fromkeys(settings["meal_categories"]))
+            meal_categories.append(new_category.title())
+            meal_categories = list(dict.fromkeys(meal_categories))
+            settings["meal_categories"] = meal_categories
+            with open(file_path, "w") as fp:
+                json.dump(settings, fp, sort_keys=True, indent=4)
             update_meal_category(db_file, new_category, selected_meal)
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             window["-MEAL_LIST-"].update(
                 sorted([meal.title() for meal in read_all_meals(db_file).keys()])
             )
+            window["-NEWCATEGORY-"].update(set_to_index=[0], values=meal_categories[1:])
+            window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
 
     if event == "Add Ingredient":
         if values["-MEAL_LIST-"]:
@@ -791,6 +928,9 @@ while True:
         window["-MEAL_INGREDIENTS_LIST-"].update(
             sorted([ingredient.title() for ingredient in ingredients_list])
         )
+        window["-CATEGORY_TEXT-"].update(
+            visible=True, value=meals[selected_meal]["category"].title()
+        )
 
     if event == "-CANCEL-":
         # Meal selection Cancel, clear out all the values for the checkboxes and meal list and
@@ -804,6 +944,7 @@ while True:
         window["-SUN-"].update(value=False)
         window["-MEAL_LIST-"].update(sorted([meal.title() for meal in meals.keys()]))
         window["-MEAL_INGREDIENTS_LIST-"].update([])
+        window["-CFILTER-"].update(set_to_index=[0])
 
     if event == "-MEAL-CLEAR-":
         # Clear the new meal submission boxes
@@ -819,6 +960,12 @@ while True:
         new_ingredients = values["-INGREDIENTS-"].lower()
         new_recipe = values["-RECIPE-"].lower()
         new_category = values["-NEWCATEGORY-"].lower()
+        meal_categories = list(dict.fromkeys(settings["meal_categories"]))
+        meal_categories.append(new_category.title())
+        meal_categories = list(dict.fromkeys(meal_categories))
+        settings["meal_categories"] = meal_categories
+        with open(file_path, "w") as fp:
+            json.dump(settings, fp, sort_keys=True, indent=4)
 
         if not new_ingredients:
             new_ingredients = new_meal
@@ -836,7 +983,8 @@ while True:
             window["-MEAL-"].update(value="")
             window["-INGREDIENTS-"].update(value="")
             window["-RECIPE-"].update(value="")
-            window["-NEWCATEGORY-"].update(value="")
+            window["-NEWCATEGORY-"].update(set_to_index=[0], values=meal_categories[1:])
+            window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
         else:
             sg.Window(
                 "ERROR",
@@ -845,7 +993,6 @@ while True:
                     [sg.Button("Okay")],
                 ],
                 disable_close=False,
-                size=(150, 80),
             ).read(close=True)
 
     if event == "-PLAN-CLEAR-":
@@ -868,7 +1015,6 @@ while True:
                     [sg.Button("Okay")],
                 ],
                 disable_close=False,
-                size=(150, 80),
             ).read(close=True)
             continue
         days_of_week = {

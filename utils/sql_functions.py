@@ -11,7 +11,7 @@ except AttributeError:
 file_path = os.path.join(wd, "settings.json")
 
 settings = json.load(open(file_path, "r"))
-db_file = settings["database_file"]
+db_file = os.path.join(wd, "databse.db")
 
 
 def create_connection(db_file=db_file):
