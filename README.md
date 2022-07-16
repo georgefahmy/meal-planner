@@ -31,6 +31,22 @@ NOTE: DO NOT DO THIS STEP FROM WITHIN A VIRTUAL ENVIRONMENT
 * Finally make the application: run `python3 setup.py py2app`.
 
 
+#### Version 2
+### New
+* Added ability to multi select items from the meal selection window using shift key
+* Added ability to export and load databases via the file option in menu
+* Added ability to clear a single day from the plan (Right click and remove it)
+* Added ability to supply a new category, if it doesn't exist.
+* Added the ability to see the selected meal's category
+* Added the ability to export Meal plan & ingredients to a text file
+* Each main GUI box now has a tooltip explaining what to do
+
+### Fixed
+* Updated working for some buttons and texts
+* Increase font size for error messages
+* Numerous bugs and strangeness
+
+
 ### TODO
 * Add functional menu options
     * add meal, ingredients
@@ -46,19 +62,3 @@ NOTE: DO NOT DO THIS STEP FROM WITHIN A VIRTUAL ENVIRONMENT
 * Meal name (also add meal to meal list)
 * ingredients and proportions in a paired list (either tuples or paired list of lists)
 * serving size - look up with is included in most recipes
-
-#### Feedback
-
-* Export Meal plan & Ingredients list to a txt file or note
-
-* DONE ~For each main GUI box, add a sentence with instructions (e.g., add a comma separating multiple ingredients)~
-* DONE ~The shopping list should not list duplicates~
-* Shopping list should add quantities together to provide total
-* DONE ~Change 'Finalize Plan' to 'Save' - It should ask if you want to save your new meal plan before you close the app. (I added a plan but didn’t “finalize” it, and it didn’t save.) Maybe you should change “Finalize” to “Save”~
-* DONE ~Change "Meal Filter" to "Keyword Filter"~
-* DONE ~Multiple item select in the meals list by holding down Command (shift)~
-* DONE ~Add ability to export and load databases~
-* DONE ~Increase font size for error messages~
-* DONE ~Clear a single day from the plan (Right click and remove it)~
-* DONE ~You should be able to add a new category by typing a new one into the New Meal, Meal Category field. If it exists, it’s on the list, if not, it adds it.~
-* DONE ~When you click on a Meal Selection, you should be able to see somewhere what category it’s in.~

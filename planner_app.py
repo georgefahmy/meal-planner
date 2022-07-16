@@ -6,6 +6,7 @@ import os
 import sys
 import base64
 import shutil
+import textwrap
 
 from utils.sql_functions import (
     add_meal,
@@ -473,6 +474,7 @@ meal_plan_section = [
                     key="-WEEK-",
                     expand_x=True,
                 ),
+                sg.Button("Export Plan", key="-EXPORT_PLAN-",),
                 sg.Button("Available Plans", key="-AVAILABLE_PLANS-",),
             ],
             [
@@ -636,6 +638,43 @@ while True:
         # DEBUG to print out the events and values
         print(event, values)
 
+    if event == "-EXPORT_PLAN-":
+        export_plan_path = sg.popup_get_file(
+            "Export Plan",
+            title="Export Plan",
+            save_as=True,
+            default_extension=".txt",
+            file_types=((".txt"),),
+            font=("Arial", 12),
+        )
+        if not export_plan_path:
+            continue
+        if not str(start) in export_plan_path:
+            export_plan_path = export_plan_path.split(".")[0] + f"_{str(start)}.txt"
+
+        day_plan = []
+        day_plan.append(f"Plan for the {week_date}\n")
+        for day in gui_table:
+            if not day[1]:
+                day_plan.append(day[0])
+                day_plan.append("No Planned Meal\n\n")
+                continue
+            day_plan.append(day[0])
+            for meal in day[1].split(", "):
+                if meal:
+                    day_plan.append(meal)
+                    day_plan.append("Ingredients:")
+                    wrapped_ingredients = textwrap.wrap(
+                        ", ".join(meals[meal.lower()]["ingredients"]), 50
+                    )
+                    day_plan.append("\n".join(wrapped_ingredients))
+                    day_plan.append("\n")
+
+        plan_text = "\n".join(day_plan)
+        with open(export_plan_path, "w") as fp:
+            fp.write(plan_text)
+            fp.close()
+
     if event == "Delete::table":
         for row in values["-TABLE-"]:
             print(gui_table[row][1])
@@ -647,6 +686,8 @@ while True:
         new_file_path = sg.popup_get_file(
             "Load new Database", title="Load Database", file_types=((".db"),), font=("Arial", 12)
         )
+        if not new_file_path:
+            continue
         shutil.copy(new_file_path, db_file)
         window["-MEAL_LIST-"].update(
             values=[meal.title() for meal in read_all_meals(db_file).keys()]
@@ -690,6 +731,8 @@ while True:
             file_types=((".db"),),
             font=("Arial", 12),
         )
+        if not export_database_path:
+            continue
         shutil.copy(db_file, export_database_path)
 
         # Future to expand for more options - will need to update the databse for additional columns
