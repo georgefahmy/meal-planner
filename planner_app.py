@@ -562,21 +562,9 @@ full_layout = [
     [
         [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True)],
         [sg.HorizontalSeparator()],
-        sg.Column(
-            [main_left_column],
-            size=(400, 600),
-            element_justification="c",
-            expand_x=True,
-            scrollable=True,
-        ),
+        sg.Column([main_left_column], size=(400, 600), element_justification="c", expand_x=True,),
         sg.VSeperator(),
-        sg.Column(
-            [main_right_column],
-            size=(400, 600),
-            element_justification="c",
-            expand_x=True,
-            scrollable=True,
-        ),
+        sg.Column([main_right_column], size=(400, 600), element_justification="c", expand_x=True,),
     ]
 ]
 
