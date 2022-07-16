@@ -130,7 +130,7 @@ middle_column = [
                             ),
                         ],
                         [
-                            sg.Text("Meal Filter", key="-MFILTER_TEXT-", font=("Arial", 12),),
+                            sg.Text("Keyword Filter", key="-MFILTER_TEXT-", font=("Arial", 12),),
                             sg.Input(
                                 font=("Arial", 12),
                                 size=(10, 1),
