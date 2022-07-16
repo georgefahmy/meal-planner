@@ -139,6 +139,7 @@ middle_column = [
                                 key="-MFILTER-",
                                 enable_events=True,
                                 expand_x=True,
+                                tooltip="Search meals and ingredients for a keyword",
                             ),
                         ],
                     ],
@@ -438,6 +439,11 @@ else:
 
 gui_table = [[day] + meals for day, meals in current_plan_dict.items()]
 
+table_right_click = [
+    "&Right",
+    ["Delete::table"],
+]
+
 meal_plan_section = [
     sg.Column(
         [
@@ -468,6 +474,8 @@ meal_plan_section = [
                     selected_row_colors="lightblue on blue",
                     enable_events=True,
                     enable_click_events=False,
+                    right_click_menu=table_right_click,
+                    tooltip="Right click to remove items",
                     size=(40, 40),
                     hide_vertical_scroll=True,
                     key="-TABLE-",
@@ -610,6 +618,12 @@ while True:
     if event:
         # DEBUG to print out the events and values
         print(event, values)
+
+    if event == "Delete::table":
+        for row in values["-TABLE-"]:
+            print(gui_table[row][1])
+            gui_table[row][1] = ""
+            window["-TABLE-"].update(values=gui_table)
 
     if event == "Load Database":
 

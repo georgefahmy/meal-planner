@@ -35,9 +35,11 @@ NOTE: DO NOT DO THIS STEP FROM WITHIN A VIRTUAL ENVIRONMENT
 * Add functional menu options
     * add meal, ingredients
     * edit meal, ingredients
+    * edit plan
     * about
     * maybe feedback?
 * Improve this list to include quantities based on meal recipes or ingredients
+* Add date selection rather than just assuming the start of the current week
 
 ##### Recipe Interface
 * Add a popup window that allows for a detailed recipe to be added
@@ -47,7 +49,6 @@ NOTE: DO NOT DO THIS STEP FROM WITHIN A VIRTUAL ENVIRONMENT
 
 #### Feedback
 
-* Clear a single day from the plan (Right click and remove it)
 * You should be able to add a new category by typing a new one into the New Meal, Meal Category field. If it exists, it’s on the list, if not, it adds it.
 * When you click on a Meal Selection, you should be able to see somewhere what category it’s in.
 * Export Meal plan & Ingredients list to a txt file or note
@@ -61,3 +62,4 @@ NOTE: DO NOT DO THIS STEP FROM WITHIN A VIRTUAL ENVIRONMENT
 * DONE ~Multiple item select in the meals list by holding down Command (shift)~
 * DONE ~Add ability to export and load databases~
 * DONE ~Increase font size for error messages~
+* DONE ~Clear a single day from the plan (Right click and remove it)~
