@@ -5,6 +5,7 @@ import json
 import os
 import sys
 import base64
+import shutil
 
 from utils.sql_functions import (
     add_meal,
@@ -29,10 +30,9 @@ except AttributeError:
 file_path = os.path.join(wd, "settings.json")
 
 settings = json.load(open(file_path, "r"))
-db_file = settings["database_file"]
+db_file = os.path.join(wd, "database.db")
 meal_categories = settings["meal_categories"]
 make_database(db_file)
-db_file_name = db_file.split("/")[-1]
 
 today = datetime.date.today()
 start = today - datetime.timedelta(days=today.weekday())
@@ -556,10 +556,15 @@ main_right_column = [
         element_justification="c",
     )
 ]
+menu_bar_layout = [
+    ["&File", ["Load Database", "Export Database"]],
+    ["&Edit", ["Edit Meal", "Edit Ingredients", "Edit Plan"]],
+]
 
 # ----- Full layout -----
 full_layout = [
     [
+        [sg.Menu(menu_bar_layout, font=("Arial", "12"), key="-MENU-")],
         [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True)],
         [sg.HorizontalSeparator()],
         sg.Column([main_left_column], size=(400, 600), element_justification="c", expand_x=True,),
@@ -606,7 +611,57 @@ while True:
         # DEBUG to print out the events and values
         print(event, values)
 
-    # Future to expand for more options - will need to update the databse for additional columns
+    if event == "Load Database":
+
+        new_file_path = sg.popup_get_file(
+            "Load new Database", title="Load Database", file_types=((".db"),), font=("Arial", 12)
+        )
+        shutil.copy(new_file_path, db_file)
+        window["-MEAL_LIST-"].update(
+            values=[meal.title() for meal in read_all_meals(db_file).keys()]
+        )
+        meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+        current_plan = read_current_plans(db_file, str(start))
+
+        if not current_plan:
+            current_plan_dict = blank_table
+        else:
+            current_plan_dict = current_plan[str(start)]
+
+        gui_table = [[day] + meals for day, meals in current_plan_dict.items()]
+
+        plan_meals = list(
+            set(", ".join([day[1] for day in gui_table if day[1]]).lower().split(", "))
+        )
+        plan_ingredients = sorted(
+            list(
+                set(
+                    ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals])
+                    .title()
+                    .split(", ")
+                )
+            )
+        )
+        plan_ingredients = [
+            plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
+        ]
+
+        # Update and clear the checkboxes once the database is loaded
+        window["-TABLE-"].update(values=gui_table)
+        window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
+
+    if event == "Export Database":
+        export_database_path = sg.popup_get_file(
+            "Export Database",
+            title="Export Database",
+            save_as=True,
+            default_extension=".db",
+            file_types=((".db"),),
+            font=("Arial", 12),
+        )
+        shutil.copy(db_file, export_database_path)
+
+        # Future to expand for more options - will need to update the databse for additional columns
     if event == "-MORE-OPTIONS-":
         if window["-ADV_SECTION-"].visible:
             window["-ADV_SECTION-"].update(visible=False)
