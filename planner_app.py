@@ -89,7 +89,9 @@ left_column = [
                     key="-MEAL_LIST-",
                     enable_events=True,
                     auto_size_text=True,
+                    select_mode=sg.LISTBOX_SELECT_MODE_EXTENDED,
                     right_click_menu=meal_selection_rightclick_menu_def,
+                    tooltip="Right click meals for more options.",
                 )
             ],
             [
@@ -284,7 +286,15 @@ input_section = [
                     expand_x=True,
                 )
             ],
-            [sg.In(size=(15, 2), font=("Arial", 14), key="-INGREDIENTS-", enable_events=False,)],
+            [
+                sg.In(
+                    size=(15, 2),
+                    font=("Arial", 14),
+                    key="-INGREDIENTS-",
+                    enable_events=False,
+                    tooltip="Use Commas to separate ingredients.",
+                )
+            ],
         ],
         element_justification="c",
     ),
@@ -591,7 +601,6 @@ sg.theme(chosen_theme)
 
 window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1280, 660), finalize=True)
 
-
 # Get meal and ingredient information from the database
 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
 
@@ -617,156 +626,161 @@ while True:
             window["-ADV_SECTION-"].update(visible=True)
 
     if event == "Change Meal Name":
-        selected_meal = values["-MEAL_LIST-"][0].lower()
-        _, new_meal_name = sg.Window(
-            "Change Meal Name",
-            [
-                [sg.Text("Change Name of Meal", font=("Arial", 14), justification="c")],
+        if values["-MEAL_LIST-"]:
+            selected_meal = values["-MEAL_LIST-"][0].lower()
+            _, new_meal_name = sg.Window(
+                "Change Meal Name",
                 [
-                    sg.Input(
-                        default_text=selected_meal.title(),
-                        font=("Arial", 14),
-                        key="-NEWMEALNAME-",
-                        enable_events=False,
-                    )
-                ],
-                [sg.Button("Okay")],
-            ],
-            disable_close=False,
-            size=(225, 100),
-        ).read(close=True)
-        if not new_meal_name["-NEWMEALNAME-"]:
-            continue
-        new_meal_name = new_meal_name["-NEWMEALNAME-"].lower()
-        update_meal_name(db_file, new_meal_name, selected_meal)
-        meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-        window["-MEAL_LIST-"].update(
-            sorted([meal.title() for meal in read_all_meals(db_file).keys()])
-        )
-
-    if event == "Edit Category":
-        selected_meal = values["-MEAL_LIST-"][0].lower()
-        _, new_category = sg.Window(
-            "Change Meal Category",
-            [
-                [sg.Text("Change Meal Category", font=("Arial", 14), justification="c")],
-                [
-                    sg.Combo(
-                        values=meal_categories[1:],
-                        font=("Arial", 14),
-                        key="-NEWMEALCATEGORY-",
-                        enable_events=False,
-                    )
-                ],
-                [sg.Button("Okay")],
-            ],
-            disable_close=False,
-            size=(225, 100),
-        ).read(close=True)
-        if not new_category["-NEWMEALCATEGORY-"]:
-            continue
-        new_category = new_category["-NEWMEALCATEGORY-"].lower()
-        update_meal_category(db_file, new_category, selected_meal)
-        meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-        window["-MEAL_LIST-"].update(
-            sorted([meal.title() for meal in read_all_meals(db_file).keys()])
-        )
-
-    if event == "Add Ingredient":
-        selected_meal = values["-MEAL_LIST-"][0].lower()
-        ingredients = read_specific_meals(db_file, selected_meal)[selected_meal]
-        _, new_ingredients = sg.Window(
-            "Add Ingredients",
-            [
-                [
-                    sg.Text(
-                        "Add Ingredient(s) - Separate w/ comma",
-                        font=("Arial", 14),
-                        justification="c",
-                    )
-                ],
-                [sg.Input(key="-NEWINGREDIENTS-", font=("Arial", 14), enable_events=False)],
-                [sg.Button("Okay")],
-            ],
-            disable_close=False,
-            size=(325, 100),
-        ).read(close=True)
-        if not new_ingredients["-NEWINGREDIENTS-"]:
-            continue
-        new_ingredients = new_ingredients["-NEWINGREDIENTS-"].lower().split(", ")
-        ingredients.extend(
-            [ingredient for ingredient in new_ingredients if ingredient not in ingredients]
-        )
-        updated_ingredients = ", ".join(ingredients)
-        update_meal_ingredients(db_file, selected_meal, updated_ingredients)
-        meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-        ingredients_list = meals[selected_meal]["ingredients"]
-        window["-MEAL_INGREDIENTS_LIST-"].update(
-            [ingredient.title() for ingredient in ingredients_list]
-        )
-
-    if event == "Edit Ingredients":
-        selected_meal = values["-MEAL_LIST-"][0].lower()
-        ingredients = read_specific_meals(db_file, selected_meal)[selected_meal]
-        _, edited_ingredients = sg.Window(
-            "Edit Ingredients",
-            [
-                [sg.Text("Edit Ingredient(s)", font=("Arial", 14), justification="c",)],
-                [
-                    sg.Multiline(
-                        default_text=", ".join(sorted(ingredients)).title(),
-                        key="-EDITINGREDIENTS-",
-                        enable_events=False,
-                        font=("Arial", 14),
-                        autoscroll=True,
-                        rstrip=True,
-                        size=(200, 5),
-                    )
-                ],
-                [sg.Button("Okay")],
-            ],
-            disable_close=False,
-            size=(400, 150),
-        ).read(close=True)
-        if not edited_ingredients["-EDITINGREDIENTS-"]:
-            continue
-        edited_ingredients = edited_ingredients["-EDITINGREDIENTS-"].lower().split(", ")
-        edited_ingredients = ", ".join(sorted(list(set(edited_ingredients))))
-        update_meal_ingredients(db_file, selected_meal, edited_ingredients)
-        meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-        ingredients_list = meals[selected_meal]["ingredients"]
-        window["-MEAL_INGREDIENTS_LIST-"].update(
-            [ingredient.title() for ingredient in ingredients_list]
-        )
-
-    if event == "Delete Meal":
-        selected_meal = values["-MEAL_LIST-"][0].lower()
-        confirm_delete = sg.popup_yes_no(f"Confirm delete: {selected_meal}")
-        if confirm_delete == "Yes":
-            remove_meal(db_file, selected_meal)
-            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-            window["-MEAL_LIST-"].update(
-                sorted([meal.title() for meal in read_all_meals(db_file).keys()])
-            )
-            window["-MEAL_INGREDIENTS_LIST-"].update([])
-
-        else:
-            sg.Window(
-                "Canceled",
-                [
+                    [sg.Text("Change Name of Meal", font=("Arial", 14), justification="c")],
                     [
-                        sg.Text(
-                            f"Canceled\n{selected_meal} was not deleted",
+                        sg.Input(
+                            default_text=selected_meal.title(),
                             font=("Arial", 14),
-                            justification="c",
-                            expand_x=True,
+                            key="-NEWMEALNAME-",
+                            enable_events=False,
                         )
                     ],
                     [sg.Button("Okay")],
                 ],
                 disable_close=False,
-                size=(200, 100),
+                size=(225, 100),
             ).read(close=True)
+            if not new_meal_name["-NEWMEALNAME-"]:
+                continue
+            new_meal_name = new_meal_name["-NEWMEALNAME-"].lower()
+            update_meal_name(db_file, new_meal_name, selected_meal)
+            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+            window["-MEAL_LIST-"].update(
+                sorted([meal.title() for meal in read_all_meals(db_file).keys()])
+            )
+
+    if event == "Edit Category":
+        if values["-MEAL_LIST-"]:
+            selected_meal = values["-MEAL_LIST-"][0].lower()
+            _, new_category = sg.Window(
+                "Change Meal Category",
+                [
+                    [sg.Text("Change Meal Category", font=("Arial", 14), justification="c")],
+                    [
+                        sg.Combo(
+                            values=meal_categories[1:],
+                            font=("Arial", 14),
+                            key="-NEWMEALCATEGORY-",
+                            enable_events=False,
+                        )
+                    ],
+                    [sg.Button("Okay")],
+                ],
+                disable_close=False,
+                size=(225, 100),
+            ).read(close=True)
+            if not new_category["-NEWMEALCATEGORY-"]:
+                continue
+            new_category = new_category["-NEWMEALCATEGORY-"].lower()
+            update_meal_category(db_file, new_category, selected_meal)
+            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+            window["-MEAL_LIST-"].update(
+                sorted([meal.title() for meal in read_all_meals(db_file).keys()])
+            )
+
+    if event == "Add Ingredient":
+        if values["-MEAL_LIST-"]:
+            selected_meal = values["-MEAL_LIST-"][0].lower()
+            ingredients = read_specific_meals(db_file, selected_meal)[selected_meal]
+            _, new_ingredients = sg.Window(
+                "Add Ingredients",
+                [
+                    [
+                        sg.Text(
+                            "Add Ingredient(s) - Separate w/ comma",
+                            font=("Arial", 14),
+                            justification="c",
+                        )
+                    ],
+                    [sg.Input(key="-NEWINGREDIENTS-", font=("Arial", 14), enable_events=False)],
+                    [sg.Button("Okay")],
+                ],
+                disable_close=False,
+                size=(325, 100),
+            ).read(close=True)
+            if not new_ingredients["-NEWINGREDIENTS-"]:
+                continue
+            new_ingredients = new_ingredients["-NEWINGREDIENTS-"].lower().split(", ")
+            ingredients.extend(
+                [ingredient for ingredient in new_ingredients if ingredient not in ingredients]
+            )
+            updated_ingredients = ", ".join(ingredients)
+            update_meal_ingredients(db_file, selected_meal, updated_ingredients)
+            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+            ingredients_list = meals[selected_meal]["ingredients"]
+            window["-MEAL_INGREDIENTS_LIST-"].update(
+                [ingredient.title() for ingredient in ingredients_list]
+            )
+
+    if event == "Edit Ingredients":
+        if values["-MEAL_LIST-"]:
+            selected_meal = values["-MEAL_LIST-"][0].lower()
+            ingredients = read_specific_meals(db_file, selected_meal)[selected_meal]
+            _, edited_ingredients = sg.Window(
+                "Edit Ingredients",
+                [
+                    [sg.Text("Edit Ingredient(s)", font=("Arial", 14), justification="c",)],
+                    [
+                        sg.Multiline(
+                            default_text=", ".join(sorted(ingredients)).title(),
+                            key="-EDITINGREDIENTS-",
+                            enable_events=False,
+                            font=("Arial", 14),
+                            autoscroll=True,
+                            rstrip=True,
+                            size=(200, 5),
+                        )
+                    ],
+                    [sg.Button("Okay")],
+                ],
+                disable_close=False,
+                size=(400, 150),
+            ).read(close=True)
+            if not edited_ingredients["-EDITINGREDIENTS-"]:
+                continue
+            edited_ingredients = edited_ingredients["-EDITINGREDIENTS-"].lower().split(", ")
+            edited_ingredients = ", ".join(sorted(list(set(edited_ingredients))))
+            update_meal_ingredients(db_file, selected_meal, edited_ingredients)
+            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+            ingredients_list = meals[selected_meal]["ingredients"]
+            window["-MEAL_INGREDIENTS_LIST-"].update(
+                [ingredient.title() for ingredient in ingredients_list]
+            )
+
+    if event == "Delete Meal":
+        if values["-MEAL_LIST-"]:
+            selected_meal = values["-MEAL_LIST-"][0].lower()
+            confirm_delete = sg.popup_yes_no(f"Confirm delete: {selected_meal}")
+            if confirm_delete == "Yes":
+                remove_meal(db_file, selected_meal)
+                meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+                window["-MEAL_LIST-"].update(
+                    sorted([meal.title() for meal in read_all_meals(db_file).keys()])
+                )
+                window["-MEAL_INGREDIENTS_LIST-"].update([])
+
+            else:
+                sg.Window(
+                    "Canceled",
+                    [
+                        [
+                            sg.Text(
+                                f"Canceled\n{selected_meal} was not deleted",
+                                font=("Arial", 14),
+                                justification="c",
+                                expand_x=True,
+                            )
+                        ],
+                        [sg.Button("Okay")],
+                    ],
+                    disable_close=False,
+                    size=(200, 100),
+                ).read(close=True)
 
     if event == "-CFILTER-":
         if values["-CFILTER-"] == "All":
@@ -808,7 +822,7 @@ while True:
         window["-MEAL-"].update(value="")
         window["-INGREDIENTS-"].update(value="")
         window["-RECIPE-"].update(value="")
-        window["-NEWCATEGORY-"].update(value="")
+        window["-NEWCATEGORY-"].update(set_to_index=[0])
 
     if event == "-MEAL_SUBMIT-":
         # Submit a new meal and the ingredients and recipe (if available) then add the meal to
@@ -939,6 +953,7 @@ while True:
         # Update and clear the checkboxes once the meal is submitted to the plan
         window["-TABLE-"].update(values=gui_table)
         window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
+        window["-MEAL_LIST-"].update(set_to_index=[])
         window["-MON-"].update(value=False)
         window["-TUE-"].update(value=False)
         window["-WED-"].update(value=False)
@@ -952,7 +967,7 @@ while True:
         plan_meals = list(
             set(", ".join([day[1].lower() for day in gui_table if day[1]]).split(", "))
         )
-        if plan_meals:
+        if len(plan_meals[0]):
             plan_ingredients = sorted(
                 list(
                     set(
@@ -969,7 +984,7 @@ while True:
             plan_ingredients = ", ".join(plan_ingredients)
 
             if read_current_plans(db_file, str(start)):
-                confirm_overwrite = sg.popup_yes_no(f"Overwrite existing plan?")
+                confirm_overwrite = sg.popup_yes_no(f"Overwrite existing plan?", font=("Arial", 14))
                 new = False
             else:
                 confirm_overwrite = "No"
