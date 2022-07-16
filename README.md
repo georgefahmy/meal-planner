@@ -49,9 +49,7 @@ NOTE: DO NOT DO THIS STEP FROM WITHIN A VIRTUAL ENVIRONMENT
 
 #### Feedback
 
-* When you click on a Meal Selection, you should be able to see somewhere what category it’s in.
 * Export Meal plan & Ingredients list to a txt file or note
-
 
 * DONE ~For each main GUI box, add a sentence with instructions (e.g., add a comma separating multiple ingredients)~
 * DONE ~The shopping list should not list duplicates~
@@ -63,3 +61,4 @@ NOTE: DO NOT DO THIS STEP FROM WITHIN A VIRTUAL ENVIRONMENT
 * DONE ~Increase font size for error messages~
 * DONE ~Clear a single day from the plan (Right click and remove it)~
 * DONE ~You should be able to add a new category by typing a new one into the New Meal, Meal Category field. If it exists, it’s on the list, if not, it adds it.~
+* DONE ~When you click on a Meal Selection, you should be able to see somewhere what category it’s in.~

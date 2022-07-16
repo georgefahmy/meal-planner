@@ -142,6 +142,23 @@ middle_column = [
                                 tooltip="Search meals and ingredients for a keyword",
                             ),
                         ],
+                        [
+                            sg.Text(
+                                "Meal Category:",
+                                font=("Arial", 12),
+                                justification="l",
+                                visible=True,
+                                expand_x=True,
+                            ),
+                            sg.Text(
+                                "category",
+                                key="-CATEGORY_TEXT-",
+                                font=("Arial", 12),
+                                justification="l",
+                                visible=False,
+                                expand_x=True,
+                            ),
+                        ],
                     ],
                     size=(180, 100),
                     pad=(0, 0),
@@ -734,11 +751,19 @@ while True:
             if not new_category["-NEWMEALCATEGORY-"]:
                 continue
             new_category = new_category["-NEWMEALCATEGORY-"].lower()
+            meal_categories = list(dict.fromkeys(settings["meal_categories"]))
+            meal_categories.append(new_category.title())
+            meal_categories = list(dict.fromkeys(meal_categories))
+            settings["meal_categories"] = meal_categories
+            with open(file_path, "w") as fp:
+                json.dump(settings, fp, sort_keys=True, indent=4)
             update_meal_category(db_file, new_category, selected_meal)
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             window["-MEAL_LIST-"].update(
                 sorted([meal.title() for meal in read_all_meals(db_file).keys()])
             )
+            window["-NEWCATEGORY-"].update(set_to_index=[0], values=meal_categories[1:])
+            window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
 
     if event == "Add Ingredient":
         if values["-MEAL_LIST-"]:
@@ -860,6 +885,9 @@ while True:
         window["-MEAL_INGREDIENTS_LIST-"].update(
             sorted([ingredient.title() for ingredient in ingredients_list])
         )
+        window["-CATEGORY_TEXT-"].update(
+            visible=True, value=meals[selected_meal]["category"].title()
+        )
 
     if event == "-CANCEL-":
         # Meal selection Cancel, clear out all the values for the checkboxes and meal list and
@@ -873,6 +901,7 @@ while True:
         window["-SUN-"].update(value=False)
         window["-MEAL_LIST-"].update(sorted([meal.title() for meal in meals.keys()]))
         window["-MEAL_INGREDIENTS_LIST-"].update([])
+        window["-CFILTER-"].update(set_to_index=[0])
 
     if event == "-MEAL-CLEAR-":
         # Clear the new meal submission boxes
@@ -911,8 +940,8 @@ while True:
             window["-MEAL-"].update(value="")
             window["-INGREDIENTS-"].update(value="")
             window["-RECIPE-"].update(value="")
-            window["-NEWCATEGORY-"].update(value=meal_categories[1], values=meal_categories[1:])
-            window["-CFILTER-"].update(value=meal_categories[0], values=meal_categories)
+            window["-NEWCATEGORY-"].update(set_to_index=[0], values=meal_categories[1:])
+            window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
         else:
             sg.Window(
                 "ERROR",
