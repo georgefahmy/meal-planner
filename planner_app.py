@@ -921,7 +921,6 @@ while True:
                     [sg.Button("Okay")],
                 ],
                 disable_close=False,
-                size=(150, 80),
             ).read(close=True)
 
     if event == "-PLAN-CLEAR-":
@@ -944,7 +943,6 @@ while True:
                     [sg.Button("Okay")],
                 ],
                 disable_close=False,
-                size=(150, 80),
             ).read(close=True)
             continue
         days_of_week = {
