@@ -585,7 +585,7 @@ main_right_column = [
 ]
 menu_bar_layout = [
     ["&File", ["Load Database", "Export Database"]],
-    ["&Edit", ["Edit Meal", "Edit Ingredients", "Edit Plan"]],
+    # ["&Edit", ["Edit Meal", "Edit Ingredients", "Edit Plan"]],
 ]
 
 # ----- Full layout -----
