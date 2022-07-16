@@ -31,7 +31,7 @@ file_path = os.path.join(wd, "settings.json")
 
 settings = json.load(open(file_path, "r"))
 db_file = os.path.join(wd, "database.db")
-meal_categories = settings["meal_categories"]
+meal_categories = list(dict.fromkeys(settings["meal_categories"]))
 make_database(db_file)
 
 today = datetime.date.today()
@@ -333,7 +333,7 @@ input_section = [
                     size=(15, 1),
                     key="-NEWCATEGORY-",
                     enable_events=False,
-                    readonly=True,
+                    readonly=False,
                     expand_x=True,
                 ),
             ],
@@ -888,6 +888,12 @@ while True:
         new_ingredients = values["-INGREDIENTS-"].lower()
         new_recipe = values["-RECIPE-"].lower()
         new_category = values["-NEWCATEGORY-"].lower()
+        meal_categories = list(dict.fromkeys(settings["meal_categories"]))
+        meal_categories.append(new_category.title())
+        meal_categories = list(dict.fromkeys(meal_categories))
+        settings["meal_categories"] = meal_categories
+        with open(file_path, "w") as fp:
+            json.dump(settings, fp, sort_keys=True, indent=4)
 
         if not new_ingredients:
             new_ingredients = new_meal
@@ -905,7 +911,8 @@ while True:
             window["-MEAL-"].update(value="")
             window["-INGREDIENTS-"].update(value="")
             window["-RECIPE-"].update(value="")
-            window["-NEWCATEGORY-"].update(value="")
+            window["-NEWCATEGORY-"].update(value=meal_categories[1], values=meal_categories[1:])
+            window["-CFILTER-"].update(value=meal_categories[0], values=meal_categories)
         else:
             sg.Window(
                 "ERROR",
