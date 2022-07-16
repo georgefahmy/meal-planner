@@ -92,7 +92,7 @@ left_column = [
                     auto_size_text=True,
                     select_mode=sg.LISTBOX_SELECT_MODE_EXTENDED,
                     right_click_menu=meal_selection_rightclick_menu_def,
-                    tooltip="Right click meals for more options.",
+                    tooltip="Select one or more meals.\nRight click meals for more options.",
                 )
             ],
             [
@@ -677,8 +677,8 @@ while True:
 
     if event == "Delete::table":
         for row in values["-TABLE-"]:
-            print(gui_table[row][1])
             gui_table[row][1] = ""
+            current_plan_dict[gui_table[row][0]] = [""]
             window["-TABLE-"].update(values=gui_table)
 
     if event == "Load Database":
@@ -690,7 +690,7 @@ while True:
             continue
         shutil.copy(new_file_path, db_file)
         window["-MEAL_LIST-"].update(
-            values=[meal.title() for meal in read_all_meals(db_file).keys()]
+            values=sorted([meal.title() for meal in read_all_meals(db_file).keys()])
         )
         meals = {meal: info for meal, info in read_all_meals(db_file).items()}
         current_plan = read_current_plans(db_file, str(start))
@@ -997,7 +997,7 @@ while True:
 
     if event == "-PLAN-CLEAR-":
         # Empty out the table and return it to the default values
-
+        current_plan_dict = blank_table
         window["-TABLE-"].update(blank_gui_table)
         window["-PLAN_INGREDIENTS_LIST-"].update([])
 
