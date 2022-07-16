@@ -38,18 +38,26 @@ NOTE: DO NOT DO THIS STEP FROM WITHIN A VIRTUAL ENVIRONMENT
     * about
     * maybe feedback?
 * Improve this list to include quantities based on meal recipes or ingredients
-* Add a better recipe interface with steps and proportions
 
-* Feedback
-    * For each main GUI box, add a sentence with instructions (e.g., add a comma separating multiple ingredients).
-    * Multiple item select in the meals list by holding down Command.
-    * Clear a single day from the plan (Right click and remove it)
-    * You should be able to add a new category by typing a new one into the New Meal, Meal Category field. If it exists, it’s on the list, if not, it adds it.
-    * When you click on a Meal Selection, you should be able to see somewhere what category it’s in.
-    * Export Meal plan & Ingredients list to a txt file or note
-    * Increase font size for error messages
+##### Recipe Interface
+* Add a popup window that allows for a detailed recipe to be added
+* Meal name (also add meal to meal list)
+* ingredients and proportions in a paired list (either tuples or paired list of lists)
+* serving size - look up with is included in most recipes
 
-    * DONE ~The shopping list should not list duplicates~
-    * Shopping list should add quantities together to provide total
-    * DONE ~Change 'Finalize Plan' to 'Save' - It should ask if you want to save your new meal plan before you close the app. (I added a plan but didn’t “finalize” it, and it didn’t save.) Maybe you should change “Finalize” to “Save.”~
-    * DONE ~Change "Meal Filter" to "Keyword Filter".~
+#### Feedback
+
+* Clear a single day from the plan (Right click and remove it)
+* You should be able to add a new category by typing a new one into the New Meal, Meal Category field. If it exists, it’s on the list, if not, it adds it.
+* When you click on a Meal Selection, you should be able to see somewhere what category it’s in.
+* Export Meal plan & Ingredients list to a txt file or note
+
+
+* DONE ~For each main GUI box, add a sentence with instructions (e.g., add a comma separating multiple ingredients)~
+* DONE ~The shopping list should not list duplicates~
+* Shopping list should add quantities together to provide total
+* DONE ~Change 'Finalize Plan' to 'Save' - It should ask if you want to save your new meal plan before you close the app. (I added a plan but didn’t “finalize” it, and it didn’t save.) Maybe you should change “Finalize” to “Save”~
+* DONE ~Change "Meal Filter" to "Keyword Filter"~
+* DONE ~Multiple item select in the meals list by holding down Command (shift)~
+* DONE ~Add ability to export and load databases~
+* DONE ~Increase font size for error messages~
