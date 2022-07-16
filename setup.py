@@ -23,7 +23,7 @@ setup(
     data_files=DATA_FILES,
     options={"py2app": OPTIONS},
     setup_requires=["py2app", "PySimpleGUI"],
-    version="1.0.1",
+    version="1.0.2",
     author="George Fahmy",
     description="Meal Planner PRO",
     long_description="""Meal Planner PRO""",
