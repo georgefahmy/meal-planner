@@ -764,7 +764,7 @@ while True:
         meals = {meal: info for meal, info in read_all_meals(db_file).items()}
         current_plan_dict = read_current_plans(db_file, str(start))
 
-        if not current_plan:
+        if not current_plan_dict:
             current_plan_dict = blank_plan_dict
 
         gui_table = [[day] + meals for day, meals in current_plan_dict["meals"].items()]
@@ -1259,6 +1259,15 @@ while True:
                 f"Week of {date}\n\n{days_text}\n\nPlan Ingredients:\n{plan_ingredients}"
             )
         plan_text = "\n\n".join(plan_text)
-        sg.popup_scrolled(
-            plan_text, title="Available Meal Plans", size=(60, 20), font=("Arial", 12),
-        )
+        # sg.popup_scrolled(
+        #     plan_text, title="Available Meal Plans", size=(60, 20), font=("Arial", 12),
+        # )
+        sg.Window(
+            "Available Meal Plans",
+            [
+                [sg.Text("Available Meal Plans", font=("Arial", 16), justification="c")],
+                [sg.Multiline(plan_text, font=("Arial", 12), size=(60, 20), disabled=True)],
+                [sg.Button("Okay")],
+            ],
+            disable_close=False,
+        ).read(close=True)
