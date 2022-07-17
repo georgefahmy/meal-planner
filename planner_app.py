@@ -181,6 +181,14 @@ middle_column = [
                     layout=[
                         [
                             sg.Checkbox(
+                                "Sun",
+                                font=("Arial", 12),
+                                default=False,
+                                key="-SUN-",
+                                enable_events=False,
+                                size=(6, 10),
+                            ),
+                            sg.Checkbox(
                                 "Mon",
                                 font=("Arial", 12),
                                 default=False,
@@ -192,10 +200,12 @@ middle_column = [
                                 "Tue",
                                 font=("Arial", 12),
                                 default=False,
-                                key="-TUE-",
+                                key="-Tue-",
                                 enable_events=False,
                                 size=(6, 10),
                             ),
+                        ],
+                        [
                             sg.Checkbox(
                                 "Wed",
                                 font=("Arial", 12),
@@ -204,8 +214,6 @@ middle_column = [
                                 enable_events=False,
                                 size=(6, 10),
                             ),
-                        ],
-                        [
                             sg.Checkbox(
                                 "Thu",
                                 font=("Arial", 12),
@@ -214,6 +222,8 @@ middle_column = [
                                 enable_events=False,
                                 size=(6, 10),
                             ),
+                        ],
+                        [
                             sg.Checkbox(
                                 "Fri",
                                 font=("Arial", 12),
@@ -222,21 +232,11 @@ middle_column = [
                                 enable_events=False,
                                 size=(6, 10),
                             ),
-                        ],
-                        [
                             sg.Checkbox(
                                 "Sat",
                                 font=("Arial", 12),
                                 default=False,
                                 key="-SAT-",
-                                enable_events=False,
-                                size=(6, 10),
-                            ),
-                            sg.Checkbox(
-                                "Sun",
-                                font=("Arial", 12),
-                                default=False,
-                                key="-SUN-",
                                 enable_events=False,
                                 size=(6, 10),
                             ),
