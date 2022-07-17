@@ -6,7 +6,6 @@ if [ $INVENV == "True" ]; then
     echo "Please deactivate the virtual environment and run again"
     exit 0
 else
-    echo "nope"
     pip3.10 install -r requirements.txt
     python3.10 setup.py py2app
 fi

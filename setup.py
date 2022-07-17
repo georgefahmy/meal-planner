@@ -26,5 +26,8 @@ setup(
     version="2.0.0",
     author="George Fahmy",
     description="Meal Planner PRO",
-    long_description="""Meal Planner PRO""",
+    long_description="""Meal Planner PRO is a one stop shop for all your meal planning. You can add
+        all the meals and food you enjoy and lvoe into your database, including all the ingredients
+        to make that food. From there, you can build out meal plans, and shopping lists, and even
+        share the plans with friends and family!""",
 )

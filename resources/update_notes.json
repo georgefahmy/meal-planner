@@ -1,0 +1,34 @@
+{
+    "1.0": {
+        "Update Summary": [
+            "This is a big release, fixes a lot of the nuances of the first release"
+        ],
+        "Whats New": [
+            "First release",
+            "Basic functions including browsing meals, adding meals to the plan"
+        ],
+        "Fixes": [
+            "None - First release"
+        ]
+    },
+    "2.0": {
+        "Update Summary": [
+            "This is a big release, fixes a lot of the nuances of the first release"
+        ],
+        "Whats New": [
+            "Added ability to multi select items from the meal selection window using shift key",
+            "Added ability to export and load databases via the file option in menu",
+            "Added ability to clear a single day from the plan (Right click and remove it)",
+            "Added ability to supply a new category, if it doesn't exist.",
+            "Added the ability to see the selected meal's category",
+            "Added the ability to export Meal plan & ingredients to a text file",
+            "Each main GUI box now has a tooltip explaining what to do",
+            "Added a date selection calendar to allow you to pick and plan future weeks"
+        ],
+        "Fixes": [
+            "Updated working for some buttons and texts",
+            "Increase font size for error messages",
+            "Numerous bugs and strangeness"
+        ]
+    }
+}
