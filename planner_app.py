@@ -646,7 +646,10 @@ while True:
         print(event, values)
 
     if event == "-PICK_DATE-":
-        month, day, year = popup_get_date()
+        date = popup_get_date()
+        if not date:
+            continue
+        month, day, year = date
         start = datetime.date(year=year, month=month, day=day)
         week_start = start - datetime.timedelta(days=start.isoweekday() % 7)
         picked_date = f"Week of {str(week_start)}"
@@ -654,7 +657,10 @@ while True:
         current_plan_dict["date"] = str(start)
 
     if event == "-LOAD_PLAN-":
-        month, day, year = popup_get_date(title="Select Date of Plan")
+        date = popup_get_date()
+        if not date:
+            continue
+        month, day, year = date
         selected_day = datetime.date(year=year, month=month, day=day)
         week_start = selected_day - datetime.timedelta(days=selected_day.isoweekday() % 7)
         plan = read_current_plans(db_file, week_start)
