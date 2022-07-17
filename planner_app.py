@@ -703,22 +703,23 @@ while True:
 
         day_plan = []
         day_plan.append(f"Plan for the {picked_date}\n")
-        for day in gui_table:
-            if not day[1]:
-                day_plan.append(day[0])
+        for day, meal in current_plan_dict["meals"].items():
+            if not meal:
+                day_plan.append(f"{day}:")
                 day_plan.append("No Planned Meal\n\n")
                 continue
-            day_plan.append(day[0])
-            for meal in day[1].split(", "):
+            day_plan.append(f"{day}:")
+            for meal in meal:
                 if meal:
-                    day_plan.append(meal)
+                    day_plan.append(f"-{meal}-")
                     day_plan.append("Ingredients:")
                     wrapped_ingredients = textwrap.wrap(
-                        ", ".join(meals[meal.lower()]["ingredients"]), 50
+                        ", ".join(meals[meal.lower()]["ingredients"]).title(), 50
                     )
                     day_plan.append("\n".join(wrapped_ingredients))
                     day_plan.append("\n")
-
+        day_plan.append("All Ingredients:")
+        day_plan.append(current_plan_dict["ingredients"])
         plan_text = "\n".join(day_plan)
         with open(export_plan_path, "w") as fp:
             fp.write(plan_text)
