@@ -330,21 +330,6 @@ input_section = [
         [
             [
                 sg.Text(
-                    "Recipe Link",
-                    font=("Arial", 14),
-                    size=(10, 1),
-                    justification="center",
-                    expand_x=True,
-                )
-            ],
-            [sg.In(size=(15, 2), font=("Arial", 14), key="-RECIPE-", enable_events=False)],
-        ],
-        element_justification="c",
-    ),
-    sg.Column(
-        [
-            [
-                sg.Text(
                     "Meal Category",
                     font=("Arial", 14),
                     size=(10, 1),
@@ -363,6 +348,16 @@ input_section = [
                     readonly=False,
                     expand_x=True,
                 ),
+            ],
+        ],
+        element_justification="c",
+    ),
+    sg.Column(
+        [
+            [
+                sg.Button(
+                    "Recipe Link", font=("Arial", 12), size=(10, 1), expand_x=True, key="-RECIPE-",
+                )
             ],
         ],
         element_justification="c",
