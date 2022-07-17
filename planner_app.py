@@ -201,7 +201,7 @@ middle_column = [
                                 "Tue",
                                 font=("Arial", 12),
                                 default=False,
-                                key="-Tue-",
+                                key="-TUE-",
                                 enable_events=False,
                                 size=(6, 10),
                             ),
