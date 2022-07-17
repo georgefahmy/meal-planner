@@ -209,3 +209,12 @@ def read_current_plans(db_file, week_date):
         plan["ingredients"] = current_plan[-1]
     conn.close()
     return plan
+
+
+def remove_plan(db_file, plan_date):
+    conn = create_connection(db_file)
+    cur = conn.cursor()
+    cur.execute(f"DELETE FROM plans WHERE week_date LIKE '{plan_date}'")
+    conn.commit()
+    conn.close()
+    return True

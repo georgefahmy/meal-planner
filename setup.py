@@ -23,7 +23,7 @@ setup(
     data_files=DATA_FILES,
     options={"py2app": OPTIONS},
     setup_requires=["py2app", "PySimpleGUI", "altgraph", "modulegraph", "macholib"],
-    version="2.0.0",
+    version="2.1.0",
     author="George Fahmy",
     description="Meal Planner PRO",
     long_description="""Meal Planner PRO is a one stop shop for all your meal planning. You can add
