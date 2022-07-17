@@ -22,7 +22,7 @@ setup(
     name="Meal Planner PRO",
     data_files=DATA_FILES,
     options={"py2app": OPTIONS},
-    setup_requires=["py2app", "PySimpleGUI"],
+    setup_requires=["py2app", "PySimpleGUI", "altgraph", "modulegraph", "macholib"],
     version="2.1.0",
     author="George Fahmy",
     description="Meal Planner PRO",
