@@ -71,11 +71,11 @@ main_recipe_info = [
 
 layout = main_recipe_info
 
-window = sg.Window("Recipe Interface", layout=layout,
-                   resizable=True, size=(1280, 660), finalize=True)
+recipe_window = sg.Window("Recipe Interface", layout=layout,
+                   resizable=True, size=(800, 660), element_justification="c", finalize=True)
 
 while True:
-    event, values = window.read()
+    event, values = recipe_window.read()
     if event == sg.WIN_CLOSED:
         break
 
