@@ -36,18 +36,49 @@ db_file = os.path.join(wd, "database.db")
 meal_categories = list(dict.fromkeys(settings["meal_categories"]))
 
 
-font = ("Arial", 14)
+font = ("Arial", 16)
 
 # ______RECIPE LAYOUT_______
 
 main_recipe_info = [
-    [sg.Text("Title", font=font), sg.Input(font=font, key="recipe_title")],
-    [sg.Text("Subtitle (optional)", font=font), sg.Input(font=font, key="recipe_subtitle")],
     [
-        sg.Text("Category", font=font),
-        sg.Combo(values=meal_categories, font=font, key="recipe_category", readonly=True),
-    ],
+        sg.Frame("New Recipe",
+            size=(600, 120),
+            element_justification="c",
+            layout=[
+                [
+                    sg.Text("Title", font=font, size=(16, 1)),
+                    sg.Input(font=font, key="recipe_title", expand_x=True)
+                ],
+                [
+                    sg.Text("Subtitle (optional)", font=font, size=(16, 1)),
+                    sg.Input(font=font, key="recipe_subtitle", expand_x=True)
+                ],
+                [
+                    sg.Text("Category", font=font, size=(16, 1)),
+                    sg.Combo(
+                        values=meal_categories[1:],
+                        font=font,
+                        key="recipe_category",
+                        readonly=True,
+                        expand_x=True,
+                    )
+                ],
+            ]
+        )
+    ]
 ]
+
 layout = main_recipe_info
 
-sg.Window("Recipe Interface", layout=layout, finalize=True)
+window = sg.Window("Recipe Interface", layout=layout,
+                   resizable=True, size=(1280, 660), finalize=True)
+
+while True:
+    event, values = window.read()
+    if event == sg.WIN_CLOSED:
+        break
+
+    if event:
+        # DEBUG to print out the events and values
+        print(event, values)
