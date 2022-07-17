@@ -1,5 +1,5 @@
 {
-    "1.0": {
+    "1.0.0": {
         "Update Summary": [
             "This is a big release, fixes a lot of the nuances of the first release"
         ],
@@ -11,7 +11,7 @@
             "None - First release"
         ]
     },
-    "2.0": {
+    "2.0.0": {
         "Update Summary": [
             "This is a big release, fixes a lot of the nuances of the first release"
         ],
@@ -29,6 +29,18 @@
             "Updated working for some buttons and texts",
             "Increase font size for error messages",
             "Numerous bugs and strangeness"
+        ]
+    },
+    "2.1.0": {
+        "Update Summary": [
+            "Fixed a bunch of small things to make the app more user friendly"
+        ],
+        "Whats New": [
+            "Added the ability to delete a plan from the database permenantly"
+        ],
+        "Fixes": [
+            "Fixed bug with adding meals to the plan, this should now work correctly",
+            "Fixed a bug with the date picker picking the wrong date"
         ]
     }
 }
