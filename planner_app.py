@@ -38,6 +38,7 @@ make_database(db_file)
 
 today = datetime.date.today()
 today_name = today.strftime("%A")
+
 start = today - datetime.timedelta(days=datetime.datetime.today().isoweekday() % 7)
 weeks_dates = [start + datetime.timedelta(days=x) for x in range(7)]
 picked_date = f"Week of {str(start)}"
@@ -456,10 +457,7 @@ main_left_column = [
 # ---------------------------MAIN RIGHT COLUMN---------------------------
 # Top right quadrant - Meal Plan - Date, Meal Name, Link (if any)
 
-current_plan_dict = read_current_plans(db_file, str(start))
-
-if not current_plan_dict:
-    current_plan_dict = blank_plan_dict
+current_plan_dict = blank_plan_dict
 
 gui_table = [[day] + meals for day, meals in current_plan_dict["meals"].items()]
 
@@ -759,7 +757,8 @@ while True:
         )
         if not new_file_path:
             continue
-        shutil.copy(new_file_path, db_file)
+        os.remove(db_file)
+        shutil.copyfile(new_file_path, db_file)
         window["-MEAL_LIST-"].update(
             values=sorted([meal.title() for meal in read_all_meals(db_file).keys()])
         )
@@ -802,7 +801,7 @@ while True:
         )
         if not export_database_path:
             continue
-        shutil.copy(db_file, export_database_path)
+        shutil.copyfile(db_file, export_database_path)
 
         # Future to expand for more options - will need to update the databse for additional columns
     if event == "-MORE-OPTIONS-":

@@ -122,7 +122,7 @@ def add_plan(db_file, plan, overwrite=False):
         return ", ".join(in_list)
 
     if overwrite:
-        sql = f"""UPDATE plans SET week_date = '{plan["date"]}',
+        sql = f"""UPDATE plans SET
             sunday = '{join_list(plan["meals"]["Sunday"])}',
             monday = '{join_list(plan["meals"]["Monday"])}',
             tuesday = '{join_list(plan["meals"]["Tuesday"])}',
@@ -130,7 +130,7 @@ def add_plan(db_file, plan, overwrite=False):
             thursday = '{join_list(plan["meals"]["Thursday"])}',
             friday = '{join_list(plan["meals"]["Friday"])}',
             saturday = '{join_list(plan["meals"]["Saturday"])}',
-            ingredients = '{plan["ingredients"]}'"""
+            ingredients = '{plan["ingredients"]}' WHERE week_date LIKE '{plan["date"]}'"""
     else:
         sql = f"""INSERT OR IGNORE INTO plans
         (week_date, sunday, monday, tuesday, wednesday, thursday, friday, saturday, ingredients)
