@@ -23,3 +23,31 @@ from utils.sql_functions import (
 )
 from utils.custom_date_picker import popup_get_date
 from utils.make_database import make_database
+
+try:
+    wd = sys._MEIPASS
+except AttributeError:
+    wd = os.getcwd()
+
+file_path = os.path.join(wd, "settings.json")
+
+settings = json.load(open(file_path, "r"))
+db_file = os.path.join(wd, "database.db")
+meal_categories = list(dict.fromkeys(settings["meal_categories"]))
+
+
+font = ("Arial", 14)
+
+# ______RECIPE LAYOUT_______
+
+main_recipe_info = [
+    [sg.Text("Title", font=font), sg.Input(font=font, key="recipe_title")],
+    [sg.Text("Subtitle (optional)", font=font), sg.Input(font=font, key="recipe_subtitle")],
+    [
+        sg.Text("Category", font=font),
+        sg.Combo(values=meal_categories, font=font, key="recipe_category", readonly=True),
+    ],
+]
+layout = main_recipe_info
+
+sg.Window("Recipe Interface", layout=layout, finalize=True)
