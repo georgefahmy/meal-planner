@@ -650,7 +650,8 @@ while True:
     if event == "-PICK_DATE-":
         month, day, year = popup_get_date()
         start = datetime.date(year=year, month=month, day=day)
-        picked_date = f"Week of {str(start)}"
+        week_start = start - datetime.timedelta(days=start.isoweekday() % 7)
+        picked_date = f"Week of {str(week_start)}"
         window["-WEEK-"].update(picked_date)
         current_plan_dict["date"] = str(start)
 
