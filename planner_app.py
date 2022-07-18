@@ -642,6 +642,11 @@ while True:
         # DEBUG to print out the events and values
         print(event, values)
 
+    if event == "-RECIPE-":
+        from recipe_interface import recipes
+
+        recipes()
+
     if event == "-PICK_DATE-":
         date = popup_get_date()
         if not date:
@@ -1110,7 +1115,6 @@ while True:
         # Clear the new meal submission boxes
         window["-MEAL-"].update(value="")
         window["-INGREDIENTS-"].update(value="")
-        window["-RECIPE-"].update(value="")
         window["-NEWCATEGORY-"].update(set_to_index=[0])
 
     if event == "-MEAL_SUBMIT-":
@@ -1118,7 +1122,6 @@ while True:
         # the database
         new_meal = values["-MEAL-"].lower()
         new_ingredients = values["-INGREDIENTS-"].lower()
-        new_recipe = values["-RECIPE-"].lower()
         new_category = values["-NEWCATEGORY-"].lower()
         meal_categories = list(dict.fromkeys(settings["meal_categories"]))
         meal_categories.append(new_category.title())
@@ -1142,7 +1145,6 @@ while True:
             window["-MEAL_LIST-"].update(sorted([meal.title() for meal in meals.keys()]))
             window["-MEAL-"].update(value="")
             window["-INGREDIENTS-"].update(value="")
-            window["-RECIPE-"].update(value="")
             window["-NEWCATEGORY-"].update(set_to_index=[0], values=meal_categories[1:])
             window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
         else:

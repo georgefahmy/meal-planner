@@ -40,36 +40,6 @@ font = ("Arial", 16)
 
 # ______RECIPE LAYOUT_______
 
-main_recipe_info = [
-    sg.Frame(
-        "New Recipe",
-        layout=[
-            [
-                sg.Text("Title", font=font, size=(16, 1)),
-                sg.Input(font=font, key="recipe_title", expand_x=True),
-            ],
-            [
-                sg.Text("Subtitle (optional)", font=font, size=(16, 1)),
-                sg.Input(font=font, key="recipe_subtitle", expand_x=True),
-            ],
-            [
-                sg.Text("Category", font=font, size=(16, 1)),
-                sg.Combo(
-                    values=meal_categories[1:],
-                    font=font,
-                    key="recipe_category",
-                    readonly=True,
-                    expand_x=True,
-                ),
-            ],
-        ],
-        element_justification="c",
-        key="new_recipes_frame",
-        expand_x=True,
-        relief="raised",
-    )
-]
-
 
 def new_ingredient(i, j):
     return [
@@ -141,66 +111,105 @@ def new_recipe_section(j):
     ]
 
 
-recipe_section = [
-    sg.Frame(
-        "Recipe Section",
-        layout=[
-            [sg.Button("+ Add Section", key=f"add_recipe_section_{0}", enable_events=True)],
-            [
-                sg.Frame(
-                    "Ingredients",
-                    layout=[
-                        [
-                            sg.Text("Ingredients: ", font=("Arial Bold", 14)),
-                            sg.Text(
-                                "Press 'Enter' to add another ingredient", font=("Arial Italic", 12)
-                            ),
-                            sg.Button("(i) Tips", key="tips_button", enable_events=True),
-                        ],
-                        [
-                            sg.Input(font=font, key=f"section_{0}_ingredient_{0}", expand_x=True),
-                            sg.Button(
-                                "X",
-                                font=("Arial Bold", 14),
-                                key=f"section_{0}_remove_ingredient_{0}",
-                                enable_events=True,
-                            ),
-                            sg.Button(
-                                "Submit",
-                                visible=False,
-                                enable_events=True,
-                                bind_return_key=True,
-                                key="submit_ingredient",
-                            ),
-                        ],
-                    ],
-                    expand_x=True,
-                    key=f"ingredients_section_{0}",
-                )
-            ],
-        ],
-        expand_x=True,
-        key=f"recipe_section_{0}",
-        relief="raised",
-    )
-]
-
-layout = [
-    [
-        sg.Column(
-            layout=[main_recipe_info, recipe_section],
-            scrollable=True,
-            expand_y=True,
-            vertical_scroll_only=True,
-            element_justification="center",
-            key="column",
-            vertical_alignment="top",
-        ),
-    ],
-]
-
-
 def recipes():
+    top_bar = [
+        sg.Frame(
+            "",
+            layout=[
+                [
+                    sg.Button("Save", key="save_recipe", enable_events=True),
+                    sg.Button("Clear", key="clear_recipe", enable_events=True),
+                ]
+            ],
+            element_justification="r",
+            expand_x=True,
+        )
+    ]
+    main_recipe_info = [
+        sg.Frame(
+            "New Recipe",
+            layout=[
+                [
+                    sg.Text("Title", font=font, size=(16, 1)),
+                    sg.Input(font=font, key="recipe_title", expand_x=True),
+                ],
+                [
+                    sg.Text("Subtitle (optional)", font=font, size=(16, 1)),
+                    sg.Input(font=font, key="recipe_subtitle", expand_x=True),
+                ],
+                [
+                    sg.Text("Category", font=font, size=(16, 1)),
+                    sg.Combo(
+                        values=meal_categories[1:],
+                        font=font,
+                        key="recipe_category",
+                        readonly=True,
+                        expand_x=True,
+                    ),
+                ],
+            ],
+            element_justification="c",
+            key="new_recipes_frame",
+            expand_x=True,
+            relief="raised",
+        )
+    ]
+
+    recipe_section = [
+        sg.Frame(
+            "Recipe Section",
+            layout=[
+                [sg.Button("+ Add Section", key=f"add_recipe_section_{0}", enable_events=True)],
+                [
+                    sg.Frame(
+                        "Ingredients",
+                        layout=[
+                            [
+                                sg.Text("Ingredients: ", font=("Arial Bold", 14)),
+                                sg.Text(
+                                    "Press 'Enter' to add another ingredient",
+                                    font=("Arial Italic", 12),
+                                ),
+                                sg.Button("(i) Tips", key="tips_button", enable_events=True),
+                            ],
+                            [
+                                sg.Input(
+                                    font=font, key=f"section_{1}_ingredient_{0}", expand_x=True
+                                ),
+                                sg.Button(
+                                    "Submit",
+                                    visible=False,
+                                    enable_events=True,
+                                    bind_return_key=True,
+                                    key="submit_ingredient",
+                                ),
+                            ],
+                        ],
+                        expand_x=True,
+                        key=f"ingredients_section_{0}",
+                    )
+                ],
+            ],
+            expand_x=True,
+            key=f"recipe_section_{0}",
+            relief="raised",
+        )
+    ]
+
+    layout = [
+        [
+            sg.Column(
+                layout=[top_bar, main_recipe_info, recipe_section],
+                scrollable=True,
+                expand_y=True,
+                vertical_scroll_only=True,
+                element_justification="center",
+                key="column",
+                vertical_alignment="top",
+            ),
+        ],
+    ]
+
     recipe_window = sg.Window(
         "Recipe Interface",
         layout=layout,
@@ -252,6 +261,27 @@ def recipes():
             recipe_window[row].Widget.master.pack_forget()
             recipe_window[row].Widget.destroy()
             recipe_window[row].Widget.master.pack_forget()
+            recipe_window[row].Widget.master.pack_forget()
+            recipe_window[row].Widget.destroy()
+            recipe_window[row].Widget.master.pack_forget()
+            recipe_window[row].Widget.destroy()
+            recipe_window[row].Widget.master.pack_forget()
 
+        if event == "save_recipe":
+            from pprint import pprint
 
-recipes()
+            for element in recipe_window.element_list():
+                if type(element) == sg.InputText:
+                    if recipe_window[element.Key].get():
+                        print(element.Key)
+                        print(recipe_window[element.Key].get())
+
+        if event == "clear_recipe":
+            confirm = sg.popup_ok_cancel("Are you sure you want to clear?")
+            print(confirm)
+            if not confirm == "OK":
+                continue
+            for element in recipe_window.element_list():
+                if type(element) == sg.InputText and recipe_window[element.Key].get():
+                    recipe_window[element.Key].update("")
+                    recipe_window[element.Key].update("")
