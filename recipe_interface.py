@@ -63,7 +63,6 @@ main_recipe_info = [
                 ),
             ],
         ],
-        size=(600, 120),
         element_justification="c",
         key="new_recipes_frame",
         expand_x=True,
@@ -93,9 +92,6 @@ def new_recipe_section(j):
                 "Recipe Section",
                 layout=[
                     [
-                        sg.Button(
-                            "+ Add Section", key=f"add_recipe_section_{j}", enable_events=True,
-                        ),
                         sg.Text("", expand_x=True),
                         sg.Button(
                             "- Remove Section", key=f"remove_recipe_section_{j}", enable_events=True
@@ -132,12 +128,14 @@ def new_recipe_section(j):
                                     ),
                                 ],
                             ],
+                            expand_x=True,
                             key=f"ingredients_section_{j}",
                         )
                     ],
                 ],
                 expand_x=True,
                 key=f"recipe_section_{j}",
+                relief="raised",
             )
         ]
     ]
@@ -176,12 +174,14 @@ recipe_section = [
                             ),
                         ],
                     ],
+                    expand_x=True,
                     key=f"ingredients_section_{0}",
                 )
             ],
         ],
         expand_x=True,
         key=f"recipe_section_{0}",
+        relief="raised",
     )
 ]
 
@@ -190,60 +190,68 @@ layout = [
         sg.Column(
             layout=[main_recipe_info, recipe_section],
             scrollable=True,
-            expand_x=True,
             expand_y=True,
             vertical_scroll_only=True,
             element_justification="center",
             key="column",
+            vertical_alignment="top",
         ),
     ],
 ]
 
-recipe_window = sg.Window(
-    "Recipe Interface",
-    layout=layout,
-    resizable=True,
-    size=(800, 660),
-    element_justification="c",
-    finalize=True,
-)
 
-i, j = 1
-while True:
-    event, values = recipe_window.read()
-    if event == sg.WIN_CLOSED:
-        break
+def recipes():
+    recipe_window = sg.Window(
+        "Recipe Interface",
+        layout=layout,
+        resizable=True,
+        size=(650, 600),
+        element_justification="center",
+        finalize=True,
+    )
 
-    if event:
-        # DEBUG to print out the events and values
-        print(event, values)
+    i = j = 1
+    while True:
+        event, values = recipe_window.read()
+        if event == sg.WIN_CLOSED:
+            break
 
-    if event == "submit_ingredient":
-        recipe_window.extend_layout(
-            recipe_window[f"ingredients_section_{j-1}"], new_ingredient(i, j)
-        )
-        i += 1
+        if event:
+            # DEBUG to print out the events and values
+            print(event, values)
 
-    if "remove_ingredient" in event:
-        button = event
-        row = "_".join(event.split("_remove_"))
-        recipe_window[button].Widget.destroy()
-        recipe_window[button].Widget.master.pack_forget()
-        recipe_window[row].update(value="")
-        recipe_window[row].Widget.destroy()
-        recipe_window[row].Widget.master.pack_forget()
+        if event == "submit_ingredient":
+            recipe_window.extend_layout(
+                recipe_window[f"ingredients_section_{j-1}"], new_ingredient(i, j)
+            )
+            recipe_window.refresh()
+            recipe_window["column"].contents_changed()
+            i += 1
 
-    if "add_recipe_section" in event:
-        recipe_window.extend_layout(recipe_window["column"], new_recipe_section(j))
+        if "remove_ingredient" in event:
+            button = event
+            row = "_".join(event.split("_remove_"))
+            recipe_window[button].Widget.destroy()
+            recipe_window[button].Widget.master.pack_forget()
+            recipe_window[row].update(value="")
+            recipe_window[row].Widget.destroy()
+            recipe_window[row].Widget.master.pack_forget()
 
-        j += 1
+        if "add_recipe_section" in event:
+            recipe_window.extend_layout(recipe_window["column"], new_recipe_section(j))
+            recipe_window.refresh()
+            recipe_window["column"].contents_changed()
+            j += 1
 
-    if "remove_recipe_section" in event:
-        button = event
-        row = event.split("remove_")[-1]
-        recipe_window[button].Widget.destroy()
-        recipe_window[button].Widget.master.pack_forget()
-        recipe_window[row].Widget.destroy()
-        recipe_window[row].Widget.master.pack_forget()
-        recipe_window[row].Widget.destroy()
-        recipe_window[row].Widget.master.pack_forget()
+        if "remove_recipe_section" in event:
+            button = event
+            row = event.split("remove_")[-1]
+            recipe_window[button].Widget.destroy()
+            recipe_window[button].Widget.master.pack_forget()
+            recipe_window[row].Widget.destroy()
+            recipe_window[row].Widget.master.pack_forget()
+            recipe_window[row].Widget.destroy()
+            recipe_window[row].Widget.master.pack_forget()
+
+
+recipes()
