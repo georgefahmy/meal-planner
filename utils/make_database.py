@@ -41,6 +41,16 @@ def make_database(db_file=db_file):
             ingredients text
         );
     """
+    create_recipe_table = """
+        CREATE TABLE IF NOT EXISTS recipes
+        (
+            id integer PRIMARY KEY,
+            meal_id integer,
+            recipe_data json,
+            FOREIGN KEY (meal_id)
+                REFERENCES meals (id)
+        );
+    """
 
     conn = s.connect(db_file)
     c = conn.cursor()
@@ -48,6 +58,7 @@ def make_database(db_file=db_file):
     if conn:
         c.execute(create_meals_table)
         c.execute(create_plan_table)
+        c.execute(create_recipe_table)
         conn.commit()
     else:
         print("Error")

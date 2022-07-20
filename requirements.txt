@@ -3,4 +3,3 @@ macholib==1.16
 modulegraph==0.19.2
 py2app==0.28.2
 PySimpleGUI==4.60.1
-zestful-parse-ingredient==0.0.7

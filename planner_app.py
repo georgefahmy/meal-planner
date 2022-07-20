@@ -645,7 +645,7 @@ while True:
     if event == "-RECIPE-":
         from recipe_interface import recipes
 
-        recipes()
+        recipe = recipes()
 
     if event == "-PICK_DATE-":
         date = popup_get_date()
