@@ -8,22 +8,10 @@ import base64
 import shutil
 import textwrap
 
-from utils.sql_functions import (
-    add_meal,
-    read_all_meals,
-    read_specific_meals,
-    update_meal_name,
-    update_meal_category,
-    update_meal_ingredients,
-    remove_meal,
-    add_plan,
-    read_all_plans,
-    read_current_plans,
-    remove_plan,
-    create_connection,
-)
+from utils.sql_functions import *
 from utils.custom_date_picker import popup_get_date
 from utils.make_database import make_database
+from recipe_interface import recipes
 
 try:
     wd = sys._MEIPASS
@@ -73,6 +61,7 @@ meal_selection_rightclick_menu_def = [
         "Edit Category",
         "Edit Ingredients",
         ["Add Ingredient", "Edit Ingredients"],
+        "Update Recipe",
         "Delete Meal",
     ],
 ]
@@ -642,10 +631,39 @@ while True:
         # DEBUG to print out the events and values
         print(event, values)
 
-    if event == "-RECIPE-":
-        from recipe_interface import recipes
+    if event == "Update Recipe":
+        selected_meal = values["-MEAL_LIST-"][0].lower()
+        existing_recipe = read_meal_recipe(db_file, selected_meal)
+        if existing_recipe:
+            existing_recipe = json.loads(existing_recipe)
+            print("existing recipe exists")
 
-        recipe = recipes()
+        recipe = recipes(selected_meal.title(), recipe_data=existing_recipe)
+        if recipe:
+            confirm = sg.popup_ok_cancel("Overwrite existing recipe?")
+            if confirm == "OK":
+                update_meal_recipe(db_file, json.dumps(recipe), selected_meal)
+            else:
+                sg.popup_ok("Recipe not overwritten")
+
+    if event == "-RECIPE-":
+        basic_recipe = {}
+        if values["-MEAL-"]:
+            new_recipe_name = values["-MEAL-"]
+            pass
+        if values["-INGREDIENTS-"]:
+            raw_ingredients = values["-INGREDIENTS-"].split(", ")
+            basic_recipe["ingredients"] = {}
+            basic_recipe["directions"] = ""
+
+            for i, basic_ingredient in enumerate(raw_ingredients):
+                basic_recipe["ingredients"][f"ingredient_{i}"] = {}
+                basic_recipe["ingredients"][f"ingredient_{i}"]["quantity"] = ""
+                basic_recipe["ingredients"][f"ingredient_{i}"]["units"] = ""
+                basic_recipe["ingredients"][f"ingredient_{i}"]["ingredient"] = basic_ingredient
+                basic_recipe["ingredients"][f"ingredient_{i}"]["special_instruction"] = ""
+
+        recipe = json.dumps(recipes(new_recipe_name.title(), recipe_data=basic_recipe))
 
     if event == "-PICK_DATE-":
         date = popup_get_date()

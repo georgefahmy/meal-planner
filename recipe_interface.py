@@ -9,19 +9,7 @@ import shutil
 import textwrap
 import re
 
-from utils.sql_functions import (
-    add_meal,
-    read_all_meals,
-    read_specific_meals,
-    update_meal_name,
-    update_meal_category,
-    update_meal_ingredients,
-    remove_meal,
-    add_plan,
-    read_all_plans,
-    read_current_plans,
-    create_connection,
-)
+from utils.sql_functions import *
 from utils.custom_date_picker import popup_get_date
 from utils.make_database import make_database
 from utils.recipe_units import units
@@ -62,7 +50,7 @@ def clear_all_elements(window):
     return window
 
 
-def recipes():
+def recipes(meal_title=None, recipe_data=None):
     top_bar = [
         sg.Frame(
             "",
@@ -82,7 +70,13 @@ def recipes():
             layout=[
                 [
                     sg.Text("Title", font=font, size=(16, 1), pad=((5, 5), (5, 5))),
-                    sg.Input(font=font, key="recipe_title", expand_x=True, pad=((5, 5), (5, 5))),
+                    sg.Input(
+                        default_text=meal_title,
+                        font=font,
+                        key="recipe_title",
+                        expand_x=True,
+                        pad=((5, 5), (5, 5)),
+                    ),
                 ],
                 [
                     sg.Text("Subtitle (optional)", font=font, size=(16, 1), pad=((5, 5), (5, 5)),),
@@ -208,6 +202,29 @@ def recipes():
     match_expression = f"([0-9\/\.]*)?\s?({unit_expression})?\s*?([a-zA-Z\s]*),?\s?([a-zA-Z\s]*)?"
 
     i = 1
+    if recipe_data:
+        if recipe_data["ingredients"]:
+            print("there are ingredients")
+            for i, ingredient_dict in enumerate(recipe_data["ingredients"].values()):
+                quantity = ingredient_dict["quantity"]
+                ing_units = ingredient_dict["units"]
+                ingredient_name = ingredient_dict["ingredient"]
+                special_instruction = ingredient_dict["special_instruction"]
+                ingredient = (
+                    ((quantity + " ") if quantity else "")
+                    + ((str(ing_units) + " ") if ing_units else "")
+                    + ingredient_name.title()
+                    + ((", " + special_instruction) if special_instruction else "")
+                )
+                print(ingredient)
+                recipe_window[("ingredient", i)].update(value=ingredient)
+                recipe_window.extend_layout(
+                    recipe_window[("ingredient_frame", 0)], new_ingredient(i + 1),
+                )
+            recipe_window["directions"].update(value=recipe_data["directions"])
+            recipe_window.refresh()
+            recipe_window["column"].contents_changed()
+
     while True:
         event, values = recipe_window.read()
         if event == sg.WIN_CLOSED:
@@ -252,19 +269,29 @@ def recipes():
             row = recipe_window.FindElementWithFocus().Key
             recipe_window[event].Widget.destroy()
             recipe_window[event].Widget.master.pack_forget()
-            recipe_window[("ingredient", row[-1],)].update(value="")
-            recipe_window[("ingredient", row[-1],)].Widget.destroy()
-            recipe_window[("ingredient", row[-1],)].Widget.master.pack_forget()
+            recipe_window[("ingredient", row[-1])].update(value="")
+            recipe_window[("ingredient", row[-1])].Widget.destroy()
+            recipe_window[("ingredient", row[-1])].Widget.master.pack_forget()
             recipe_window.refresh()
             recipe_window["column"].contents_changed()
 
         if event == "save_recipe":
             raw_ingredients = []
+            recipe = {}
+            recipe["ingredients"] = {}
             for element in recipe_window.element_list():
                 if type(element) == sg.InputText:
                     if "ingredient" in element.Key:
                         if recipe_window[element.Key].get():
                             raw_ingredients.append(recipe_window[element.Key].get())
+                    if "recipe_title" in element.key:
+                        recipe["title"] = recipe_window[element.Key].get()
+
+                    if "recipe_subtitle" in element.key:
+                        recipe["subtitle"] = recipe_window[element.Key].get()
+
+                    if "recipe_category" in element.key:
+                        recipe["subtitle"] = recipe_window[element.Key].get()
                 if type(element) == sg.Multiline:
                     if "directions" in element.Key:
 
@@ -274,10 +301,7 @@ def recipes():
                             else None
                         )
 
-            recipe = {}
-            j = 0
-            for raw_ingredient in raw_ingredients:
-                recipe["ingredients"] = {}
+            for j, raw_ingredient in enumerate(raw_ingredients):
                 recipe["ingredients"][f"ingredient_{j}"] = {}
                 parsed_ingredient = re.match(match_expression, raw_ingredient).groups()
                 (
@@ -286,9 +310,9 @@ def recipes():
                     recipe["ingredients"][f"ingredient_{j}"]["ingredient"],
                     recipe["ingredients"][f"ingredient_{j}"]["special_instruction"],
                 ) = parsed_ingredient
-                j += 1
 
             recipe["directions"] = directions
+            recipe_window.close()
             return recipe
 
         if event == "clear_recipe":

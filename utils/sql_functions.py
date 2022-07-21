@@ -62,10 +62,10 @@ def read_all_meals(db_file):
     return meals
 
 
-def read_specific_meals(db_file, meal_name):
+def read_specific_meals(db_file, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(f"SELECT meal, ingredients FROM meals WHERE meal LIKE '{meal_name}'")
+    cur.execute(f"SELECT meal, ingredients FROM meals WHERE meal LIKE '{selected_meal}'")
     raw_meal = cur.fetchall()[0]
     meal = {}
     meal[raw_meal[0]] = raw_meal[1].split(", ")
@@ -73,10 +73,28 @@ def read_specific_meals(db_file, meal_name):
     return meal
 
 
+def read_meal_recipe(db_file, selected_meal):
+    conn = create_connection(db_file)
+    cur = conn.cursor()
+    cur.execute(f"SELECT json(recipe_data) FROM meals WHERE meal LIKE '{selected_meal}'")
+    recipe = cur.fetchone()[0]
+    conn.close()
+    return recipe
+
+
 def update_meal_name(db_file, new_meal_name, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
     cur.execute(f"UPDATE meals SET meal = '{new_meal_name}' WHERE meal LIKE '{selected_meal}'")
+    conn.commit()
+    conn.close()
+    return
+
+
+def update_meal_recipe(db_file, recipe_data, selected_meal):
+    conn = create_connection(db_file)
+    cur = conn.cursor()
+    cur.execute(f"UPDATE meals SET recipe_data = {recipe_data} WHERE meal LIKE '{selected_meal}'")
     conn.commit()
     conn.close()
     return
