@@ -1176,6 +1176,8 @@ while True:
         recipe = read_meal_recipe(db_file, selected_meal)
         if recipe:
             window["-VIEW_RECIPE-"].update(visible=True)
+        else:
+            window["-VIEW_RECIPE-"].update(visible=False)
         ingredients_list = meals[selected_meal]["ingredients"]
         window["-MEAL_INGREDIENTS_LIST-"].update(
             sorted([ingredient.title() for ingredient in ingredients_list])

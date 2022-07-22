@@ -106,7 +106,7 @@ def read_meal_recipe(db_file, selected_meal):
     cur = conn.cursor()
     cur.execute(f"SELECT recipe_data FROM meals WHERE meal LIKE '{selected_meal}'")
     recipe = cur.fetchone()[0]
-    recipe = json.loads(recipe)
+    recipe = json.loads(recipe) if recipe else None
     conn.commit()
     conn.close()
     return recipe
