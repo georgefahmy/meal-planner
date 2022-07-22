@@ -201,7 +201,7 @@ Available units and abbreviations:
 
     unit_expression = "|".join(fixed_units)
     match_expression = (
-        f"([0-9\/\.]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s]*),?\s?([a-zA-Z0-9\s]*)?"
+        f"([0-9\/\.-]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s]*),?\s?([a-zA-Z0-9\s]*)?"
     )
 
     i = 1
@@ -286,6 +286,7 @@ Available units and abbreviations:
             raw_ingredients = []
             recipe = {}
             recipe["ingredients"] = {}
+
             for element in recipe_window.element_list():
                 if type(element) == sg.InputText:
                     if "ingredient" in element.Key:
@@ -297,8 +298,10 @@ Available units and abbreviations:
                     if "recipe_subtitle" in element.key:
                         recipe["subtitle"] = recipe_window[element.Key].get()
 
+                if type(element) == sg.Combo:
                     if "recipe_category" in element.key:
-                        recipe["subtitle"] = recipe_window[element.Key].get()
+                        recipe["recipe_category"] = recipe_window[element.Key].get()
+
                 if type(element) == sg.Multiline:
                     if "directions" in element.Key:
 

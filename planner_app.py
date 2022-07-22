@@ -610,6 +610,7 @@ def format_recipe(recipe):
                     ing["quantity"] if ing["quantity"] else "",
                     ing["units"] if ing["units"] else "",
                     ing["ingredient"] if ing["ingredient"] else "",
+                    ing["special_instruction"] if ing["special_instruction"] else "",
                 ]
             ),
         ).strip()
@@ -622,8 +623,9 @@ def format_recipe(recipe):
     left_ingredients = [i[0] for i in ingredients]
     right_ingredients = [i[1] for i in ingredients]
     layout = [
-        [sg.Text(recipe["title"], font=("Arial Bold", 18), justification="c")],
-        [sg.Text(recipe["subtitle"], font=("Arial Bold", 16), justification="c")],
+        [sg.Text(recipe["title"], font=("Arial Bold", 18), justification="l")],
+        [sg.Text(recipe["subtitle"], font=("Arial Italic", 12), justification="l")],
+        [sg.Text("", font=("Arial Italic", 12), expand_x=True, justification="c")],
         [sg.HorizontalSeparator()],
         [sg.Text("Ingredients", font=("Arial Bold", 14), justification="c")],
         [
@@ -651,6 +653,7 @@ def format_recipe(recipe):
                 justification="l",
             )
         ],
+        [sg.Text("", font=("Arial Bold", 12), expand_x=True, justification="c")],
     ]
     display_window = sg.Window("Recipe", layout, resizable=True, finalize=True)
     return display_window
@@ -704,6 +707,7 @@ while True:
         basic_recipe["ingredients"] = {}
         basic_recipe["directions"] = ""
         basic_recipe["title"] = ""
+        basic_recipe["recipe_category"] = ""
         new_recipe_name = ""
 
         if values["-MEAL-"]:
@@ -733,7 +737,7 @@ while True:
             continue
         window["-RECIPE_NOTE-"].update(visible=True)
         basic_ingredients = [
-            ingredient["raw_ingredient"] for ingredient in recipe["ingredients"].values()
+            ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
         ]
         window["-INGREDIENTS-"].update(value=", ".join(basic_ingredients).lower())
         window["-MEAL-"].update(value=recipe["title"].title())
