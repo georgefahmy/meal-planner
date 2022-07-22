@@ -597,7 +597,7 @@ def matchingKeys(dictionary, searchString):
     ]
 
 
-def format_recipe(recipe):
+def display_recipe(recipe):
     if type(recipe) == str:
         print("recipe not converted to dict, converting now")
         recipe = json.loads(recipe)
@@ -616,6 +616,8 @@ def format_recipe(recipe):
         ).strip()
         for ing in recipe["ingredients"].values()
     ]
+    subtitle_flag = True if recipe["subtitle"] else False
+
     if len(ingredients) % 2 != 0:
         ingredients.append("")
 
@@ -624,7 +626,14 @@ def format_recipe(recipe):
     right_ingredients = [i[1] for i in ingredients]
     layout = [
         [sg.Text(recipe["title"], font=("Arial Bold", 18), justification="l")],
-        [sg.Text(recipe["subtitle"], font=("Arial Italic", 12), justification="l")],
+        [
+            sg.Text(
+                recipe["subtitle"],
+                font=("Arial Italic", 12),
+                visible=subtitle_flag,
+                justification="l",
+            )
+        ],
         [sg.Text("", font=("Arial Italic", 12), expand_x=True, justification="c")],
         [sg.HorizontalSeparator()],
         [sg.Text("Ingredients", font=("Arial Bold", 14), justification="c")],
@@ -1193,7 +1202,7 @@ while True:
             visible=True, value=meals[selected_meal]["category"].title()
         )
     if event == "-VIEW_RECIPE-":
-        w = format_recipe(recipe)
+        w = display_recipe(recipe)
 
     if event == "-CANCEL-":
         # Meal selection Cancel, clear out all the values for the checkboxes and meal list and
