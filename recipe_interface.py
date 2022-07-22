@@ -200,7 +200,9 @@ def recipes(meal_title=None, recipe_data=None):
             fixed_units.append("".join(fixed_unit))
 
     unit_expression = "|".join(fixed_units)
-    match_expression = f"([0-9\/\.]*)?\s?({unit_expression})?\s*?([a-zA-Z\s]*),?\s?([a-zA-Z\s]*)?"
+    match_expression = (
+        f"([0-9\/\.]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s]*),?\s?([a-zA-Z0-9\s]*)?"
+    )
 
     i = 1
     if recipe_data:
@@ -304,7 +306,14 @@ def recipes(meal_title=None, recipe_data=None):
 
             for j, raw_ingredient in enumerate(raw_ingredients):
                 recipe["ingredients"][f"ingredient_{j}"] = {}
-                parsed_ingredient = re.match(match_expression, raw_ingredient).groups()
+                recipe["ingredients"][f"ingredient_{j}"]["raw_ingredient"] = raw_ingredient
+                parsed_ingredient = list(re.match(match_expression, raw_ingredient).groups())
+
+                for i, val in enumerate(parsed_ingredient):
+                    if val:
+                        parsed_ingredient[i] = val.strip()
+
+                parsed_ingredient = tuple(parsed_ingredient)
                 (
                     recipe["ingredients"][f"ingredient_{j}"]["quantity"],
                     recipe["ingredients"][f"ingredient_{j}"]["units"],

@@ -7,11 +7,14 @@ import sys
 import base64
 import shutil
 import textwrap
+import re
 
 from utils.sql_functions import *
 from utils.custom_date_picker import popup_get_date
 from utils.make_database import make_database
 from recipe_interface import recipes
+from itertools import pairwise
+
 
 try:
     wd = sys._MEIPASS
@@ -289,7 +292,7 @@ input_section = [
                     "Meal", font=("Arial", 14), size=(10, 1), justification="center", expand_x=True,
                 )
             ],
-            [sg.Input(size=(15, 2), font=("Arial", 14), key="-MEAL-", enable_events=False)],
+            [sg.Input(size=(11, 2), font=("Arial", 14), key="-MEAL-", enable_events=False)],
         ],
         element_justification="c",
     ),
@@ -306,7 +309,7 @@ input_section = [
             ],
             [
                 sg.In(
-                    size=(15, 2),
+                    size=(11, 2),
                     font=("Arial", 14),
                     key="-INGREDIENTS-",
                     enable_events=False,
@@ -320,9 +323,32 @@ input_section = [
         [
             [
                 sg.Text(
-                    "Meal Category",
+                    "Recipe Link",
                     font=("Arial", 14),
                     size=(10, 1),
+                    justification="center",
+                    expand_x=True,
+                )
+            ],
+            [
+                sg.In(
+                    size=(11, 2),
+                    font=("Arial", 14),
+                    key="-RECIPE_LINK-",
+                    enable_events=False,
+                    tooltip="Paste a URL from your favorite recipe here",
+                )
+            ],
+        ],
+        element_justification="c",
+    ),
+    sg.Column(
+        [
+            [
+                sg.Text(
+                    "Meal Category",
+                    font=("Arial", 14),
+                    size=(12, 1),
                     justification="center",
                     expand_x=True,
                 )
@@ -332,7 +358,7 @@ input_section = [
                     default_value=meal_categories[1],
                     values=meal_categories[1:],
                     font=("Arial", 12),
-                    size=(15, 1),
+                    size=(10, 1),
                     key="-NEWCATEGORY-",
                     enable_events=False,
                     readonly=False,
@@ -346,7 +372,22 @@ input_section = [
         [
             [
                 sg.Button(
-                    "Full Recipe", font=("Arial", 12), size=(10, 1), expand_x=True, key="-RECIPE-",
+                    "Full Recipe",
+                    font=("Arial", 12),
+                    size=(10, 1),
+                    expand_x=True,
+                    key="-RECIPE-",
+                    tooltip="Full detailed recipe information",
+                )
+            ],
+            [
+                sg.Text(
+                    "Recipe saved",
+                    font=("Arial", 10),
+                    size=(10, 1),
+                    expand_x=True,
+                    key="-RECIPE_NOTE-",
+                    visible=False,
                 )
             ],
         ],
@@ -552,6 +593,63 @@ def matchingKeys(dictionary, searchString):
     ]
 
 
+def format_recipe(recipe):
+
+    ingredients = [
+        re.sub(
+            "\s+",
+            " ",
+            " ".join(
+                [
+                    ing["quantity"] if ing["quantity"] else "",
+                    ing["units"] if ing["units"] else "",
+                    ing["ingredient"] if ing["ingredient"] else "",
+                ]
+            ),
+        ).strip()
+        for ing in recipe["ingredients"].values()
+    ]
+    if len(ingredients) % 2 != 0:
+        ingredients.append("")
+
+    ingredients = list(pairwise(ingredients))[::2]
+    left_ingredients = [i[0] for i in ingredients]
+    right_ingredients = [i[1] for i in ingredients]
+    layout = [
+        [sg.Text(recipe["title"], font=("Arial Bold", 18), justification="c")],
+        [sg.Text(recipe["subtitle"], font=("Arial Bold", 16), justification="c")],
+        [sg.HorizontalSeparator()],
+        [sg.Text("Ingredients", font=("Arial Bold", 14), justification="c")],
+        [
+            sg.Column(
+                [
+                    [sg.Text(ingredient, font=("Arial Bold", 12), justification="l")]
+                    for ingredient in left_ingredients
+                ],
+                element_justification="l",
+            ),
+            sg.Column(
+                [
+                    [sg.Text(ingredient, font=("Arial Bold", 12), justification="l")]
+                    for ingredient in right_ingredients
+                ],
+                element_justification="l",
+            ),
+        ],
+        [sg.HorizontalSeparator()],
+        [sg.Text("Instructions", font=("Arial Bold", 16), justification="c")],
+        [
+            sg.Text(
+                "\n".join(textwrap.wrap(recipe["directions"], 80)),
+                font=("Arial Bold", 12),
+                justification="l",
+            )
+        ],
+    ]
+    display_window = sg.Window("Recipe", layout, resizable=True, finalize=True)
+    return display_window
+
+
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
 icon_file = wd + "/resources/burger-10956.png"
@@ -602,6 +700,10 @@ while True:
         if values["-MEAL-"]:
             new_recipe_name = values["-MEAL-"]
 
+        if values["-CATEGORY-"]:
+            new_recipe_category = values["-CATEGORY-"]
+            basic_recipe["recipe_category"] = new_recipe_category
+
         if values["-INGREDIENTS-"]:
             raw_ingredients = values["-INGREDIENTS-"].split(", ")
             basic_recipe["ingredients"] = {}
@@ -614,16 +716,19 @@ while True:
                 basic_recipe["ingredients"][f"ingredient_{i}"]["ingredient"] = basic_ingredient
                 basic_recipe["ingredients"][f"ingredient_{i}"]["special_instruction"] = ""
 
-        recipe = json.dumps(recipes(new_recipe_name.title(), recipe_data=basic_recipe))
+        recipe = recipes(new_recipe_name.title(), recipe_data=basic_recipe)
 
-        if not json.loads(recipe):
+        if not recipe:
             continue
-        if not json.loads(recipe)["ingredients"]:
+        if not recipe["ingredients"]:
             continue
-
+        window["-RECIPE_NOTE-"].update(visible=True)
         basic_ingredients = [
-            ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
+            ingredient["raw_ingredient"] for ingredient in recipe["ingredients"].values()
         ]
+        window["-INGREDIENTS-"].update(value=", ".join(basic_ingredients).lower())
+        window["-MEAL-"].update(value=recipe["title"].title())
+        window["-CATEGORY-"].update(value=recipe["recipe_category"].title())
 
     if event == "-PICK_DATE-":
         date = popup_get_date()
@@ -1088,6 +1193,12 @@ while True:
         # Clear the new meal submission boxes
         window["-MEAL-"].update(value="")
         window["-INGREDIENTS-"].update(value="")
+        window["-RECIPE_LINK-"].update(value="")
+        try:
+            window["-RECIPE_NOTE-"].update(visible=False)
+            recipe = ""
+        except:
+            pass
         window["-NEWCATEGORY-"].update(set_to_index=[0])
 
     if event == "-MEAL_SUBMIT-":
@@ -1096,6 +1207,7 @@ while True:
         new_meal = values["-MEAL-"].lower()
         new_ingredients = values["-INGREDIENTS-"].lower()
         new_category = values["-NEWCATEGORY-"].lower()
+        new_recipe = values["-RECIPE_LINK-"].lower()
         meal_categories = list(dict.fromkeys(settings["meal_categories"]))
         meal_categories.append(new_category.title())
         meal_categories = list(dict.fromkeys(meal_categories))
@@ -1105,24 +1217,29 @@ while True:
 
         if not new_ingredients:
             new_ingredients = new_meal
-        new_recipe = ""
+
         if not recipe:
             recipe = ""
+
         if new_meal:
             add_meal(
                 db_file,
                 new_meal,
                 ingredients=new_ingredients,
                 recipe_link=new_recipe,
-                recipe=recipe,
+                recipe=json.dumps(recipe),
                 category=new_category,
             )
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             window["-MEAL_LIST-"].update(sorted([meal.title() for meal in meals.keys()]))
             window["-MEAL-"].update(value="")
             window["-INGREDIENTS-"].update(value="")
+            window["-RECIPE_LINK-"].update(value="")
+            recipe = ""
+            window["-RECIPE_NOTE-"].update(visible=False)
             window["-NEWCATEGORY-"].update(set_to_index=[0], values=meal_categories[1:])
             window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
+
         else:
             sg.Window(
                 "ERROR",
