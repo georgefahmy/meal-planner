@@ -29,7 +29,7 @@ def create_connection(db_file=db_file):
     return conn
 
 
-def add_meal(db_file, meal, ingredients=None, recipe_link=None, category=None):
+def add_meal(db_file, meal, ingredients=None, recipe_link=None, recipe=None, category=None):
     conn = create_connection(db_file)
     """
     Create a new category in the Categories table
@@ -37,8 +37,8 @@ def add_meal(db_file, meal, ingredients=None, recipe_link=None, category=None):
     :param kwargs:
     :return id:
     """
-    values = (meal, ingredients, recipe_link, category)
-    sql = f""" INSERT INTO meals (meal, ingredients, recipe_link, category) VALUES(?,?,?,?)"""
+    values = (meal, ingredients, recipe_link, recipe, category)
+    sql = f""" INSERT INTO meals (meal, ingredients, recipe_link, recipe_data, category) VALUES(?,?,?,?,?)"""
     cur = conn.cursor()
     cur.execute(sql, values)
     conn.commit()
@@ -49,14 +49,15 @@ def add_meal(db_file, meal, ingredients=None, recipe_link=None, category=None):
 def read_all_meals(db_file):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute("SELECT meal, ingredients, recipe_link, category FROM meals")
+    cur.execute("SELECT meal, ingredients, recipe_link, recipe_data, category FROM meals")
     all_meals = cur.fetchall()
     meals = {}
     for meal in all_meals:
         meals[meal[0]] = {
             "ingredients": meal[1].split(", "),
-            "recipe": meal[2],
-            "category": meal[3],
+            "recipe_link": meal[2],
+            "recipe_data": meal[3],
+            "category": meal[4],
         }
     conn.close()
     return meals
