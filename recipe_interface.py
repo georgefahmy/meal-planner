@@ -173,20 +173,20 @@ def recipes(meal_title=None, recipe_data=None):
         ["\t".join(unit) for unit in [[unit[0], ", ".join(unit[1:])] for unit in units]]
     )
     tip_text = f"""
-    Enter ingredient information as follows:
-        quantity units ingredient, special instructions (units and special instructions optional)
+Enter ingredient information as follows:
+    quantity units ingredient, special instructions (units and special instructions optional)
 
-        examples:
-        2 c. onions, chopped
-        1 oz. olive oil
-        2 1/2 cups of flour, sifted
-        (available units at the bottom)
+    examples:
+    2 c. onions, chopped
+    1 oz. olive oil
+    2 1/2 cups of flour, sifted
+    (available units at the bottom)
 
-    If an ingredient is not recognized or units are not recognized, the text as entered will
-    be used in the recipe.
+If an ingredient is not recognized or units are not recognized, the text as entered will
+be used in the recipe.
 
-    Available units and abbreviations:
-    {available_units}
+Available units and abbreviations:
+{available_units}
     """
 
     fixed_units = []
@@ -206,8 +206,13 @@ def recipes(meal_title=None, recipe_data=None):
 
     i = 1
     if recipe_data:
+        if recipe_data["recipe_category"]:
+            recipe_window["recipe_category"].update(value=recipe_data["recipe_category"])
+
+        if recipe_data["directions"]:
+            recipe_window["directions"].update(value=recipe_data["directions"])
+
         if recipe_data["ingredients"]:
-            print("there are ingredients")
             for i, ingredient_dict in enumerate(recipe_data["ingredients"].values()):
                 quantity = ingredient_dict["quantity"]
                 ing_units = ingredient_dict["units"]
@@ -224,9 +229,8 @@ def recipes(meal_title=None, recipe_data=None):
                 recipe_window.extend_layout(
                     recipe_window[("ingredient_frame", 0)], new_ingredient(i + 1),
                 )
-            recipe_window["directions"].update(value=recipe_data["directions"])
-            recipe_window.refresh()
-            recipe_window["column"].contents_changed()
+        recipe_window.refresh()
+        recipe_window["column"].contents_changed()
 
     while True:
         event, values = recipe_window.read()

@@ -701,19 +701,22 @@ while True:
 
     if event == "-RECIPE-":
         basic_recipe = {}
+        basic_recipe["ingredients"] = {}
+        basic_recipe["directions"] = ""
+        basic_recipe["title"] = ""
         new_recipe_name = ""
 
         if values["-MEAL-"]:
             new_recipe_name = values["-MEAL-"]
+            basic_recipe["title"] = new_recipe_name
 
-        if values["-CATEGORY-"]:
-            new_recipe_category = values["-CATEGORY-"]
+        if values["-NEWCATEGORY-"]:
+            new_recipe_category = values["-NEWCATEGORY-"]
             basic_recipe["recipe_category"] = new_recipe_category
 
         if values["-INGREDIENTS-"]:
             raw_ingredients = values["-INGREDIENTS-"].split(", ")
             basic_recipe["ingredients"] = {}
-            basic_recipe["directions"] = ""
 
             for i, basic_ingredient in enumerate(raw_ingredients):
                 basic_recipe["ingredients"][f"ingredient_{i}"] = {}
@@ -734,7 +737,7 @@ while True:
         ]
         window["-INGREDIENTS-"].update(value=", ".join(basic_ingredients).lower())
         window["-MEAL-"].update(value=recipe["title"].title())
-        window["-CATEGORY-"].update(value=recipe["recipe_category"].title())
+        window["-NEWCATEGORY-"].update(value=recipe["recipe_category"].title())
 
     if event == "-PICK_DATE-":
         date = popup_get_date()
