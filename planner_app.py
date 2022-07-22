@@ -247,6 +247,9 @@ middle_column = [
 right_column = [
     sg.Frame(
         "Ingredients",
+        size=(300, 245),
+        expand_x=True,
+        element_justification="c",
         layout=[
             [
                 sg.Text(
@@ -268,6 +271,7 @@ right_column = [
                     select_mode=sg.LISTBOX_SELECT_MODE_SINGLE,
                 )
             ],
+            [sg.Button("View Recipe", visible=False, key="-VIEW_RECIPE-")],
         ],
     )
 ]
@@ -594,7 +598,9 @@ def matchingKeys(dictionary, searchString):
 
 
 def format_recipe(recipe):
-
+    if type(recipe) == str:
+        print("recipe not converted to dict, converting now")
+        recipe = json.loads(recipe)
     ingredients = [
         re.sub(
             "\s+",
@@ -1167,6 +1173,9 @@ while True:
         if not values["-MEAL_LIST-"]:
             continue
         selected_meal = values["-MEAL_LIST-"][0].lower()
+        recipe = read_meal_recipe(db_file, selected_meal)
+        if recipe:
+            window["-VIEW_RECIPE-"].update(visible=True)
         ingredients_list = meals[selected_meal]["ingredients"]
         window["-MEAL_INGREDIENTS_LIST-"].update(
             sorted([ingredient.title() for ingredient in ingredients_list])
@@ -1174,6 +1183,8 @@ while True:
         window["-CATEGORY_TEXT-"].update(
             visible=True, value=meals[selected_meal]["category"].title()
         )
+    if event == "-VIEW_RECIPE-":
+        w = format_recipe(recipe)
 
     if event == "-CANCEL-":
         # Meal selection Cancel, clear out all the values for the checkboxes and meal list and
@@ -1188,6 +1199,7 @@ while True:
         window["-MEAL_LIST-"].update(sorted([meal.title() for meal in meals.keys()]))
         window["-MEAL_INGREDIENTS_LIST-"].update([])
         window["-CFILTER-"].update(set_to_index=[0])
+        window["-VIEW_RECIPE-"].update(visible=False)
 
     if event == "-MEAL-CLEAR-":
         # Clear the new meal submission boxes

@@ -101,6 +101,17 @@ def update_meal_recipe(db_file, recipe_data, selected_meal):
     return
 
 
+def read_meal_recipe(db_file, selected_meal):
+    conn = create_connection(db_file)
+    cur = conn.cursor()
+    cur.execute(f"SELECT recipe_data FROM meals WHERE meal LIKE '{selected_meal}'")
+    recipe = cur.fetchone()[0]
+    recipe = json.loads(recipe)
+    conn.commit()
+    conn.close()
+    return recipe
+
+
 def update_meal_category(db_file, new_category, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
