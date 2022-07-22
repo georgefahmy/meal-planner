@@ -191,12 +191,13 @@ def recipes(meal_title=None, recipe_data=None):
 
     fixed_units = []
     for unit in units:
-        fixed_unit = []
-        for character in unit:
-            if character == ".":
-                character = r"\{}".format(character)
-            fixed_unit.append(character)
-        fixed_units.append("".join(fixed_unit))
+        for detailed_unit in unit:
+            fixed_unit = []
+            for character in detailed_unit:
+                if character == ".":
+                    character = r"\{}".format(character)
+                fixed_unit.append(character)
+            fixed_units.append("".join(fixed_unit))
 
     unit_expression = "|".join(fixed_units)
     match_expression = f"([0-9\/\.]*)?\s?({unit_expression})?\s*?([a-zA-Z\s]*),?\s?([a-zA-Z\s]*)?"
