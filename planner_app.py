@@ -356,10 +356,15 @@ input_section = [
     sg.Column(
         [
             [
-                sg.Button(
-                    "Recipe Link", font=("Arial", 12), size=(10, 1), expand_x=True, key="-RECIPE-",
+                sg.Text(
+                    "Recipe Link",
+                    font=("Arial", 14),
+                    size=(10, 1),
+                    justification="center",
+                    expand_x=True,
                 )
             ],
+            [sg.Input(font=("Arial", 12), size=(10, 1), expand_x=True, key="-RECIPE-",)],
         ],
         element_justification="c",
     ),
