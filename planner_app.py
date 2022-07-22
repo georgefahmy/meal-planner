@@ -346,62 +346,11 @@ input_section = [
         [
             [
                 sg.Button(
-                    "Recipe Link", font=("Arial", 12), size=(10, 1), expand_x=True, key="-RECIPE-",
+                    "Full Recipe", font=("Arial", 12), size=(10, 1), expand_x=True, key="-RECIPE-",
                 )
             ],
         ],
         element_justification="c",
-    ),
-]
-advanced_section = [
-    sg.Column(
-        [
-            [
-                sg.Column(
-                    [
-                        [
-                            sg.Text(
-                                "Genre",
-                                font=("Arial", 14),
-                                size=(10, 1),
-                                justification="center",
-                                expand_x=True,
-                            )
-                        ],
-                        [
-                            sg.Input(
-                                size=(15, 2), font=("Arial", 14), key="-GENRE-", enable_events=False
-                            )
-                        ],
-                    ],
-                    element_justification="c",
-                ),
-                sg.Column(
-                    [
-                        [
-                            sg.Text(
-                                "Serving Size",
-                                font=("Arial", 14),
-                                size=(10, 1),
-                                justification="center",
-                                expand_x=True,
-                            )
-                        ],
-                        [
-                            sg.In(
-                                size=(15, 2),
-                                font=("Arial", 14),
-                                key="-SERVINGS-",
-                                enable_events=False,
-                            )
-                        ],
-                    ],
-                    element_justification="c",
-                ),
-            ],
-        ],
-        visible=False,
-        key="-ADV_SECTION-",
     ),
 ]
 
@@ -411,7 +360,6 @@ input_section_buttons = [
             [
                 sg.Button("Add to Database", visible=True, key="-MEAL_SUBMIT-", enable_events=True),
                 sg.Button("Clear", visible=True, key="-MEAL-CLEAR-", enable_events=True),
-                sg.Button("More Options", visible=False, key="-MORE-OPTIONS-", enable_events=True),
             ]
         ],
         element_justification="c",
@@ -430,7 +378,7 @@ main_left_column = [
                 sg.Frame(
                     "New Meals",
                     element_justification="c",
-                    layout=[input_text, input_section_buttons, input_section, advanced_section],
+                    layout=[input_text, input_section_buttons, input_section],
                     pad=(0, 0),
                     size=(600, 200),
                 )
@@ -611,6 +559,7 @@ sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
 themes = sg.theme_list()
 chosen_theme = choice(themes)
 sg.theme(chosen_theme)
+sg.theme("Material2")
 
 window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1280, 660), finalize=True)
 
@@ -648,9 +597,11 @@ while True:
 
     if event == "-RECIPE-":
         basic_recipe = {}
+        new_recipe_name = ""
+
         if values["-MEAL-"]:
             new_recipe_name = values["-MEAL-"]
-            pass
+
         if values["-INGREDIENTS-"]:
             raw_ingredients = values["-INGREDIENTS-"].split(", ")
             basic_recipe["ingredients"] = {}
@@ -664,6 +615,15 @@ while True:
                 basic_recipe["ingredients"][f"ingredient_{i}"]["special_instruction"] = ""
 
         recipe = json.dumps(recipes(new_recipe_name.title(), recipe_data=basic_recipe))
+
+        if not json.loads(recipe):
+            continue
+        if not json.loads(recipe)["ingredients"]:
+            continue
+
+        basic_ingredients = [
+            ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
+        ]
 
     if event == "-PICK_DATE-":
         date = popup_get_date()
@@ -920,11 +880,6 @@ while True:
         shutil.copyfile(db_file, export_database_path)
 
         # Future to expand for more options - will need to update the databse for additional columns
-    if event == "-MORE-OPTIONS-":
-        if window["-ADV_SECTION-"].visible:
-            window["-ADV_SECTION-"].update(visible=False)
-        else:
-            window["-ADV_SECTION-"].update(visible=True)
 
     if event == "Change Meal Name":
         if values["-MEAL_LIST-"]:
@@ -1150,13 +1105,16 @@ while True:
 
         if not new_ingredients:
             new_ingredients = new_meal
-
+        new_recipe = ""
+        if not recipe:
+            recipe = ""
         if new_meal:
             add_meal(
                 db_file,
                 new_meal,
                 ingredients=new_ingredients,
                 recipe_link=new_recipe,
+                recipe=recipe,
                 category=new_category,
             )
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
