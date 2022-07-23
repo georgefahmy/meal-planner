@@ -820,8 +820,7 @@ while True:
         month, day, year = date
         start = datetime.date(year=year, month=month, day=day)
         week_start = start - datetime.timedelta(days=start.isoweekday() % 7)
-        picked_date = f"Week of {str(week_start)}"
-        window["-WEEK-"].update(picked_date)
+        window["-WEEK-"].update(f"Week of {str(week_start)}")
         current_plan_dict["date"] = str(week_start)
 
     if event == "-LOAD_PLAN-":
@@ -831,6 +830,7 @@ while True:
         month, day, year = date
         selected_day = datetime.date(year=year, month=month, day=day)
         week_start = selected_day - datetime.timedelta(days=selected_day.isoweekday() % 7)
+        current_plan_dict["date"] = str(week_start)
         plan = read_current_plans(db_file, str(week_start))
         if plan:
             gui_table = [[day] + meals for day, meals in plan["meals"].items()]
@@ -1525,7 +1525,7 @@ while True:
 
             if new:
                 okay = sg.popup_ok(
-                    f"Meal Plan submitted for {picked_date}",
+                    f"Meal Plan submitted for Week of {current_plan_dict['date']}",
                     font=("Arial", 16),
                     auto_close=True,
                     auto_close_duration=10,
@@ -1533,7 +1533,7 @@ while True:
             else:
                 if overwrite:
                     okay = sg.popup_ok(
-                        f"Meal Plan updated for {picked_date}",
+                        f"Meal Plan updated for Week of {current_plan_dict['date']}",
                         font=("Arial", 16),
                         auto_close=True,
                         auto_close_duration=10,
