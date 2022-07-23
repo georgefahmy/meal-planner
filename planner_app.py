@@ -609,8 +609,14 @@ def display_recipe(recipe):
                 [
                     ing["quantity"] if ing["quantity"] else "",
                     ing["units"] if ing["units"] else "",
-                    ing["ingredient"] if ing["ingredient"] else "",
-                    ing["special_instruction"] if ing["special_instruction"] else "",
+                    "".join(
+                        [
+                            ing["ingredient"] if ing["ingredient"] else "",
+                            (", " + ing["special_instruction"])
+                            if ing["special_instruction"]
+                            else "",
+                        ]
+                    ),
                 ]
             ),
         ).strip()
@@ -699,9 +705,6 @@ while True:
     if event == "Update Recipe":
         selected_meal = values["-MEAL_LIST-"][0].lower()
         existing_recipe = read_meal_recipe(db_file, selected_meal)
-        if existing_recipe:
-            existing_recipe = json.loads(existing_recipe)
-            print("existing recipe exists")
 
         recipe = recipes(selected_meal.title(), recipe_data=existing_recipe)
         if recipe:
@@ -1218,6 +1221,7 @@ while True:
         window["-MEAL_INGREDIENTS_LIST-"].update([])
         window["-CFILTER-"].update(set_to_index=[0])
         window["-VIEW_RECIPE-"].update(visible=False)
+        window["-CATEGORY_TEXT-"].update(visible=False, value="category")
 
     if event == "-MEAL-CLEAR-":
         # Clear the new meal submission boxes
