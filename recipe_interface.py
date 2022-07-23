@@ -199,10 +199,9 @@ Available units and abbreviations:
                 fixed_unit.append(character)
             fixed_units.append("".join(fixed_unit))
 
+    fixed_units.reverse()
     unit_expression = "|".join(fixed_units)
-    match_expression = (
-        f"([0-9\/\.-]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s]*),?\s?([a-zA-Z0-9\s]*)?"
-    )
+    match_expression = f"([0-9\/\.\-\s]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s]*),?\s?(.*)?"
 
     i = 1
     if recipe_data:
@@ -314,7 +313,9 @@ Available units and abbreviations:
             for j, raw_ingredient in enumerate(raw_ingredients):
                 recipe["ingredients"][f"ingredient_{j}"] = {}
                 recipe["ingredients"][f"ingredient_{j}"]["raw_ingredient"] = raw_ingredient
-                parsed_ingredient = list(re.match(match_expression, raw_ingredient).groups())
+                parsed_ingredient = list(
+                    re.match(match_expression, raw_ingredient, flags=re.IGNORECASE).groups()
+                )
 
                 for i, val in enumerate(parsed_ingredient):
                     if val:

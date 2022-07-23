@@ -12,7 +12,9 @@ import re
 from utils.sql_functions import *
 from utils.custom_date_picker import popup_get_date
 from utils.make_database import make_database
+from utils.recipe_units import units
 from recipe_interface import recipes
+from recipe_scrapers import scrape_me
 from itertools import pairwise
 
 
@@ -674,6 +676,56 @@ def display_recipe(recipe):
     return display_window
 
 
+fixed_units = []
+for unit in units:
+    for detailed_unit in unit:
+        fixed_unit = []
+        for character in detailed_unit:
+            if character == ".":
+                character = r"\{}".format(character)
+            fixed_unit.append(character)
+        fixed_units.append("".join(fixed_unit))
+
+fixed_units.reverse()
+unit_expression = "|".join(fixed_units)
+match_expression = f"([0-9\/\.\-\s]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s]*),?\s?(.*)?"
+
+
+def process_recipe_link(recipe_link):
+    recipe = {}
+    scraped_recipe = scrape_me(recipe_link, wild_mode=True)
+    recipe["title"] = scraped_recipe.title()
+    recipe["directions"] = re.sub("\n", " ", scraped_recipe.instructions())
+    recipe["recipe_category"] = scraped_recipe.category()
+    raw_ingredients = scraped_recipe.ingredients()
+
+    ingredients = {}
+    for i, raw_ingredient in enumerate(raw_ingredients):
+        raw_ingredient = re.sub(" \(,", ",", raw_ingredient)
+        raw_ingredient = re.sub(" \)", "", raw_ingredient)
+        raw_ingredient = re.sub(",", "", raw_ingredient)
+        print(raw_ingredient)
+        ingredients[f"ingredient_{i}"] = {}
+        ingredients[f"ingredient_{i}"]["raw_ingredient"] = raw_ingredient
+        parsed_ingredient = list(
+            re.match(match_expression, raw_ingredient, flags=re.IGNORECASE).groups()
+        )
+        for j, val in enumerate(parsed_ingredient):
+            if val:
+                parsed_ingredient[j] = val.strip()
+        parsed_ingredient = tuple(parsed_ingredient)
+        (
+            ingredients[f"ingredient_{i}"]["quantity"],
+            ingredients[f"ingredient_{i}"]["units"],
+            ingredients[f"ingredient_{i}"]["ingredient"],
+            ingredients[f"ingredient_{i}"]["special_instruction"],
+        ) = parsed_ingredient
+
+    recipe["ingredients"] = ingredients
+    recipe["subtitle"] = ""
+    return recipe
+
+
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
 icon_file = wd + "/resources/burger-10956.png"
@@ -1238,10 +1290,22 @@ while True:
     if event == "-MEAL_SUBMIT-":
         # Submit a new meal and the ingredients and recipe (if available) then add the meal to
         # the database
-        new_meal = values["-MEAL-"].lower()
-        new_ingredients = values["-INGREDIENTS-"].lower()
-        new_category = values["-NEWCATEGORY-"].lower()
+
         new_recipe = values["-RECIPE_LINK-"].lower()
+        if new_recipe:
+            recipe = process_recipe_link(new_recipe)
+            recipe = recipes(recipe["title"].title(), recipe_data=recipe)
+            basic_ingredients = [
+                ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
+            ]
+            new_meal = recipe["title"].lower()
+            new_ingredients = ", ".join(basic_ingredients).lower()
+            new_category = recipe["recipe_category"].lower()
+        else:
+            new_meal = values["-MEAL-"].lower()
+            new_ingredients = values["-INGREDIENTS-"].lower()
+            new_category = values["-NEWCATEGORY-"].lower()
+
         meal_categories = list(dict.fromkeys(settings["meal_categories"]))
         meal_categories.append(new_category.title())
         meal_categories = list(dict.fromkeys(meal_categories))
