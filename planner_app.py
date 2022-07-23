@@ -572,8 +572,9 @@ main_right_column = [
     )
 ]
 menu_bar_layout = [
-    ["&File", ["Load Database", "Export Database"]],
-    # ["&Edit", ["Edit Meal", "Edit Ingredients", "Edit Plan"]],
+    ["&File", ["New Recipe", "Load Database", "Export Database"]],
+    ["Edit", ["!Edit Meal", "!Edit Ingredients", "!Edit Recipe"]],
+    ["Help", ["!About", "!How To", "!Feedback"]],
 ]
 
 # ----- Full layout -----
@@ -758,7 +759,7 @@ while True:
         # DEBUG to print out the events and values
         print(event, values)
 
-    if event == "Update Recipe":
+    if event in ("Update Recipe", "Edit Recipe"):
         selected_meal = values["-MEAL_LIST-"][0].lower()
         existing_recipe = read_meal_recipe(db_file, selected_meal)
 
@@ -770,7 +771,7 @@ while True:
             else:
                 sg.popup_ok("Recipe not overwritten")
 
-    if event == "-RECIPE-":
+    if event in ("-RECIPE-", "New Recipe"):
         basic_recipe = {}
         basic_recipe["ingredients"] = {}
         basic_recipe["directions"] = ""
@@ -1069,7 +1070,7 @@ while True:
 
         # Future to expand for more options - will need to update the databse for additional columns
 
-    if event == "Change Meal Name":
+    if event in ("Change Meal Name", "Edit Meal"):
         if values["-MEAL_LIST-"]:
             selected_meal = values["-MEAL_LIST-"][0].lower()
             _, new_meal_name = sg.Window(
@@ -1169,7 +1170,7 @@ while True:
                 [ingredient.title() for ingredient in ingredients_list]
             )
 
-    if event == "Edit Ingredients":
+    if event in "Edit Ingredients":
         if values["-MEAL_LIST-"]:
             selected_meal = values["-MEAL_LIST-"][0].lower()
             ingredients = read_specific_meals(db_file, selected_meal)[selected_meal]
@@ -1246,6 +1247,11 @@ while True:
         window["-MEAL_LIST-"].update(filtered_meals)
 
     if event == "-MEAL_LIST-":
+        menu_bar_layout = [
+            ["&File", ["New Recipe", "Load Database", "Export Database"]],
+            ["Edit", ["Edit Meal", "Edit Ingredients", "Edit Recipe"]],
+        ]
+        window["-MENU-"].update(menu_definition=menu_bar_layout)
         # Choosing an item from the list of meals will update the ingredients list for that meal
         if not values["-MEAL_LIST-"]:
             continue
@@ -1280,6 +1286,11 @@ while True:
         window["-CFILTER-"].update(set_to_index=[0])
         window["-VIEW_RECIPE-"].update(visible=False)
         window["-CATEGORY_TEXT-"].update(visible=False, value="category")
+        menu_bar_layout = [
+            ["&File", ["New Recipe", "Load Database", "Export Database"]],
+            ["Edit", ["!Edit Meal", "!Edit Ingredients", "!Edit Recipe"]],
+        ]
+        window["-MENU-"].update(menu_definition=menu_bar_layout)
 
     if event == "-MEAL-CLEAR-":
         # Clear the new meal submission boxes
