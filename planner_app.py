@@ -600,9 +600,13 @@ def matchingKeys(dictionary, searchString):
 
 
 def display_recipe(recipe):
+    if not recipe:
+        return
+
     if type(recipe) == str:
-        print("recipe not converted to dict, converting now")
+        # print("recipe not converted to dict, converting now")
         recipe = json.loads(recipe)
+
     ingredients = [
         re.sub(
             "\s+",
@@ -704,7 +708,7 @@ def process_recipe_link(recipe_link):
         raw_ingredient = re.sub(" \(,", ",", raw_ingredient)
         raw_ingredient = re.sub(" \)", "", raw_ingredient)
         raw_ingredient = re.sub(",", "", raw_ingredient)
-        print(raw_ingredient)
+        # print(raw_ingredient)
         ingredients[f"ingredient_{i}"] = {}
         ingredients[f"ingredient_{i}"]["raw_ingredient"] = raw_ingredient
         parsed_ingredient = list(
@@ -733,7 +737,7 @@ sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
 themes = sg.theme_list()
 chosen_theme = choice(themes)
 sg.theme(chosen_theme)
-sg.theme("Material2")
+# sg.theme("Material2")
 
 window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1280, 660), finalize=True)
 
@@ -923,7 +927,8 @@ while True:
                 break
 
             if event:
-                print(event, values)
+                # print(event, values)
+                pass
             if event == "OKAY":
                 if not values["-SELECTED_PLAN_DATE-"]:
                     confirmation = sg.popup_ok_cancel("No Date Selected")
@@ -1427,15 +1432,34 @@ while True:
         plan_meals = [
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
-        plan_ingredients = sorted(
-            list(
-                set(
-                    ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals])
-                    .title()
-                    .split(", ")
+
+        plan_ingredients = []
+        for meal in plan_meals:
+            meal_recipe = read_meal_recipe(db_file, meal)
+            if meal_recipe:
+                for ingredient in meal_recipe["ingredients"].values():
+                    plan_ingredients.append(
+                        re.sub(
+                            "\s+",
+                            " ",
+                            " ".join(
+                                [
+                                    ingredient["quantity"] if ingredient["quantity"] else 1,
+                                    ingredient["units"] if ingredient["units"] else "",
+                                    ingredient["ingredient"].title()
+                                    if ingredient["ingredient"]
+                                    else "",
+                                ]
+                            ),
+                        ).strip()
+                    )
+            else:
+                plan_ingredients.extend(
+                    list(set(", ".join(meals[meal]["ingredients"]).title().split(", ")))
                 )
-            )
-        )
+
+        plan_ingredients.sort()
+        plan_ingredients = list(set(plan_ingredients))
         plan_ingredients = [
             plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
         ]

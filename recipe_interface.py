@@ -211,6 +211,9 @@ Available units and abbreviations:
         if recipe_data["directions"]:
             recipe_window["directions"].update(value=recipe_data["directions"])
 
+        if recipe_data["subtitle"]:
+            recipe_window["subtitle"].update(value=recipe_data["subtitle"])
+
         if recipe_data["ingredients"]:
             for i, ingredient_dict in enumerate(recipe_data["ingredients"].values()):
                 quantity = ingredient_dict["quantity"]
@@ -223,7 +226,6 @@ Available units and abbreviations:
                     + ingredient_name.title()
                     + ((", " + special_instruction) if special_instruction else "")
                 )
-                print(ingredient)
                 recipe_window[("ingredient", i)].update(value=ingredient)
                 recipe_window.extend_layout(
                     recipe_window[("ingredient_frame", 0)], new_ingredient(i + 1),
@@ -238,7 +240,7 @@ Available units and abbreviations:
 
         if event:
             # DEBUG to print out the events and values
-            print(event, values)
+            # print(event, values)
             pass
 
         if event == "tips_button":
