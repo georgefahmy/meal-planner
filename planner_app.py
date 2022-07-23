@@ -775,6 +775,7 @@ while True:
         basic_recipe["ingredients"] = {}
         basic_recipe["directions"] = ""
         basic_recipe["title"] = ""
+        basic_recipe["subtitle"] = ""
         basic_recipe["recipe_category"] = ""
         new_recipe_name = ""
 
