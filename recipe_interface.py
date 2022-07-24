@@ -159,7 +159,9 @@ def recipes(meal_title=None, recipe_data=None):
             ),
         ],
     ]
-
+    # Use the full layout to create the window object
+    icon_file = wd + "/resources/burger-10956.png"
+    sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
     recipe_window = sg.Window(
         "Recipe Interface",
         layout=layout,
@@ -336,7 +338,12 @@ Available units and abbreviations:
             return recipe
 
         if event == "clear_recipe":
-            confirm = sg.popup_ok_cancel("Are you sure you want to clear?")
+            icon_file = wd + "/resources/burger-10956.png"
+            sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
+            confirm = sg.popup_ok_cancel(
+                "Are you sure you want to clear?",
+                icon=base64.b64encode(open(str(icon_file), "rb").read()),
+            )
             if not confirm == "OK":
                 continue
             clear_all_elements(recipe_window)
