@@ -76,11 +76,12 @@ left_column = [
     sg.Frame(
         "Meals",
         element_justification="c",
+        size=(200, 260),
         layout=[
             [
                 sg.Text(
                     "Meal Selection",
-                    font=("Arial", 18),
+                    font=("Arial", 16),
                     size=(20, 1),
                     justification="center",
                     expand_x=True,
@@ -89,8 +90,10 @@ left_column = [
             [
                 sg.Listbox(
                     values=sorted([meal.title() for meal in read_all_meals(db_file).keys()]),
-                    size=(20, 10),
-                    font=("Arial"),
+                    size=(16, 10),
+                    expand_x=True,
+                    pad=((5, 5), (5, 5)),
+                    font=("Arial", 14),
                     key="-MEAL_LIST-",
                     enable_events=True,
                     auto_size_text=True,
@@ -122,6 +125,8 @@ middle_column = [
                 sg.Frame(
                     title="Filters",
                     element_justification="c",
+                    size=(180, 100),
+                    pad=(0, 0),
                     layout=[
                         [
                             sg.Text("Meal Category", font=("Arial", 12),),
@@ -165,15 +170,15 @@ middle_column = [
                             ),
                         ],
                     ],
-                    size=(180, 100),
-                    pad=(0, 0),
                 )
             ],
-            [sg.HorizontalSeparator(pad=22)],
+            [sg.HorizontalSeparator(pad=((0, 0), (11, 11)))],
             [
                 sg.Frame(
                     "Day Selection",
                     element_justification="c",
+                    size=(180, 100),
+                    pad=(0, 0),
                     layout=[
                         [
                             sg.Checkbox(
@@ -238,8 +243,6 @@ middle_column = [
                             ),
                         ],
                     ],
-                    size=(180, 100),
-                    pad=(0, 0),
                 ),
             ],
         ]
@@ -249,7 +252,7 @@ middle_column = [
 right_column = [
     sg.Frame(
         "Ingredients",
-        size=(300, 245),
+        size=(200, 260),
         expand_x=True,
         element_justification="c",
         layout=[
@@ -266,6 +269,8 @@ right_column = [
                 sg.Listbox(
                     values=[],
                     size=(16, 10),
+                    expand_x=True,
+                    pad=((5, 5), (5, 5)),
                     font=("Arial", 14),
                     key="-MEAL_INGREDIENTS_LIST-",
                     auto_size_text=True,
@@ -418,7 +423,11 @@ main_left_column = [
         [
             [
                 sg.Frame(
-                    "Item Selection", layout=item_selection_section, pad=(0, 0), size=(600, 300)
+                    "Item Selection",
+                    element_justification="c",
+                    layout=item_selection_section,
+                    pad=(0, 0),
+                    size=(620, 300),
                 )
             ],
             [
@@ -427,7 +436,7 @@ main_left_column = [
                     element_justification="c",
                     layout=[input_text, input_section_buttons, input_section],
                     pad=(0, 0),
-                    size=(600, 200),
+                    size=(620, 200),
                 )
             ],
         ]
@@ -534,7 +543,7 @@ ingredients_list_section = [
                 sg.Listbox(
                     values=plan_ingredients,
                     font=("Arial", 14),
-                    size=(40, 17),
+                    size=(60, 17),
                     key="-PLAN_INGREDIENTS_LIST-",
                     enable_events=False,
                     pad=(0, 0),
@@ -554,7 +563,7 @@ main_right_column = [
                     "Weekly Plan",
                     layout=[meal_plan_section, plan_section_buttons],
                     element_justification="c",
-                    size=(600, 230),
+                    size=(620, 230),
                     pad=(0, 0),
                 )
             ],
@@ -563,7 +572,7 @@ main_right_column = [
                     "Shopping List",
                     layout=[ingredients_list_section],
                     element_justification="c",
-                    size=(600, 350),
+                    size=(620, 350),
                     pad=(0, 0),
                 )
             ],
@@ -740,7 +749,7 @@ chosen_theme = choice(themes)
 sg.theme(chosen_theme)
 # sg.theme("Material2")
 
-window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1280, 660), finalize=True)
+window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1320, 660), finalize=True)
 
 # Get meal and ingredient information from the database
 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
