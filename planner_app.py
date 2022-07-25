@@ -818,14 +818,15 @@ while True:
         if not date:
             continue
         month, day, year = date
-        start = datetime.date(year=year, month=month, day=day)
-        week_start = start - datetime.timedelta(days=start.isoweekday() % 7)
+        selected_day = datetime.date(year=year, month=month, day=day)
+        week_start = start - datetime.timedelta(days=selected_day.isoweekday() % 7)
         window["-WEEK-"].update(f"Week of {str(week_start)}")
         current_plan_dict["date"] = str(week_start)
 
     if event == "-LOAD_PLAN-":
         date = popup_get_date()
         if not date:
+            print("No date selected")
             continue
         month, day, year = date
         selected_day = datetime.date(year=year, month=month, day=day)
@@ -833,20 +834,39 @@ while True:
         current_plan_dict["date"] = str(week_start)
         plan = read_current_plans(db_file, str(week_start))
         if plan:
-            gui_table = [[day] + meals for day, meals in plan["meals"].items()]
+            gui_table = [[day] + [", ".join(meals)] for day, meals in plan["meals"].items()]
             picked_date = f"Week of {str(week_start)}"
             plan_meals = [
                 meal.lower() for meals in plan["meals"].values() for meal in meals if meal
             ]
-            plan_ingredients = sorted(
-                list(
-                    set(
-                        ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals])
-                        .title()
-                        .split(", ")
+
+            plan_ingredients = []
+            for meal in plan_meals:
+                meal_recipe = read_meal_recipe(db_file, meal)
+                if meal_recipe:
+                    for ingredient in meal_recipe["ingredients"].values():
+                        plan_ingredients.append(
+                            re.sub(
+                                "\s+",
+                                " ",
+                                " ".join(
+                                    [
+                                        ingredient["quantity"] if ingredient["quantity"] else 1,
+                                        ingredient["units"] if ingredient["units"] else "",
+                                        ingredient["ingredient"].title()
+                                        if ingredient["ingredient"]
+                                        else "",
+                                    ]
+                                ),
+                            ).strip()
+                        )
+                else:
+                    plan_ingredients.extend(
+                        list(set(", ".join(meals[meal]["ingredients"]).title().split(", ")))
                     )
-                )
-            )
+
+            plan_ingredients.sort()
+            plan_ingredients = list(set(plan_ingredients))
             plan_ingredients = [
                 plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
             ]
@@ -988,25 +1008,47 @@ while True:
         for row in values["-TABLE-"]:
             current_plan_dict["meals"][gui_table[row][0]] = [""]
 
-            gui_table = [[day] + meals for day, meals in current_plan_dict["meals"].items()]
+            gui_table = [
+                [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
+            ]
             plan_meals = [
                 meal.lower()
                 for meals in current_plan_dict["meals"].values()
                 for meal in meals
                 if meal
             ]
-            plan_ingredients = sorted(
-                list(
-                    set(
-                        ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals])
-                        .title()
-                        .split(", ")
+
+            plan_ingredients = []
+            for meal in plan_meals:
+                meal_recipe = read_meal_recipe(db_file, meal)
+                if meal_recipe:
+                    for ingredient in meal_recipe["ingredients"].values():
+                        plan_ingredients.append(
+                            re.sub(
+                                "\s+",
+                                " ",
+                                " ".join(
+                                    [
+                                        ingredient["quantity"] if ingredient["quantity"] else 1,
+                                        ingredient["units"] if ingredient["units"] else "",
+                                        ingredient["ingredient"].title()
+                                        if ingredient["ingredient"]
+                                        else "",
+                                    ]
+                                ),
+                            ).strip()
+                        )
+                else:
+                    plan_ingredients.extend(
+                        list(set(", ".join(meals[meal]["ingredients"]).title().split(", ")))
                     )
-                )
-            )
+
+            plan_ingredients.sort()
+            plan_ingredients = list(set(plan_ingredients))
             plan_ingredients = [
                 plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
             ]
+
             window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
             window["-TABLE-"].update(values=gui_table)
 
@@ -1032,20 +1074,41 @@ while True:
         if not current_plan_dict:
             current_plan_dict = blank_plan_dict
 
-        gui_table = [[day] + meals for day, meals in current_plan_dict["meals"].items()]
+        gui_table = [
+            [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
+        ]
 
         plan_meals = [
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
-        plan_ingredients = sorted(
-            list(
-                set(
-                    ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals])
-                    .title()
-                    .split(", ")
+
+        plan_ingredients = []
+        for meal in plan_meals:
+            meal_recipe = read_meal_recipe(db_file, meal)
+            if meal_recipe:
+                for ingredient in meal_recipe["ingredients"].values():
+                    plan_ingredients.append(
+                        re.sub(
+                            "\s+",
+                            " ",
+                            " ".join(
+                                [
+                                    ingredient["quantity"] if ingredient["quantity"] else 1,
+                                    ingredient["units"] if ingredient["units"] else "",
+                                    ingredient["ingredient"].title()
+                                    if ingredient["ingredient"]
+                                    else "",
+                                ]
+                            ),
+                        ).strip()
+                    )
+            else:
+                plan_ingredients.extend(
+                    list(set(", ".join(meals[meal]["ingredients"]).title().split(", ")))
                 )
-            )
-        )
+
+        plan_ingredients.sort()
+        plan_ingredients = list(set(plan_ingredients))
         plan_ingredients = [
             plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
         ]
