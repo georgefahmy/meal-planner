@@ -42,5 +42,19 @@
             "Fixed bug with adding meals to the plan, this should now work correctly",
             "Fixed a bug with the date picker picking the wrong date"
         ]
+    },
+    "3.0.0": {
+        "Update Summary": [
+            "Release of Recipe Interface and all the related work. Provide a recipe link and let the app interpret it for you!"
+        ],
+        "Whats New": [
+            "Recipe Interface!",
+            "Ability to provide a detailed recipe with quantities and instructions, stored in the database",
+            "Ability to decode a recipe link into a structured recipe",
+            "Additional menu items - Edit, Help. Additional ways to edit your meals, plans, and recipes."
+        ],
+        "Fixes": [
+            "Numerous fixes across the board for ease of use."
+        ]
     }
 }
