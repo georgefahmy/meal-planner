@@ -22,6 +22,7 @@ def make_database(db_file=db_file):
             meal text NOT NULL,
             ingredients text,
             recipe_link text,
+            recipe_data json,
             category text
         );
     """

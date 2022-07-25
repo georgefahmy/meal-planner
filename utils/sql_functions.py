@@ -29,7 +29,7 @@ def create_connection(db_file=db_file):
     return conn
 
 
-def add_meal(db_file, meal, ingredients=None, recipe_link=None, category=None):
+def add_meal(db_file, meal, ingredients=None, recipe_link=None, recipe=None, category=None):
     conn = create_connection(db_file)
     """
     Create a new category in the Categories table
@@ -37,8 +37,8 @@ def add_meal(db_file, meal, ingredients=None, recipe_link=None, category=None):
     :param kwargs:
     :return id:
     """
-    values = (meal, ingredients, recipe_link, category)
-    sql = f""" INSERT INTO meals (meal, ingredients, recipe_link, category) VALUES(?,?,?,?)"""
+    values = (meal, ingredients, recipe_link, recipe, category)
+    sql = f""" INSERT INTO meals (meal, ingredients, recipe_link, recipe_data, category) VALUES(?,?,?,?,?)"""
     cur = conn.cursor()
     cur.execute(sql, values)
     conn.commit()
@@ -49,28 +49,38 @@ def add_meal(db_file, meal, ingredients=None, recipe_link=None, category=None):
 def read_all_meals(db_file):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute("SELECT meal, ingredients, recipe_link, category FROM meals")
+    cur.execute("SELECT meal, ingredients, recipe_link, recipe_data, category FROM meals")
     all_meals = cur.fetchall()
     meals = {}
     for meal in all_meals:
         meals[meal[0]] = {
             "ingredients": meal[1].split(", "),
-            "recipe": meal[2],
-            "category": meal[3],
+            "recipe_link": meal[2],
+            "recipe_data": meal[3],
+            "category": meal[4],
         }
     conn.close()
     return meals
 
 
-def read_specific_meals(db_file, meal_name):
+def read_specific_meals(db_file, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(f"SELECT meal, ingredients FROM meals WHERE meal LIKE '{meal_name}'")
+    cur.execute(f"SELECT meal, ingredients FROM meals WHERE meal LIKE '{selected_meal}'")
     raw_meal = cur.fetchall()[0]
     meal = {}
     meal[raw_meal[0]] = raw_meal[1].split(", ")
     conn.close()
     return meal
+
+
+def read_meal_recipe(db_file, selected_meal):
+    conn = create_connection(db_file)
+    cur = conn.cursor()
+    cur.execute(f"SELECT json(recipe_data) FROM meals WHERE meal LIKE '{selected_meal}'")
+    recipe = cur.fetchone()[0]
+    conn.close()
+    return recipe
 
 
 def update_meal_name(db_file, new_meal_name, selected_meal):
@@ -80,6 +90,26 @@ def update_meal_name(db_file, new_meal_name, selected_meal):
     conn.commit()
     conn.close()
     return
+
+
+def update_meal_recipe(db_file, recipe_data, selected_meal):
+    conn = create_connection(db_file)
+    cur = conn.cursor()
+    cur.execute(f"UPDATE meals SET recipe_data = '{recipe_data}' WHERE meal LIKE '{selected_meal}'")
+    conn.commit()
+    conn.close()
+    return
+
+
+def read_meal_recipe(db_file, selected_meal):
+    conn = create_connection(db_file)
+    cur = conn.cursor()
+    cur.execute(f"SELECT recipe_data FROM meals WHERE meal LIKE '{selected_meal}'")
+    recipe = cur.fetchone()[0]
+    recipe = json.loads(recipe) if recipe else None
+    conn.commit()
+    conn.close()
+    return recipe
 
 
 def update_meal_category(db_file, new_category, selected_meal):
