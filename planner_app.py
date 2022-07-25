@@ -443,7 +443,7 @@ gui_table = [[day] + meals for day, meals in current_plan_dict["meals"].items()]
 
 table_right_click = [
     "&Right",
-    ["Delete::table"],
+    ["Edit Selection::edit", "Delete::table"],
 ]
 
 meal_plan_section = [
@@ -1003,6 +1003,65 @@ while True:
             continue
         remove_plan(db_file, date)
         confirmation = sg.popup_ok(f"Plan for week of {date}\npermentantly deleted")
+
+    if event == "Edit Selection::edit":
+        selected_row = values["-TABLE-"][0]
+        available_foods = current_plan_dict["meals"][gui_table[selected_row][0]]
+        confirm, chosen_food = sg.Window(
+            "Edit Selected Day",
+            [
+                [sg.Text("Remove Specific Meals", font=("Arial", 14), justification="c")],
+                [sg.Listbox(values=available_foods, font=("Arial", 14), size=(200, 6))],
+                [sg.Button("Okay"), sg.Button("Cancel")],
+            ],
+            disable_close=False,
+            size=(225, 200),
+        ).read(close=True)
+        if confirm == "Cancel":
+            continue
+
+        chosen_food = chosen_food[0][0]
+        current_plan_dict["meals"][gui_table[selected_row][0]].remove(chosen_food)
+        gui_table = [
+            [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
+        ]
+        plan_meals = [
+            meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
+        ]
+
+        plan_ingredients = []
+        for meal in plan_meals:
+            meal_recipe = read_meal_recipe(db_file, meal)
+            if meal_recipe:
+                for ingredient in meal_recipe["ingredients"].values():
+                    plan_ingredients.append(
+                        re.sub(
+                            "\s+",
+                            " ",
+                            " ".join(
+                                [
+                                    ingredient["quantity"] if ingredient["quantity"] else 1,
+                                    ingredient["units"] if ingredient["units"] else "",
+                                    ingredient["ingredient"].title()
+                                    if ingredient["ingredient"]
+                                    else "",
+                                ]
+                            ),
+                        ).strip()
+                    )
+            else:
+                plan_ingredients.extend(
+                    list(set(", ".join(meals[meal]["ingredients"]).title().split(", ")))
+                )
+
+        plan_ingredients.sort()
+        plan_ingredients = list(set(plan_ingredients))
+        plan_ingredients = [
+            plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
+        ]
+
+        window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
+        window["-TABLE-"].update(values=gui_table)
 
     if event == "Delete::table":
         for row in values["-TABLE-"]:
