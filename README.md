@@ -20,7 +20,6 @@ The planning table shows the meals chosen for each day of the week.
 
 
 ### Plan Ingredients List (Shopping List)
-
 This ingredients list is a unique list of all the items you may need for all the meals. It does not double count, so if you need the same item for multiple meals, you'll have to account for that in the quantities purchased.
 
 
@@ -33,32 +32,14 @@ NOTE: DO NOT DO THIS STEP FROM WITHIN A VIRTUAL ENVIRONMENT
 
 ## Updates
 
-### Version 2
-#### Whats New
-* Added ability to multi select items from the meal selection window using shift key
-* Added ability to export and load databases via the file option in menu
-* Added ability to clear a single day from the plan (Right click and remove it)
-* Added ability to supply a new category, if it doesn't exist.
-* Added the ability to see the selected meal's category
-* Added the ability to export Meal plan & ingredients to a text file
-* Each main GUI box now has a tooltip explaining what to do
-* Added a date selection calendar to allow you to pick and plan future weeks
-
-#### Fixed
-* Updated working for some buttons and texts
-* Increase font size for error messages
-* Numerous bugs and strangeness
-
-
-### FUTURE V3 - Recipe Interface
+### V3 - Recipe Interface
 A Completely separate interface for adding detailed recipes including exact proportions and instructions.
 * Add a popup window that allows for a detailed recipe to be added
 * Meal name (also add meal to meal list)
-* ingredients and proportions in a paired list (either tuples or paired list of lists)
-* serving size - look up with is included in most recipes
+* Ingredients and proportions in a paired list (either tuples or paired list of lists)
+* Ability to extract recipe information from a provided recipe URL
 
 * Add functional menu options
-    * File -> add meal and ingredients
-    * Edit -> Edit meal, edit ingredients, edit plan
-    * Options -> increase font size (maybe)
-    * Help -> about, guide, FAQs?, send feedback
+    * File -> New Recipe, Load Database, Export Database
+    * Edit -> Edit meal, edit ingredients, edit plan, edit recipe
+    * Help -> about, guide
