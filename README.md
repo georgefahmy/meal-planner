@@ -43,3 +43,10 @@ A Completely separate interface for adding detailed recipes including exact prop
     * File -> New Recipe, Load Database, Export Database
     * Edit -> Edit meal, edit ingredients, edit plan, edit recipe
     * Help -> about, guide
+
+### V4 Recipe Viewer
+
+#### TODO
+* Add a separate interface for viewing all items with detailed recipes.
+* create new recipes from this interface
+* export a recipe out into a nicely formatted text file (maybe additional file types if necessary)
