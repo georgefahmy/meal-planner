@@ -112,6 +112,18 @@ def read_meal_recipe(db_file, selected_meal):
     return recipe
 
 
+def read_all_recipes(db_file):
+    conn = create_connection(db_file)
+    cur = conn.cursor()
+    cur.execute(f"SELECT meal, recipe_data FROM meals WHERE LENGTH(recipe_data) > 10")
+    meals = cur.fetchall()
+    available_meals = {}
+    for meal in meals:
+        available_meals[meal[0]] = meal[1]
+    conn.close()
+    return available_meals
+
+
 def update_meal_category(db_file, new_category, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()

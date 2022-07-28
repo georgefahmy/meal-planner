@@ -214,7 +214,7 @@ Available units and abbreviations:
             recipe_window["directions"].update(value=recipe_data["directions"])
 
         if recipe_data["subtitle"]:
-            recipe_window["subtitle"].update(value=recipe_data["subtitle"])
+            recipe_window["recipe_subtitle"].update(value=recipe_data["subtitle"])
 
         if recipe_data["ingredients"]:
             for i, ingredient_dict in enumerate(recipe_data["ingredients"].values()):
