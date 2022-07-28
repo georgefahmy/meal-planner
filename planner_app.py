@@ -14,6 +14,7 @@ from utils.custom_date_picker import popup_get_date
 from utils.make_database import make_database
 from utils.recipe_units import units
 from recipe_interface import recipes
+from recipe_viewer import recipe_viewer
 from recipe_scrapers import scrape_me
 from itertools import pairwise
 
@@ -581,8 +582,9 @@ main_right_column = [
     )
 ]
 menu_bar_layout = [
-    ["&File", ["New Recipe", "Load Database", "Export Database"]],
-    ["Edit", ["!Edit Meal", "!Edit Ingredients", "!Edit Recipe"]],
+    ["&File", ["Load Database", "Export Database"]],
+    ["Edit", ["!Edit Meal", "!Edit Ingredients"]],
+    ["Recipes", ["New Recipe", "Open Recipe Interface", "!Edit recipe"]],
     ["Help", ["!About", "!How To", "!Feedback"]],
 ]
 
@@ -767,6 +769,9 @@ while True:
     if event:
         # DEBUG to print out the events and values
         print(event, values)
+
+    if event == "Open Recipe Interface":
+        recipe_viewer()
 
     if event in ("Update Recipe", "Edit Recipe"):
         selected_meal = values["-MEAL_LIST-"][0].lower()
@@ -1379,8 +1384,10 @@ while True:
 
     if event == "-MEAL_LIST-":
         menu_bar_layout = [
-            ["&File", ["New Recipe", "Load Database", "Export Database"]],
-            ["Edit", ["Edit Meal", "Edit Ingredients", "Edit Recipe"]],
+            ["&File", ["Load Database", "Export Database"]],
+            ["Edit", ["Edit Meal", "Edit Ingredients"]],
+            ["Recipes", ["New Recipe", "Open Recipe Interface", "Edit recipe"]],
+            ["Help", ["!About", "!How To", "!Feedback"]],
         ]
         window["-MENU-"].update(menu_definition=menu_bar_layout)
         # Choosing an item from the list of meals will update the ingredients list for that meal
@@ -1418,8 +1425,10 @@ while True:
         window["-VIEW_RECIPE-"].update(visible=False)
         window["-CATEGORY_TEXT-"].update(visible=False, value="category")
         menu_bar_layout = [
-            ["&File", ["New Recipe", "Load Database", "Export Database"]],
-            ["Edit", ["!Edit Meal", "!Edit Ingredients", "!Edit Recipe"]],
+            ["&File", ["Load Database", "Export Database"]],
+            ["Edit", ["!Edit Meal", "!Edit Ingredients"]],
+            ["Recipes", ["New Recipe", "Open Recipe Interface", "!Edit recipe"]],
+            ["Help", ["!About", "!How To", "!Feedback"]],
         ]
         window["-MENU-"].update(menu_definition=menu_bar_layout)
 
