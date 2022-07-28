@@ -32,7 +32,7 @@ NOTE: DO NOT DO THIS STEP FROM WITHIN A VIRTUAL ENVIRONMENT
 
 ## Updates
 
-### V3 - Recipe Interface
+### V3 & V3.1.1 - Recipe Interface
 A Completely separate interface for adding detailed recipes including exact proportions and instructions.
 * Add a popup window that allows for a detailed recipe to be added
 * Meal name (also add meal to meal list)
@@ -41,12 +41,12 @@ A Completely separate interface for adding detailed recipes including exact prop
 
 * Add functional menu options
     * File -> New Recipe, Load Database, Export Database
-    * Edit -> Edit meal, edit ingredients, edit plan, edit recipe
-    * Help -> about, guide
+    * Edit -> Edit meal, Edit ingredients, Edit plan
+    * Recipes -> New Recipe, View Recipes, Edit Recipe
+    * Help -> about, guide, feedback (disabled)
 
-### V4 Recipe Viewer
+* Added a separate interface for viewing all items with detailed recipes
+* Ability to create new recipes from this interface
 
 #### TODO
-* Add a separate interface for viewing all items with detailed recipes.
-* create new recipes from this interface
 * export a recipe out into a nicely formatted text file (maybe additional file types if necessary)
