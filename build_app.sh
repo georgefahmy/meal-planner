@@ -9,4 +9,7 @@ else
     rm -rf build dist
     pip3.10 install -r requirements.txt
     python3.10 setup.py py2app
+    cd dist
+    zip -r "Meal Planner PRO.zip" "Meal Planner PRO.app"
+    cp -r "Meal Planner PRO.app" /Applications/
 fi
