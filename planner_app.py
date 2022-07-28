@@ -584,7 +584,7 @@ main_right_column = [
 menu_bar_layout = [
     ["&File", ["Load Database", "Export Database"]],
     ["Edit", ["!Edit Meal", "!Edit Ingredients"]],
-    ["Recipes", ["New Recipe", "Open Recipe Interface", "!Edit recipe"]],
+    ["Recipes", ["New Recipe", "View Recipes", "!Edit recipe"]],
     ["Help", ["!About", "!How To", "!Feedback"]],
 ]
 
@@ -770,7 +770,7 @@ while True:
         # DEBUG to print out the events and values
         print(event, values)
 
-    if event == "Open Recipe Interface":
+    if event == "View Recipes":
         recipe_viewer()
 
     if event in ("Update Recipe", "Edit Recipe"):
@@ -1386,7 +1386,7 @@ while True:
         menu_bar_layout = [
             ["&File", ["Load Database", "Export Database"]],
             ["Edit", ["Edit Meal", "Edit Ingredients"]],
-            ["Recipes", ["New Recipe", "Open Recipe Interface", "Edit recipe"]],
+            ["Recipes", ["New Recipe", "View Recipes", "Edit recipe"]],
             ["Help", ["!About", "!How To", "!Feedback"]],
         ]
         window["-MENU-"].update(menu_definition=menu_bar_layout)
@@ -1427,7 +1427,7 @@ while True:
         menu_bar_layout = [
             ["&File", ["Load Database", "Export Database"]],
             ["Edit", ["!Edit Meal", "!Edit Ingredients"]],
-            ["Recipes", ["New Recipe", "Open Recipe Interface", "!Edit recipe"]],
+            ["Recipes", ["New Recipe", "View Recipes", "!Edit recipe"]],
             ["Help", ["!About", "!How To", "!Feedback"]],
         ]
         window["-MENU-"].update(menu_definition=menu_bar_layout)
