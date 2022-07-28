@@ -76,14 +76,17 @@ def open_recipes_window(meals):
             break
 
 
-def recipe_viewer():
+def recipe_viewer(meals=None):
+    if not meals:
+        available_meals = read_all_recipes(db_file)
+        meals = [meal.title() for meal, recipe in available_meals.items() if recipe]
+
     top_bar = [
         sg.Frame(
             "",
             layout=[
                 [
                     sg.Button("New", key="new_recipe", enable_events=True),
-                    sg.Button("Open", key="open_recipe", enable_events=True),
                     sg.Text("", expand_x=True),
                     sg.Button("Clear", key="clear_recipe", enable_events=True),
                     sg.Button("Close", key="close_window", enable_events=True),
@@ -92,6 +95,34 @@ def recipe_viewer():
             element_justification="c",
             expand_x=True,
         )
+    ]
+    recipe_right_click_menu = [
+        "&Right",
+        ["Delete Recipe",],
+    ]
+    available_recipes = [
+        [
+            sg.Frame(
+                "Available Recipes",
+                [
+                    [sg.Text("Available Recipes", font=("Arial Bold", 18), justification="c")],
+                    [
+                        sg.Listbox(
+                            meals,
+                            select_mode=sg.LISTBOX_SELECT_MODE_SINGLE,
+                            key="available_meals",
+                            enable_events=True,
+                            right_click_menu=recipe_right_click_menu,
+                            font=font,
+                            expand_y=True,
+                            expand_x=True,
+                        )
+                    ],
+                ],
+                expand_y=True,
+                pad=2,
+            ),
+        ]
     ]
 
     title = [
@@ -182,13 +213,20 @@ def recipe_viewer():
     ]
 
     layout = [
-        [top_bar, title, ingredients, instructions],
+        [
+            top_bar,
+            [
+                sg.Column(available_recipes, expand_y=True),
+                sg.Column([title, ingredients, instructions], vertical_alignment="top"),
+            ],
+        ],
     ]
+
     # Use the full layout to create the window object
     icon_file = wd + "/resources/burger-10956.png"
     sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
     recipe_window = sg.Window(
-        "Recipe Interface", layout=layout, resizable=True, size=(650, 600), finalize=True,
+        "Recipe Interface", layout=layout, resizable=True, size=(700, 600), finalize=True,
     )
 
     while True:
@@ -202,8 +240,16 @@ def recipe_viewer():
             print(event, values)
             pass
 
+        if event == "delete recipe":
+            selected_meal = values["available_meals"][0].lower()
+            remove_meal(db_file, selected_meal)
+            available_meals = read_all_recipes(db_file)
+            recipe_window["available_meals"].update(values=available_meals)
+
         if event == "new_recipe":
             recipe = recipes()
+            if not recipe:
+                continue
             basic_ingredients = [
                 ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
             ]
@@ -230,11 +276,13 @@ def recipe_viewer():
                     category=new_category,
                 )
                 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+            available_meals = read_all_recipes(db_file)
+            recipe_window["available_meals"].update(values=available_meals)
 
-        if event == "open_recipe":
+        if event in ("available_meals"):
             available_meals = read_all_recipes(db_file)
             meals = [meal.title() for meal, recipe in available_meals.items() if recipe]
-            selected_meal = open_recipes_window(meals)
+            selected_meal = values["available_meals"][0].lower()
             if not selected_meal:
                 continue
             recipe = json.loads(available_meals[selected_meal])
@@ -280,7 +328,7 @@ def recipe_viewer():
 
             recipe_window["instructions_frame"].update(visible=True)
             recipe_window["instructions"].update(
-                value="\n".join(textwrap.wrap(recipe["directions"], 100))
+                value="\n".join(textwrap.wrap(recipe["directions"], 80))
             )
             recipe_window.refresh()
 
