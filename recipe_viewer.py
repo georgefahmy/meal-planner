@@ -35,9 +35,9 @@ font = ("Arial", 16)
 
 
 def clear_all_elements(window):
-    recipe_window["title_frame"].update(visible=False)
-    recipe_window["ingredients_frame"].update(visible=False)
-    recipe_window["instructions_frame"].update(visible=False)
+    window["title_frame"].update(visible=False)
+    window["ingredients_frame"].update(visible=False)
+    window["instructions_frame"].update(visible=False)
     return window
 
 

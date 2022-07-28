@@ -25,7 +25,7 @@ setup(
     options={"py2app": OPTIONS},
     setup_requires=["py2app", "PySimpleGUI", "altgraph", "modulegraph", "macholib"],
     packages=find_packages(),
-    version="3.1.1",
+    version="3.1.2",
     author="George Fahmy",
     description="Meal Planner PRO",
     python_requires=">=3.6",
