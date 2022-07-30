@@ -19,7 +19,7 @@ def make_database(db_file=db_file):
         CREATE TABLE IF NOT EXISTS meals
         (
             id integer PRIMARY KEY,
-            meal text NOT NULL,
+            meal text NOT NULL UNIQUE,
             ingredients text,
             recipe_link text,
             recipe_data json,
