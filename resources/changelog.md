@@ -9,7 +9,7 @@ Fixed a couple bugs
 
 ### Changed
 - Fixed a bug with windows not being visible. PySimpleGUI now sets alpha to .99 to workaround this problem.
-- Fixed a bug with recipe link decoding into a constructed recipe. 
+- Fixed a bug with recipe link decoding into a constructed recipe.
 
 
 ## [v3.1.2] - 2022-07-28
