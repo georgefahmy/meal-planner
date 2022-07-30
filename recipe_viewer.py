@@ -299,6 +299,14 @@ def recipe_viewer(meals=None):
             import_files_path = import_files_path.split(";")
 
             for file in import_files_path:
+                if not file.endswith(".rcp"):
+                    sg.popup_ok("Not a valid Recipe file", title="ERROR", font=("Arial", 14))
+                    continue
+
+                if not os.path.isfile(file):
+                    sg.popup_ok("File does not exist!", title="ERROR", font=("Arial", 14))
+                    continue
+
                 with open(file, "r") as fp:
                     recipe = json.load(fp)
 
