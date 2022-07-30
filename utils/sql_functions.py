@@ -69,7 +69,7 @@ def read_all_meals(db_file):
 def read_specific_meals(db_file, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(f"""SELECT meal, ingredients FROM meals WHERE meal LIKE "{selected_meal}" """)
+    cur.execute(f"SELECT meal, ingredients FROM meals WHERE meal LIKE ? ", (selected_meal,))
     raw_meal = cur.fetchall()[0]
     meal = {}
     meal[raw_meal[0]] = raw_meal[1].split(", ")
@@ -77,19 +77,10 @@ def read_specific_meals(db_file, selected_meal):
     return meal
 
 
-def read_meal_recipe(db_file, selected_meal):
-    conn = create_connection(db_file)
-    cur = conn.cursor()
-    cur.execute(f""" SELECT json(recipe_data) FROM meals WHERE meal LIKE "{selected_meal}" """)
-    recipe = cur.fetchone()[0]
-    conn.close()
-    return recipe
-
-
 def update_meal_name(db_file, new_meal_name, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(f"""UPDATE meals SET meal = "{new_meal_name}" WHERE meal LIKE "{selected_meal}" """)
+    cur.execute(f"UPDATE meals SET meal = ? WHERE meal LIKE ?", (new_meal_name, selected_meal))
     conn.commit()
     conn.close()
     return
@@ -99,7 +90,7 @@ def update_meal_recipe(db_file, recipe_data, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
     cur.execute(
-        f"""UPDATE meals SET recipe_data = "{recipe_data}" WHERE meal LIKE "{selected_meal}" """
+        f"UPDATE meals SET recipe_data = ? WHERE meal LIKE ? ", (recipe_data, selected_meal)
     )
     conn.commit()
     conn.close()
@@ -109,7 +100,7 @@ def update_meal_recipe(db_file, recipe_data, selected_meal):
 def read_meal_recipe(db_file, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(f"""SELECT recipe_data FROM meals WHERE meal LIKE "{selected_meal}" """)
+    cur.execute(f"SELECT recipe_data FROM meals WHERE meal LIKE ?", (selected_meal,))
     recipe = cur.fetchone()[0]
     recipe = json.loads(recipe) if recipe else None
     conn.commit()
@@ -132,9 +123,7 @@ def read_all_recipes(db_file):
 def update_meal_category(db_file, new_category, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(
-        f"""UPDATE meals SET category = "{new_category}" WHERE meal LIKE "{selected_meal}" """
-    )
+    cur.execute(f"UPDATE meals SET category = ? WHERE meal LIKE ? ", (new_category, selected_meal))
     conn.commit()
     conn.close()
     return
@@ -143,9 +132,7 @@ def update_meal_category(db_file, new_category, selected_meal):
 def update_meal_ingredients(db_file, meal_name, ingredients):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(
-        f""" UPDATE meals SET ingredients = "{ingredients}" WHERE meal LIKE "{meal_name}" """
-    )
+    cur.execute(f"UPDATE meals SET ingredients = ? WHERE meal LIKE ? ", (ingredients, meal_name))
     conn.commit()
     conn.close()
     return
@@ -155,7 +142,7 @@ def remove_meal(db_file, meal_name):
     conn = create_connection(db_file)
     cur = conn.cursor()
     print(meal_name)
-    cur.execute(f"""DELETE FROM meals WHERE meal LIKE "{meal_name}" """)
+    cur.execute(f"DELETE FROM meals WHERE meal LIKE ? ", (meal_name,))
     conn.commit()
     conn.close()
     return
@@ -237,7 +224,8 @@ def read_current_plans(db_file, week_date):
     cur.execute(
         f"""SELECT
         week_date, sunday, monday, tuesday, wednesday, thursday, friday, saturday, ingredients
-        FROM plans WHERE week_date LIKE "{week_date}" """
+        FROM plans WHERE week_date LIKE ? """,
+        (week_date,),
     )
     current_plan = cur.fetchall()
     if not current_plan:
@@ -266,7 +254,7 @@ def read_current_plans(db_file, week_date):
 def remove_plan(db_file, plan_date):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(f"""DELETE FROM plans WHERE week_date LIKE "{plan_date}" """)
+    cur.execute(f"DELETE FROM plans WHERE week_date LIKE ? ", (plan_date,))
     conn.commit()
     conn.close()
     return True
