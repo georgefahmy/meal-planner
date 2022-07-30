@@ -1,6 +1,7 @@
 #!/bin/bash
 
 INVENV=$(python3 -c 'import sys; print( True if "virtual" in sys.prefix else False)')
+VERSION="v3.2.0"
 
 if [ $INVENV == "True" ]; then
     echo "Please deactivate the virtual environment and run again"
@@ -12,4 +13,6 @@ else
     cd dist
     zip -r "Meal Planner PRO.zip" "Meal Planner PRO.app"
     cp -r "Meal Planner PRO.app" /Applications/
+    cd ..
+    gh release create $VERSION dist/*.zip -t "Meal Planner PRO $VERSION" -F resources/changelog.md
 fi

@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.2.0] - 2022-07-30
+Added the ability to import and export recipes as .rcp files! You can now share them with your friends and family!
+
+### Added
+- Added the ability to export a recipe from the recipe viewer interface as a .rcp file.
+- Added the ability to import a recipe from the recipe viewer interface, if the file exists and is a valid .rcp file.
+
+### Changed
+- Changed how the database is made to now limit meal names to be unique.
+- Updated the sql functions used to query the database to handle the new import/export of recipes
+- Recipe names that already exist will be ignored during import (this may change in the future to auto increment the recipe name - i.e. Recipe(2))
+
+
 ## [v3.1.5] - 2022-07-30
 Fixed a minor bug with a capitalization of the parsed recipe from a recipe link.
 

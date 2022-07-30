@@ -780,6 +780,10 @@ while True:
 
     if event == "View Recipes":
         recipe_viewer()
+        meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+        window["-MEAL_LIST-"].update(
+            sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
+        )
 
     if event in ("Update Recipe", "Edit Recipe"):
         selected_meal = values["-MEAL_LIST-"][0].lower()

@@ -81,16 +81,40 @@ def recipe_viewer(meals=None):
     if not meals:
         available_meals = read_all_recipes(db_file)
         meals = [capwords(meal) for meal, recipe in available_meals.items() if recipe]
+        meals = sorted(meals)
 
     top_bar = [
         sg.Frame(
             "",
             layout=[
                 [
-                    sg.Button("New", key="new_recipe", enable_events=True),
+                    sg.Column(
+                        [
+                            [
+                                sg.Button("New", key="new_recipe", enable_events=True),
+                                sg.Button("Import Recipe", key="import_recipe", enable_events=True),
+                                sg.Button(
+                                    "Export Recipe",
+                                    key="export_recipe",
+                                    visible=False,
+                                    enable_events=True,
+                                ),
+                            ]
+                        ],
+                        element_justification="l",
+                        expand_x=True,
+                    ),
                     sg.Text("", expand_x=True),
-                    sg.Button("Clear", key="clear_recipe", enable_events=True),
-                    sg.Button("Close", key="close_window", enable_events=True),
+                    sg.Column(
+                        [
+                            [
+                                sg.Button("Clear", key="clear_recipe", enable_events=True),
+                                sg.Button("Close", key="close_window", enable_events=True),
+                            ]
+                        ],
+                        element_justification="r",
+                        expand_x=True,
+                    ),
                 ]
             ],
             element_justification="c",
@@ -241,7 +265,84 @@ def recipe_viewer(meals=None):
             print(event, values)
             pass
 
-        if event == "delete recipe":
+        if event == "export_recipe":
+            selected_meal = values["available_meals"][0].lower()
+            available_meals = read_all_recipes(db_file)
+            meals = [capwords(meal) for meal, recipe in available_meals.items() if recipe]
+            recipe = json.loads(available_meals[selected_meal])
+            export_file_path = sg.popup_get_file(
+                "Export Recipe",
+                title="Export Recipe",
+                default_extension="rcp",
+                save_as=True,
+                multiple_files=False,
+                history=True,
+            )
+            if not export_file_path:
+                continue
+
+            with open(export_file_path, "w") as fp:
+                json.dump(recipe, fp, indent=4, sort_keys=True)
+
+        if event == "import_recipe":
+            import_files_path = sg.popup_get_file(
+                "Export Recipe",
+                title="Export Recipe",
+                default_extension="rcp",
+                multiple_files=True,
+                history=True,
+                file_types=(".rcp"),
+            )
+            if not import_files_path:
+                continue
+
+            import_files_path = import_files_path.split(";")
+
+            for file in import_files_path:
+                if not file.endswith(".rcp"):
+                    sg.popup_ok("Not a valid Recipe file", title="ERROR", font=("Arial", 14))
+                    continue
+
+                if not os.path.isfile(file):
+                    sg.popup_ok("File does not exist!", title="ERROR", font=("Arial", 14))
+                    continue
+
+                with open(file, "r") as fp:
+                    recipe = json.load(fp)
+
+                if not recipe:
+                    continue
+
+                basic_ingredients = [
+                    ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
+                ]
+                new_meal = recipe["title"].lower()
+                new_ingredients = ", ".join(basic_ingredients).lower()
+                new_category = recipe["recipe_category"].lower()
+                meal_categories = list(dict.fromkeys(settings["meal_categories"]))
+                meal_categories.append(capwords(new_category))
+                meal_categories = list(dict.fromkeys(meal_categories))
+                settings["meal_categories"] = meal_categories
+                with open(file_path, "w") as fp:
+                    json.dump(settings, fp, sort_keys=True, indent=4)
+
+                if not new_ingredients:
+                    new_ingredients = new_meal
+
+                if new_meal:
+                    add_meal(
+                        db_file,
+                        new_meal,
+                        ingredients=new_ingredients,
+                        recipe_link="",
+                        recipe=json.dumps(recipe),
+                        category=new_category,
+                    )
+                    meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+                available_meals = [capwords(meal_name) for meal_name in read_all_recipes(db_file)]
+                recipe_window["available_meals"].update(values=sorted(available_meals))
+
+        if event == "Delete Recipe":
             selected_meal = values["available_meals"][0].lower()
             remove_meal(db_file, selected_meal)
             available_meals = read_all_recipes(db_file)
@@ -281,11 +382,14 @@ def recipe_viewer(meals=None):
             recipe_window["available_meals"].update(values=available_meals)
 
         if event in ("available_meals"):
+
+            if not values["available_meals"]:
+                continue
+
+            selected_meal = values["available_meals"][0].lower()
+            recipe_window["export_recipe"].update(visible=True)
             available_meals = read_all_recipes(db_file)
             meals = [capwords(meal) for meal, recipe in available_meals.items() if recipe]
-            selected_meal = values["available_meals"][0].lower()
-            if not selected_meal:
-                continue
             recipe = json.loads(available_meals[selected_meal])
             if not recipe:
                 continue
@@ -334,4 +438,5 @@ def recipe_viewer(meals=None):
             recipe_window.refresh()
 
         if event == "clear_recipe":
+            recipe_window["export_recipe"].update(visible=False)
             clear_all_elements(recipe_window)
