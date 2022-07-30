@@ -38,7 +38,10 @@ def add_meal(db_file, meal, ingredients=None, recipe_link=None, recipe=None, cat
     :return id:
     """
     values = (meal, ingredients, recipe_link, recipe, category)
-    sql = f""" INSERT INTO meals (meal, ingredients, recipe_link, recipe_data, category) VALUES(?,?,?,?,?)"""
+    sql = f"""
+        INSERT OR IGNORE INTO meals (meal, ingredients, recipe_link, recipe_data, category)
+        VALUES(?,?,?,?,?)
+        """
     cur = conn.cursor()
     cur.execute(sql, values)
     conn.commit()
@@ -151,6 +154,7 @@ def update_meal_ingredients(db_file, meal_name, ingredients):
 def remove_meal(db_file, meal_name):
     conn = create_connection(db_file)
     cur = conn.cursor()
+    print(meal_name)
     cur.execute(f"""DELETE FROM meals WHERE meal LIKE "{meal_name}" """)
     conn.commit()
     conn.close()
