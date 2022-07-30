@@ -16,8 +16,13 @@ from utils.recipe_units import units
 from recipe_interface import recipes
 from recipe_viewer import recipe_viewer
 from recipe_scrapers import scrape_me
+from recipe_scrapers.settings import RecipeScraperSettings
+from recipe_scrapers.settings import default
+
 from itertools import pairwise
 
+settings = RecipeScraperSettings()
+settings._configure()
 
 try:
     wd = sys._MEIPASS
@@ -709,7 +714,10 @@ match_expression = f"([0-9\/\.\-\s]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s]*
 
 def process_recipe_link(recipe_link):
     recipe = {}
-    scraped_recipe = scrape_me(recipe_link, wild_mode=True)
+    try:
+        scraped_recipe = scrape_me(recipe_link, wild_mode=True)
+    except:
+        return recipe
     recipe["title"] = scraped_recipe.title()
     recipe["directions"] = re.sub("\n", " ", scraped_recipe.instructions())
     recipe["recipe_category"] = scraped_recipe.category()
@@ -748,8 +756,7 @@ icon_file = wd + "/resources/burger-10956.png"
 sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
 themes = sg.theme_list()
 chosen_theme = choice(themes)
-sg.theme(chosen_theme)
-# sg.theme("Material2")
+sg.set_options(alpha_channel=0.99)
 
 window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1320, 660), finalize=True)
 
@@ -951,7 +958,7 @@ while True:
                 [sg.Button("Okay", key="OKAY"), sg.Button("Cancel", key="CANCEL")],
             ],
             disable_close=False,
-            location=(700, 50),
+            location=((screen_width / 2) - 150, screen_height / 5),
             size=(200, 220),
             relative_location=(-100, 0),
         )
@@ -1005,7 +1012,7 @@ while True:
                         [sg.Button("Okay")],
                     ],
                     disable_close=False,
-                    location=(700, 400),
+                    location=((screen_width / 2) - 100, screen_height / 10),
                     relative_location=(-200, 0),
                     size=(400, 370),
                 ).read(close=True)
@@ -1452,6 +1459,8 @@ while True:
         if new_recipe:
             recipe = process_recipe_link(new_recipe)
             recipe = recipes(recipe["title"].title(), recipe_data=recipe)
+            if not recipe:
+                continue
             basic_ingredients = [
                 ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
             ]
