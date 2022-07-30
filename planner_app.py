@@ -18,6 +18,7 @@ from recipe_viewer import recipe_viewer
 from recipe_scrapers import scrape_me
 from recipe_scrapers.settings import RecipeScraperSettings
 from recipe_scrapers.settings import default
+from string import capwords
 
 from itertools import pairwise
 
@@ -95,7 +96,7 @@ left_column = [
             ],
             [
                 sg.Listbox(
-                    values=sorted([meal.title() for meal in read_all_meals(db_file).keys()]),
+                    values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()]),
                     size=(16, 10),
                     expand_x=True,
                     pad=((5, 5), (5, 5)),
@@ -525,9 +526,9 @@ plan_meals = [
 plan_ingredients = sorted(
     list(
         set(
-            ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals if meal])
-            .title()
-            .split(", ")
+            capwords(
+                ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals if meal])
+            ).split(", ")
         )
     )
 )
@@ -718,7 +719,7 @@ def process_recipe_link(recipe_link):
         scraped_recipe = scrape_me(recipe_link, wild_mode=True)
     except:
         return recipe
-    recipe["title"] = scraped_recipe.title()
+    recipe["title"] = capwords(scraped_recipe)
     recipe["directions"] = re.sub("\n", " ", scraped_recipe.instructions())
     recipe["recipe_category"] = scraped_recipe.category()
     raw_ingredients = scraped_recipe.ingredients()
@@ -784,7 +785,7 @@ while True:
         selected_meal = values["-MEAL_LIST-"][0].lower()
         existing_recipe = read_meal_recipe(db_file, selected_meal)
 
-        recipe = recipes(selected_meal.title(), recipe_data=existing_recipe)
+        recipe = recipes(capwords(selected_meal), recipe_data=existing_recipe)
         if recipe:
             confirm = sg.popup_ok_cancel("Overwrite existing recipe?")
             if confirm == "OK":
@@ -820,7 +821,7 @@ while True:
                 basic_recipe["ingredients"][f"ingredient_{i}"]["ingredient"] = basic_ingredient
                 basic_recipe["ingredients"][f"ingredient_{i}"]["special_instruction"] = ""
 
-        recipe = recipes(new_recipe_name.title(), recipe_data=basic_recipe)
+        recipe = recipes(capwords(new_recipe_name), recipe_data=basic_recipe)
 
         if not recipe:
             continue
@@ -831,8 +832,8 @@ while True:
             ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
         ]
         window["-INGREDIENTS-"].update(value=", ".join(basic_ingredients).lower())
-        window["-MEAL-"].update(value=recipe["title"].title())
-        window["-NEWCATEGORY-"].update(value=recipe["recipe_category"].title())
+        window["-MEAL-"].update(value=capwords(recipe["title"]))
+        window["-NEWCATEGORY-"].update(value=capwords(recipe["recipe_category"]))
 
     if event == "-PICK_DATE-":
         date = popup_get_date()
@@ -874,7 +875,7 @@ while True:
                                     [
                                         ingredient["quantity"] if ingredient["quantity"] else 1,
                                         ingredient["units"] if ingredient["units"] else "",
-                                        ingredient["ingredient"].title()
+                                        capwords(ingredient["ingredient"])
                                         if ingredient["ingredient"]
                                         else "",
                                     ]
@@ -883,7 +884,7 @@ while True:
                         )
                 else:
                     plan_ingredients.extend(
-                        list(set(", ".join(meals[meal]["ingredients"]).title().split(", ")))
+                        list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
                     )
 
             plan_ingredients.sort()
@@ -929,7 +930,7 @@ while True:
                     day_plan.append(f"-{meal}-")
                     day_plan.append("Ingredients:")
                     wrapped_ingredients = textwrap.wrap(
-                        ", ".join(meals[meal.lower()]["ingredients"]).title(), 50
+                        capwords(", ".join(meals[meal.lower()]["ingredients"])), 50
                     )
                     day_plan.append("\n".join(wrapped_ingredients))
                     day_plan.append("\n")
@@ -1063,7 +1064,7 @@ while True:
                                 [
                                     ingredient["quantity"] if ingredient["quantity"] else 1,
                                     ingredient["units"] if ingredient["units"] else "",
-                                    ingredient["ingredient"].title()
+                                    capwords(ingredient["ingredient"])
                                     if ingredient["ingredient"]
                                     else "",
                                 ]
@@ -1072,7 +1073,7 @@ while True:
                     )
             else:
                 plan_ingredients.extend(
-                    list(set(", ".join(meals[meal]["ingredients"]).title().split(", ")))
+                    list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
                 )
 
         plan_ingredients.sort()
@@ -1111,7 +1112,7 @@ while True:
                                     [
                                         ingredient["quantity"] if ingredient["quantity"] else 1,
                                         ingredient["units"] if ingredient["units"] else "",
-                                        ingredient["ingredient"].title()
+                                        capwords(ingredient["ingredient"])
                                         if ingredient["ingredient"]
                                         else "",
                                     ]
@@ -1120,7 +1121,7 @@ while True:
                         )
                 else:
                     plan_ingredients.extend(
-                        list(set(", ".join(meals[meal]["ingredients"]).title().split(", ")))
+                        list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
                     )
 
             plan_ingredients.sort()
@@ -1146,7 +1147,7 @@ while True:
         os.remove(db_file)
         shutil.copyfile(new_file_path, db_file)
         window["-MEAL_LIST-"].update(
-            values=sorted([meal.title() for meal in read_all_meals(db_file).keys()])
+            values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
         )
         meals = {meal: info for meal, info in read_all_meals(db_file).items()}
         current_plan_dict = read_current_plans(db_file, str(start))
@@ -1175,7 +1176,7 @@ while True:
                                 [
                                     ingredient["quantity"] if ingredient["quantity"] else 1,
                                     ingredient["units"] if ingredient["units"] else "",
-                                    ingredient["ingredient"].title()
+                                    capwords(ingredient["ingredient"])
                                     if ingredient["ingredient"]
                                     else "",
                                 ]
@@ -1184,7 +1185,7 @@ while True:
                     )
             else:
                 plan_ingredients.extend(
-                    list(set(", ".join(meals[meal]["ingredients"]).title().split(", ")))
+                    list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
                 )
 
         plan_ingredients.sort()
@@ -1222,7 +1223,7 @@ while True:
                     [sg.Text("Change Name of Meal", font=("Arial", 14), justification="c")],
                     [
                         sg.Input(
-                            default_text=selected_meal.title(),
+                            default_text=capwords(selected_meal),
                             font=("Arial", 14),
                             key="-NEWMEALNAME-",
                             enable_events=False,
@@ -1239,7 +1240,7 @@ while True:
             update_meal_name(db_file, new_meal_name, selected_meal)
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             window["-MEAL_LIST-"].update(
-                sorted([meal.title() for meal in read_all_meals(db_file).keys()])
+                sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
             )
 
     if event == "Edit Category":
@@ -1266,7 +1267,7 @@ while True:
                 continue
             new_category = new_category["-NEWMEALCATEGORY-"].lower()
             meal_categories = list(dict.fromkeys(settings["meal_categories"]))
-            meal_categories.append(new_category.title())
+            meal_categories.append(capwords(new_category))
             meal_categories = list(dict.fromkeys(meal_categories))
             settings["meal_categories"] = meal_categories
             with open(file_path, "w") as fp:
@@ -1274,7 +1275,7 @@ while True:
             update_meal_category(db_file, new_category, selected_meal)
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             window["-MEAL_LIST-"].update(
-                sorted([meal.title() for meal in read_all_meals(db_file).keys()])
+                sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
             )
             window["-NEWCATEGORY-"].update(set_to_index=[0], values=meal_categories[1:])
             window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
@@ -1310,7 +1311,7 @@ while True:
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             ingredients_list = meals[selected_meal]["ingredients"]
             window["-MEAL_INGREDIENTS_LIST-"].update(
-                [ingredient.title() for ingredient in ingredients_list]
+                [capwords(ingredient) for ingredient in ingredients_list]
             )
 
     if event in "Edit Ingredients":
@@ -1323,7 +1324,7 @@ while True:
                     [sg.Text("Edit Ingredient(s)", font=("Arial", 14), justification="c",)],
                     [
                         sg.Multiline(
-                            default_text=", ".join(sorted(ingredients)).title(),
+                            default_text=capwords(", ".join(sorted(ingredients))),
                             key="-EDITINGREDIENTS-",
                             enable_events=False,
                             font=("Arial", 14),
@@ -1345,7 +1346,7 @@ while True:
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             ingredients_list = meals[selected_meal]["ingredients"]
             window["-MEAL_INGREDIENTS_LIST-"].update(
-                [ingredient.title() for ingredient in ingredients_list]
+                [capwords(ingredient) for ingredient in ingredients_list]
             )
 
     if event == "Delete Meal":
@@ -1356,7 +1357,7 @@ while True:
                 remove_meal(db_file, selected_meal)
                 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
                 window["-MEAL_LIST-"].update(
-                    sorted([meal.title() for meal in read_all_meals(db_file).keys()])
+                    sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
                 )
                 window["-MEAL_INGREDIENTS_LIST-"].update([])
 
@@ -1380,13 +1381,17 @@ while True:
     if event == "-CFILTER-":
         if values["-CFILTER-"] == "All":
             values["-CFILTER-"] = ""
-        filtered_meals = sorted([meal.title() for meal in matchingKeys(meals, values["-CFILTER-"])])
+        filtered_meals = sorted(
+            [capwords(meal) for meal in matchingKeys(meals, values["-CFILTER-"])]
+        )
         window["-MEAL_LIST-"].update(filtered_meals)
 
     if event == "-MFILTER-":
         # Typing in the search box will filter the main meal list based on the name of the meal
         # as well as ingredients in any meal
-        filtered_meals = sorted([meal.title() for meal in matchingKeys(meals, values["-MFILTER-"])])
+        filtered_meals = sorted(
+            [capwords(meal) for meal in matchingKeys(meals, values["-MFILTER-"])]
+        )
         window["-MEAL_LIST-"].update(filtered_meals)
 
     if event == "-MEAL_LIST-":
@@ -1408,10 +1413,10 @@ while True:
             window["-VIEW_RECIPE-"].update(visible=False)
         ingredients_list = meals[selected_meal]["ingredients"]
         window["-MEAL_INGREDIENTS_LIST-"].update(
-            sorted([ingredient.title() for ingredient in ingredients_list])
+            sorted([capwords(ingredient) for ingredient in ingredients_list])
         )
         window["-CATEGORY_TEXT-"].update(
-            visible=True, value=meals[selected_meal]["category"].title()
+            visible=True, value=capwords(meals[selected_meal]["category"])
         )
     if event == "-VIEW_RECIPE-":
         w = display_recipe(recipe)
@@ -1426,7 +1431,7 @@ while True:
         window["-FRI-"].update(value=False)
         window["-SAT-"].update(value=False)
         window["-SUN-"].update(value=False)
-        window["-MEAL_LIST-"].update(sorted([meal.title() for meal in meals.keys()]))
+        window["-MEAL_LIST-"].update(sorted([capwords(meal) for meal in meals.keys()]))
         window["-MEAL_INGREDIENTS_LIST-"].update([])
         window["-CFILTER-"].update(set_to_index=[0])
         window["-VIEW_RECIPE-"].update(visible=False)
@@ -1458,7 +1463,7 @@ while True:
         new_recipe = values["-RECIPE_LINK-"].lower()
         if new_recipe:
             recipe = process_recipe_link(new_recipe)
-            recipe = recipes(recipe["title"].title(), recipe_data=recipe)
+            recipe = recipes(capwords(recipe["title"]), recipe_data=recipe)
             if not recipe:
                 continue
             basic_ingredients = [
@@ -1473,7 +1478,7 @@ while True:
             new_category = values["-NEWCATEGORY-"].lower()
 
         meal_categories = list(dict.fromkeys(settings["meal_categories"]))
-        meal_categories.append(new_category.title())
+        meal_categories.append(capwords(new_category))
         meal_categories = list(dict.fromkeys(meal_categories))
         settings["meal_categories"] = meal_categories
         with open(file_path, "w") as fp:
@@ -1495,7 +1500,7 @@ while True:
                 category=new_category,
             )
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-            window["-MEAL_LIST-"].update(sorted([meal.title() for meal in meals.keys()]))
+            window["-MEAL_LIST-"].update(sorted([capwords(meal) for meal in meals.keys()]))
             window["-MEAL-"].update(value="")
             window["-INGREDIENTS-"].update(value="")
             window["-RECIPE_LINK-"].update(value="")
@@ -1607,7 +1612,7 @@ while True:
                                 [
                                     ingredient["quantity"] if ingredient["quantity"] else 1,
                                     ingredient["units"] if ingredient["units"] else "",
-                                    ingredient["ingredient"].title()
+                                    capwords(ingredient["ingredient"])
                                     if ingredient["ingredient"]
                                     else "",
                                 ]
@@ -1616,7 +1621,7 @@ while True:
                     )
             else:
                 plan_ingredients.extend(
-                    list(set(", ".join(meals[meal]["ingredients"]).title().split(", ")))
+                    list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
                 )
 
         plan_ingredients.sort()
@@ -1645,9 +1650,11 @@ while True:
             plan_ingredients = sorted(
                 list(
                     set(
-                        ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals])
-                        .title()
-                        .split(", ")
+                        capwords(
+                            ", ".join(
+                                [", ".join(meals[meal]["ingredients"]) for meal in plan_meals]
+                            )
+                        ).split(", ")
                     )
                 )
             )
