@@ -719,7 +719,7 @@ def process_recipe_link(recipe_link):
         scraped_recipe = scrape_me(recipe_link, wild_mode=True)
     except:
         return recipe
-    recipe["title"] = capwords(scraped_recipe)
+    recipe["title"] = scraped_recipe.title()
     recipe["directions"] = re.sub("\n", " ", scraped_recipe.instructions())
     recipe["recipe_category"] = scraped_recipe.category()
     raw_ingredients = scraped_recipe.ingredients()
@@ -780,6 +780,10 @@ while True:
 
     if event == "View Recipes":
         recipe_viewer()
+        meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+        window["-MEAL_LIST-"].update(
+            sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
+        )
 
     if event in ("Update Recipe", "Edit Recipe"):
         selected_meal = values["-MEAL_LIST-"][0].lower()
