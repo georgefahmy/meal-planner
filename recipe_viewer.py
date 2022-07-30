@@ -17,6 +17,7 @@ from pprint import pprint
 from recipe_interface import recipes
 from recipe_scrapers import scrape_me
 from itertools import pairwise
+from string import capwords
 
 try:
     wd = sys._MEIPASS
@@ -79,7 +80,7 @@ def open_recipes_window(meals):
 def recipe_viewer(meals=None):
     if not meals:
         available_meals = read_all_recipes(db_file)
-        meals = [meal.title() for meal, recipe in available_meals.items() if recipe]
+        meals = [capwords(meal) for meal, recipe in available_meals.items() if recipe]
 
     top_bar = [
         sg.Frame(
@@ -257,7 +258,7 @@ def recipe_viewer(meals=None):
             new_ingredients = ", ".join(basic_ingredients).lower()
             new_category = recipe["recipe_category"].lower()
             meal_categories = list(dict.fromkeys(settings["meal_categories"]))
-            meal_categories.append(new_category.title())
+            meal_categories.append(capwords(new_category))
             meal_categories = list(dict.fromkeys(meal_categories))
             settings["meal_categories"] = meal_categories
             with open(file_path, "w") as fp:
@@ -281,7 +282,7 @@ def recipe_viewer(meals=None):
 
         if event in ("available_meals"):
             available_meals = read_all_recipes(db_file)
-            meals = [meal.title() for meal, recipe in available_meals.items() if recipe]
+            meals = [capwords(meal) for meal, recipe in available_meals.items() if recipe]
             selected_meal = values["available_meals"][0].lower()
             if not selected_meal:
                 continue

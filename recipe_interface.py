@@ -14,6 +14,7 @@ from utils.custom_date_picker import popup_get_date
 from utils.make_database import make_database
 from utils.recipe_units import units
 from pprint import pprint
+from string import capwords
 
 try:
     wd = sys._MEIPASS
@@ -225,7 +226,7 @@ Available units and abbreviations:
                 ingredient = (
                     ((quantity + " ") if quantity else "")
                     + ((str(ing_units) + " ") if ing_units else "")
-                    + ingredient_name.title()
+                    + capwords(ingredient_name)
                     + ((", " + special_instruction) if special_instruction else "")
                 )
                 recipe_window[("ingredient", i)].update(value=ingredient)
