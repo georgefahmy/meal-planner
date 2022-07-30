@@ -719,7 +719,7 @@ def process_recipe_link(recipe_link):
         scraped_recipe = scrape_me(recipe_link, wild_mode=True)
     except:
         return recipe
-    recipe["title"] = capwords(scraped_recipe)
+    recipe["title"] = scraped_recipe.title()
     recipe["directions"] = re.sub("\n", " ", scraped_recipe.instructions())
     recipe["recipe_category"] = scraped_recipe.category()
     raw_ingredients = scraped_recipe.ingredients()
