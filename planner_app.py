@@ -845,7 +845,7 @@ while True:
             continue
         month, day, year = date
         selected_day = datetime.date(year=year, month=month, day=day)
-        week_start = start - datetime.timedelta(days=selected_day.isoweekday() % 7)
+        week_start = selected_day - datetime.timedelta(days=selected_day.isoweekday() % 7)
         window["-WEEK-"].update(f"Week of {str(week_start)}")
         current_plan_dict["date"] = str(week_start)
 
