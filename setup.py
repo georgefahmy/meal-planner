@@ -32,7 +32,7 @@ setup(
         "recipe-scrapers",
     ],
     packages=find_packages(),
-    version="3.2.1",
+    version="3.2.2",
     author="George Fahmy",
     description="Meal Planner PRO",
     python_requires=">=3.6",
