@@ -251,7 +251,7 @@ def recipe_viewer(meals=None):
     icon_file = wd + "/resources/burger-10956.png"
     sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
     recipe_window = sg.Window(
-        "Recipe Interface", layout=layout, resizable=True, size=(700, 600), finalize=True,
+        "Recipe Interface", layout=layout, resizable=True, size=(900, 600), finalize=True,
     )
 
     while True:
@@ -419,8 +419,8 @@ def recipe_viewer(meals=None):
                 ingredients.append("")
 
             ingredients = list(pairwise(ingredients))[::2]
-            left_ingredients = [i[0] for i in ingredients]
-            right_ingredients = [i[1] for i in ingredients]
+            left_ingredients = ["\n".join(textwrap.wrap(i[0], 40)) for i in ingredients]
+            right_ingredients = ["\n".join(textwrap.wrap(i[1], 40)) for i in ingredients]
 
             recipe_window["title_frame"].update(visible=True)
             recipe_window["title"].update(value=recipe["title"])
