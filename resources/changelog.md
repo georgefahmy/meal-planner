@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.2.4] - 2022-07-30
+Updated the recipe viewer with a dash in front of the ingredients to clearly identify a new ingredient from a newline.
+
+### Changed
+- Added dashes to the ingredient list when displaying the ingredients.
+
+
 ## [v3.2.3] - 2022-07-30
 Minor changes to the recipe viewer to better handle wide texts.
 

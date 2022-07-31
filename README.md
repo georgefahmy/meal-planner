@@ -15,6 +15,10 @@ Choose from the available meals and choose a day of the week, then add it to the
 Add new meals to the database along with any ingredients and a link to a recipe
 
 
+### New Recipe
+Utilize the recipe interface to write a detailed recipe with quantities and instructions.
+
+
 ### Planning table
 The planning table shows the meals chosen for each day of the week.
 
@@ -23,30 +27,8 @@ The planning table shows the meals chosen for each day of the week.
 This ingredients list is a unique list of all the items you may need for all the meals. It does not double count, so if you need the same item for multiple meals, you'll have to account for that in the quantities purchased.
 
 
-#### Building The Application
+## Building The Application
 
 NOTE: DO NOT DO THIS STEP FROM WITHIN A VIRTUAL ENVIRONMENT
-* Make the setup file `py2applet --make-setup planner_app.py`
-* Finally make the application: run `python3 setup.py py2app`.
-
-
-## Updates
-
-### V3 & V3.1.1 - Recipe Interface
-A Completely separate interface for adding detailed recipes including exact proportions and instructions.
-* Add a popup window that allows for a detailed recipe to be added
-* Meal name (also add meal to meal list)
-* Ingredients and proportions in a paired list (either tuples or paired list of lists)
-* Ability to extract recipe information from a provided recipe URL
-
-* Add functional menu options
-    * File -> New Recipe, Load Database, Export Database
-    * Edit -> Edit meal, Edit ingredients, Edit plan
-    * Recipes -> New Recipe, View Recipes, Edit Recipe
-    * Help -> about, guide, feedback (disabled)
-
-* Added a separate interface for viewing all items with detailed recipes
-* Ability to create new recipes from this interface
-
-#### TODO
-* export a recipe out into a nicely formatted text file (maybe additional file types if necessary)
+* Make the setup file (if its not already created) `py2applet --make-setup planner_app.py`
+* Make the application: run `python3 setup.py py2app`.
