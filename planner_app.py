@@ -1638,13 +1638,15 @@ while True:
         window["-TABLE-"].update(values=gui_table)
         window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
         window["-MEAL_LIST-"].update(set_to_index=[])
-        window["-MON-"].update(value=False)
-        window["-TUE-"].update(value=False)
-        window["-WED-"].update(value=False)
-        window["-THU-"].update(value=False)
-        window["-FRI-"].update(value=False)
-        window["-SAT-"].update(value=False)
-        window["-SUN-"].update(value=False)
+
+        # Commenting this out so that I can make it optional later on with a user setting.
+        # window["-MON-"].update(value=False)
+        # window["-TUE-"].update(value=False)
+        # window["-WED-"].update(value=False)
+        # window["-THU-"].update(value=False)
+        # window["-FRI-"].update(value=False)
+        # window["-SAT-"].update(value=False)
+        # window["-SUN-"].update(value=False)
 
     if event == "-PLAN-SUBMIT-":
         plan_meals = [
