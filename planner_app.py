@@ -652,8 +652,8 @@ def display_recipe(recipe):
         ingredients.append("")
 
     ingredients = list(pairwise(ingredients))[::2]
-    left_ingredients = [i[0] for i in ingredients]
-    right_ingredients = [i[1] for i in ingredients]
+    left_ingredients = ["- " + "\n".join(textwrap.wrap(i[0], 40)) for i in ingredients]
+    right_ingredients = ["- " + "\n".join(textwrap.wrap(i[1], 40)) for i in ingredients]
     layout = [
         [sg.Text(recipe["title"], font=("Arial Bold", 18), justification="l")],
         [

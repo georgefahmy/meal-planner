@@ -419,8 +419,8 @@ def recipe_viewer(meals=None):
                 ingredients.append("")
 
             ingredients = list(pairwise(ingredients))[::2]
-            left_ingredients = ["\n".join(textwrap.wrap(i[0], 40)) for i in ingredients]
-            right_ingredients = ["\n".join(textwrap.wrap(i[1], 40)) for i in ingredients]
+            left_ingredients = ["- " + "\n".join(textwrap.wrap(i[0], 40)) for i in ingredients]
+            right_ingredients = ["- " + "\n".join(textwrap.wrap(i[1], 40)) for i in ingredients]
 
             recipe_window["title_frame"].update(visible=True)
             recipe_window["title"].update(value=recipe["title"])
