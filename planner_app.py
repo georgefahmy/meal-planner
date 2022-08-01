@@ -20,7 +20,17 @@ from recipe_scrapers.settings import RecipeScraperSettings
 from recipe_scrapers.settings import default
 from string import capwords
 
-from itertools import pairwise
+if sys.version_info.minor >= 10:
+    from itertools import pairwise
+else:
+    from itertools import tee
+
+    def pairwise(iterable):
+        "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+        a, b = tee(iterable)
+        next(b, None)
+        return zip(a, b)
+
 
 settings = RecipeScraperSettings()
 settings._configure()
@@ -136,7 +146,10 @@ middle_column = [
                     pad=(0, 0),
                     layout=[
                         [
-                            sg.Text("Meal Category", font=("Arial", 12),),
+                            sg.Text(
+                                "Meal Category",
+                                font=("Arial", 12),
+                            ),
                             sg.Combo(
                                 default_value="All",
                                 values=meal_categories,
@@ -149,7 +162,11 @@ middle_column = [
                             ),
                         ],
                         [
-                            sg.Text("Keyword Filter", key="-MFILTER_TEXT-", font=("Arial", 12),),
+                            sg.Text(
+                                "Keyword Filter",
+                                key="-MFILTER_TEXT-",
+                                font=("Arial", 12),
+                            ),
                             sg.Input(
                                 font=("Arial", 12),
                                 size=(10, 1),
@@ -307,7 +324,11 @@ input_section = [
         [
             [
                 sg.Text(
-                    "Meal", font=("Arial", 14), size=(10, 1), justification="center", expand_x=True,
+                    "Meal",
+                    font=("Arial", 14),
+                    size=(10, 1),
+                    justification="center",
+                    expand_x=True,
                 )
             ],
             [sg.Input(size=(11, 2), font=("Arial", 14), key="-MEAL-", enable_events=False)],
@@ -475,9 +496,18 @@ meal_plan_section = [
                     key="-WEEK-",
                     expand_x=True,
                 ),
-                sg.Button("Load Plan", key="-LOAD_PLAN-",),
-                sg.Button("Export Plan", key="-EXPORT_PLAN-",),
-                sg.Button("Available Plans", key="-AVAILABLE_PLANS-",),
+                sg.Button(
+                    "Load Plan",
+                    key="-LOAD_PLAN-",
+                ),
+                sg.Button(
+                    "Export Plan",
+                    key="-EXPORT_PLAN-",
+                ),
+                sg.Button(
+                    "Available Plans",
+                    key="-AVAILABLE_PLANS-",
+                ),
             ],
             [
                 sg.Table(
@@ -600,9 +630,19 @@ full_layout = [
         [sg.Menu(menu_bar_layout, font=("Arial", "12"), key="-MENU-")],
         [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True)],
         [sg.HorizontalSeparator()],
-        sg.Column([main_left_column], size=(400, 600), element_justification="c", expand_x=True,),
+        sg.Column(
+            [main_left_column],
+            size=(400, 600),
+            element_justification="c",
+            expand_x=True,
+        ),
         sg.VSeperator(),
-        sg.Column([main_right_column], size=(400, 600), element_justification="c", expand_x=True,),
+        sg.Column(
+            [main_right_column],
+            size=(400, 600),
+            element_justification="c",
+            expand_x=True,
+        ),
     ]
 ]
 
@@ -1325,7 +1365,13 @@ while True:
             _, edited_ingredients = sg.Window(
                 "Edit Ingredients",
                 [
-                    [sg.Text("Edit Ingredient(s)", font=("Arial", 14), justification="c",)],
+                    [
+                        sg.Text(
+                            "Edit Ingredient(s)",
+                            font=("Arial", 14),
+                            justification="c",
+                        )
+                    ],
                     [
                         sg.Multiline(
                             default_text=capwords(", ".join(sorted(ingredients))),

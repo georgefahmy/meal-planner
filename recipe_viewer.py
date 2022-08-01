@@ -16,8 +16,19 @@ from utils.recipe_units import units
 from pprint import pprint
 from recipe_interface import recipes
 from recipe_scrapers import scrape_me
-from itertools import pairwise
 from string import capwords
+
+if sys.version_info.minor >= 10:
+    from itertools import pairwise
+else:
+    from itertools import tee
+
+    def pairwise(iterable):
+        "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+        a, b = tee(iterable)
+        next(b, None)
+        return zip(a, b)
+
 
 try:
     wd = sys._MEIPASS
@@ -123,7 +134,9 @@ def recipe_viewer(meals=None):
     ]
     recipe_right_click_menu = [
         "&Right",
-        ["Delete Recipe",],
+        [
+            "Delete Recipe",
+        ],
     ]
     available_recipes = [
         [
@@ -155,7 +168,14 @@ def recipe_viewer(meals=None):
             "",
             [
                 [sg.Text("", font=("Arial Bold", 18), justification="l", key="title")],
-                [sg.Text("", font=("Arial Italic", 12), justification="l", key="subtitle",)],
+                [
+                    sg.Text(
+                        "",
+                        font=("Arial Italic", 12),
+                        justification="l",
+                        key="subtitle",
+                    )
+                ],
             ],
             relief="flat",
             visible=False,
@@ -190,7 +210,15 @@ def recipe_viewer(meals=None):
                         element_justification="l",
                     ),
                     sg.Column(
-                        layout=[[sg.Text("", font=("Arial Bold", 12), justification="l",)]],
+                        layout=[
+                            [
+                                sg.Text(
+                                    "",
+                                    font=("Arial Bold", 12),
+                                    justification="l",
+                                )
+                            ]
+                        ],
                         expand_x=True,
                         element_justification="c",
                     ),
@@ -228,7 +256,14 @@ def recipe_viewer(meals=None):
                         key="instruction_header",
                     )
                 ],
-                [sg.Text("", font=("Arial", 12), justification="l", key="instructions",)],
+                [
+                    sg.Text(
+                        "",
+                        font=("Arial", 12),
+                        justification="l",
+                        key="instructions",
+                    )
+                ],
             ],
             relief="flat",
             expand_x=True,
@@ -251,7 +286,11 @@ def recipe_viewer(meals=None):
     icon_file = wd + "/resources/burger-10956.png"
     sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
     recipe_window = sg.Window(
-        "Recipe Interface", layout=layout, resizable=True, size=(900, 600), finalize=True,
+        "Recipe Interface",
+        layout=layout,
+        resizable=True,
+        size=(900, 600),
+        finalize=True,
     )
 
     while True:
