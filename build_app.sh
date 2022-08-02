@@ -14,5 +14,6 @@ else
     zip -r "Meal Planner PRO.zip" "Meal Planner PRO.app"
     cp -r "Meal Planner PRO.app" /Applications/
     cd ..
+    echo "Creating release and uploading app to github"
     gh release create $VERSION dist/*.zip -t "Meal Planner PRO $VERSION" -F resources/changelog.md
 fi
