@@ -146,10 +146,7 @@ middle_column = [
                     pad=(0, 0),
                     layout=[
                         [
-                            sg.Text(
-                                "Meal Category",
-                                font=("Arial", 12),
-                            ),
+                            sg.Text("Meal Category", font=("Arial", 12),),
                             sg.Combo(
                                 default_value="All",
                                 values=meal_categories,
@@ -162,11 +159,7 @@ middle_column = [
                             ),
                         ],
                         [
-                            sg.Text(
-                                "Keyword Filter",
-                                key="-MFILTER_TEXT-",
-                                font=("Arial", 12),
-                            ),
+                            sg.Text("Keyword Filter", key="-MFILTER_TEXT-", font=("Arial", 12),),
                             sg.Input(
                                 font=("Arial", 12),
                                 size=(10, 1),
@@ -324,11 +317,7 @@ input_section = [
         [
             [
                 sg.Text(
-                    "Meal",
-                    font=("Arial", 14),
-                    size=(10, 1),
-                    justification="center",
-                    expand_x=True,
+                    "Meal", font=("Arial", 14), size=(10, 1), justification="center", expand_x=True,
                 )
             ],
             [sg.Input(size=(11, 2), font=("Arial", 14), key="-MEAL-", enable_events=False)],
@@ -496,18 +485,9 @@ meal_plan_section = [
                     key="-WEEK-",
                     expand_x=True,
                 ),
-                sg.Button(
-                    "Load Plan",
-                    key="-LOAD_PLAN-",
-                ),
-                sg.Button(
-                    "Export Plan",
-                    key="-EXPORT_PLAN-",
-                ),
-                sg.Button(
-                    "Available Plans",
-                    key="-AVAILABLE_PLANS-",
-                ),
+                sg.Button("Load Plan", key="-LOAD_PLAN-",),
+                sg.Button("Export Plan", key="-EXPORT_PLAN-",),
+                sg.Button("Available Plans", key="-AVAILABLE_PLANS-",),
             ],
             [
                 sg.Table(
@@ -562,7 +542,9 @@ plan_ingredients = sorted(
         )
     )
 )
-plan_ingredients = [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
+plan_ingredients = sorted(
+    [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
+)
 # Bottom Right Quadrant - Table of ingredients
 ingredients_list_section = [
     sg.Column(
@@ -630,19 +612,9 @@ full_layout = [
         [sg.Menu(menu_bar_layout, font=("Arial", "12"), key="-MENU-")],
         [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True)],
         [sg.HorizontalSeparator()],
-        sg.Column(
-            [main_left_column],
-            size=(400, 600),
-            element_justification="c",
-            expand_x=True,
-        ),
+        sg.Column([main_left_column], size=(400, 600), element_justification="c", expand_x=True,),
         sg.VSeperator(),
-        sg.Column(
-            [main_right_column],
-            size=(400, 600),
-            element_justification="c",
-            expand_x=True,
-        ),
+        sg.Column([main_right_column], size=(400, 600), element_justification="c", expand_x=True,),
     ]
 ]
 
@@ -931,11 +903,10 @@ while True:
                         list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
                     )
 
-            plan_ingredients.sort()
             plan_ingredients = list(set(plan_ingredients))
-            plan_ingredients = [
-                plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
-            ]
+            plan_ingredients = sorted(
+                [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
+            )
 
             # Update and clear the checkboxes once the database is loaded
             current_plan_dict = plan
@@ -1120,11 +1091,10 @@ while True:
                     list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
                 )
 
-        plan_ingredients.sort()
         plan_ingredients = list(set(plan_ingredients))
-        plan_ingredients = [
-            plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
-        ]
+        plan_ingredients = sorted(
+            [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
+        )
 
         window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
         window["-TABLE-"].update(values=gui_table)
@@ -1168,11 +1138,10 @@ while True:
                         list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
                     )
 
-            plan_ingredients.sort()
             plan_ingredients = list(set(plan_ingredients))
-            plan_ingredients = [
-                plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
-            ]
+            plan_ingredients = sorted(
+                [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
+            )
 
             window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
             window["-TABLE-"].update(values=gui_table)
@@ -1232,11 +1201,10 @@ while True:
                     list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
                 )
 
-        plan_ingredients.sort()
         plan_ingredients = list(set(plan_ingredients))
-        plan_ingredients = [
-            plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
-        ]
+        plan_ingredients = sorted(
+            [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
+        )
 
         # Update and clear the checkboxes once the database is loaded
         window["-TABLE-"].update(values=gui_table)
@@ -1365,13 +1333,7 @@ while True:
             _, edited_ingredients = sg.Window(
                 "Edit Ingredients",
                 [
-                    [
-                        sg.Text(
-                            "Edit Ingredient(s)",
-                            font=("Arial", 14),
-                            justification="c",
-                        )
-                    ],
+                    [sg.Text("Edit Ingredient(s)", font=("Arial", 14), justification="c",)],
                     [
                         sg.Multiline(
                             default_text=capwords(", ".join(sorted(ingredients))),
@@ -1674,11 +1636,10 @@ while True:
                     list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
                 )
 
-        plan_ingredients.sort()
         plan_ingredients = list(set(plan_ingredients))
-        plan_ingredients = [
-            plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
-        ]
+        plan_ingredients = sorted(
+            [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
+        )
 
         # Update and clear the checkboxes once the meal is submitted to the plan
         window["-TABLE-"].update(values=gui_table)
@@ -1710,9 +1671,9 @@ while True:
                     )
                 )
             )
-            plan_ingredients = [
-                plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient
-            ]
+            plan_ingredients = sorted(
+                [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
+            )
 
             plan_ingredients = ", ".join(plan_ingredients)
             current_plan_dict["ingredients"] = plan_ingredients

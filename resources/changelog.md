@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.2.6] - 2022-08-05
+Shopping list is now sorted.
+
+### Changed
+- The plan list of ingredients on the bottom right is now sorted alphabetically to make it easier to read.
+
+
 ## [v3.2.5] - 2022-08-01
 Fixed a problem with python < 3.10.
 
