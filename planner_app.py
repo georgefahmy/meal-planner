@@ -925,7 +925,6 @@ while True:
             default_extension=".txt",
             file_types=((".txt"),),
             font=("Arial", 12),
-            keep_on_top=True,
         )
         if not export_plan_path:
             continue
@@ -1149,11 +1148,7 @@ while True:
     if event == "Load Database":
 
         new_file_path = sg.popup_get_file(
-            "Load new Database",
-            title="Load Database",
-            file_types=((".db"),),
-            font=("Arial", 12),
-            keep_on_top=True,
+            "Load new Database", title="Load Database", file_types=((".db"),), font=("Arial", 12),
         )
         if not new_file_path:
             continue
@@ -1218,7 +1213,6 @@ while True:
             default_extension=".db",
             file_types=((".db"),),
             font=("Arial", 12),
-            keep_on_top=True,
         )
         if not export_database_path:
             continue
