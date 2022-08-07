@@ -17,4 +17,5 @@ units = [
     ["bx.", "box", "boxes"],
     ["lf.", "loaf", "loafs"],
     ["cn.", "can", "cans"],
+    ["clv.", "clove", "cloves"],
 ]
