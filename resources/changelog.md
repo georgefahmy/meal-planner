@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.2.8] - 2022-08-09
+Fixed a weird crash with editing plans. If no food was selected (because it was blank) the program would crash. This will no longer happen.
+
+### Reverted
+- Fixed crash with editing meals already in a plan if no meal is selected.
+
+
 ## [v3.2.7] - 2022-08-06
 Loading files no longer forces the prompt window to remain on top. Much nicer on the eyes.
 

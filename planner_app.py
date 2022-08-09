@@ -1043,6 +1043,9 @@ while True:
         confirmation = sg.popup_ok(f"Plan for week of {date}\npermentantly deleted")
 
     if event == "Edit Selection::edit":
+        if not values["-TABLE-"]:
+            continue
+
         selected_row = values["-TABLE-"][0]
         available_foods = current_plan_dict["meals"][gui_table[selected_row][0]]
         confirm, chosen_food = sg.Window(
@@ -1055,7 +1058,11 @@ while True:
             disable_close=False,
             size=(225, 200),
         ).read(close=True)
+
         if confirm == "Cancel":
+            continue
+
+        if not chosen_food[0]:
             continue
 
         chosen_food = chosen_food[0][0]
