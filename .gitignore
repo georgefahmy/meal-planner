@@ -132,3 +132,5 @@ dmypy.json
 *.DS_Store*
 _backup/
 _push_release.sh
+utils/meal_json.json
+resources/process_pdfs.py
