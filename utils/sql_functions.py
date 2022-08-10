@@ -101,8 +101,12 @@ def read_meal_recipe(db_file, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
     cur.execute(f"SELECT recipe_data FROM meals WHERE meal LIKE ?", (selected_meal,))
-    recipe = cur.fetchone()[0]
-    recipe = json.loads(recipe) if recipe else None
+    recipe = cur.fetchone()
+    if recipe:
+        try:
+            recipe = json.loads(recipe[0]) if recipe else None
+        except:
+            recipe = None
     conn.commit()
     conn.close()
     return recipe
@@ -211,7 +215,12 @@ def read_all_plans(db_file):
         plan["date"] = raw_plan[0]
         plan["meals"] = OrderedDict()
         for i, meal in enumerate(list(raw_plan[1:-1])):
-            plan["meals"][days_of_week[i].title()] = meal.title().split(", ")
+
+            plan["meals"][days_of_week[i].title()] = [
+                meal.title()
+                for meal in meal.split(", ")
+                if meal.lower() in read_all_meals(db_file).keys()
+            ]
         plan["ingredients"] = raw_plan[-1]
         plans[plan["date"]] = plan
     conn.close()
@@ -245,7 +254,11 @@ def read_current_plans(db_file, week_date):
         plan["date"] = current_plan[0]
         plan["meals"] = {}
         for i, meal in enumerate(list(current_plan[1:-1])):
-            plan["meals"][days_of_week[i].title()] = meal.title().split(", ")
+            plan["meals"][days_of_week[i].title()] = [
+                meal.title()
+                for meal in meal.split(", ")
+                if meal.lower() in read_all_meals(db_file).keys()
+            ]
         plan["ingredients"] = current_plan[-1]
     conn.close()
     return plan
