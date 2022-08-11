@@ -134,9 +134,7 @@ def recipe_viewer(meals=None):
     ]
     recipe_right_click_menu = [
         "&Right",
-        [
-            "Delete Recipe",
-        ],
+        ["Delete Recipe",],
     ]
     available_recipes = [
         [
@@ -168,14 +166,7 @@ def recipe_viewer(meals=None):
             "",
             [
                 [sg.Text("", font=("Arial Bold", 18), justification="l", key="title")],
-                [
-                    sg.Text(
-                        "",
-                        font=("Arial Italic", 12),
-                        justification="l",
-                        key="subtitle",
-                    )
-                ],
+                [sg.Text("", font=("Arial Italic", 12), justification="l", key="subtitle",)],
             ],
             relief="flat",
             visible=False,
@@ -210,15 +201,7 @@ def recipe_viewer(meals=None):
                         element_justification="l",
                     ),
                     sg.Column(
-                        layout=[
-                            [
-                                sg.Text(
-                                    "",
-                                    font=("Arial Bold", 12),
-                                    justification="l",
-                                )
-                            ]
-                        ],
+                        layout=[[sg.Text("", font=("Arial Bold", 12), justification="l",)]],
                         expand_x=True,
                         element_justification="c",
                     ),
@@ -256,14 +239,7 @@ def recipe_viewer(meals=None):
                         key="instruction_header",
                     )
                 ],
-                [
-                    sg.Text(
-                        "",
-                        font=("Arial", 12),
-                        justification="l",
-                        key="instructions",
-                    )
-                ],
+                [sg.Text("", font=("Arial", 12), justification="l", key="instructions",)],
             ],
             relief="flat",
             expand_x=True,
@@ -286,11 +262,7 @@ def recipe_viewer(meals=None):
     icon_file = wd + "/resources/burger-10956.png"
     sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
     recipe_window = sg.Window(
-        "Recipe Interface",
-        layout=layout,
-        resizable=True,
-        size=(900, 600),
-        finalize=True,
+        "Recipe Interface", layout=layout, resizable=True, size=(900, 600), finalize=True,
     )
 
     while True:
@@ -315,7 +287,6 @@ def recipe_viewer(meals=None):
                 default_extension="rcp",
                 save_as=True,
                 multiple_files=False,
-                history=True,
             )
             if not export_file_path:
                 continue
@@ -329,7 +300,6 @@ def recipe_viewer(meals=None):
                 title="Export Recipe",
                 default_extension="rcp",
                 multiple_files=True,
-                history=True,
                 file_types=(".rcp"),
             )
             if not import_files_path:
