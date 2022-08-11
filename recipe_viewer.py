@@ -323,7 +323,9 @@ def recipe_viewer(meals=None):
                     continue
 
                 basic_ingredients = [
-                    ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
+                    ingredient["ingredient"]
+                    for ingredient in recipe["ingredients"].values()
+                    if ingredient
                 ]
                 new_meal = recipe["title"].lower()
                 new_ingredients = ", ".join(basic_ingredients).lower()
@@ -428,8 +430,12 @@ def recipe_viewer(meals=None):
                 ingredients.append("")
 
             ingredients = list(pairwise(ingredients))[::2]
-            left_ingredients = ["- " + "\n".join(textwrap.wrap(i[0], 40)) for i in ingredients]
-            right_ingredients = ["- " + "\n".join(textwrap.wrap(i[1], 40)) for i in ingredients]
+            left_ingredients = [
+                "- " + "\n".join(textwrap.wrap(i[0], 40)) for i in ingredients if i[0]
+            ]
+            right_ingredients = [
+                "- " + "\n".join(textwrap.wrap(i[1], 40)) for i in ingredients if i[1]
+            ]
 
             recipe_window["title_frame"].update(visible=True)
             recipe_window["title"].update(value=recipe["title"])
