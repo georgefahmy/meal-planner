@@ -93,12 +93,12 @@ left_column = [
     [
         sg.Frame(
             title="Filters",
-            element_justification="c",
+            element_justification="l",
             size=(260, 65),
             pad=(0, 0),
             layout=[
                 [
-                    sg.Text("Category", font=("Arial", 12),),
+                    sg.Text("Category", font=("Arial", 12), size=(7, 1)),
                     sg.Combo(
                         default_value="All",
                         values=meal_categories,
@@ -106,12 +106,12 @@ left_column = [
                         size=(10, 1),
                         key="-CFILTER-",
                         enable_events=True,
-                        readonly=True,
                         expand_x=True,
+                        readonly=True,
                     ),
                 ],
                 [
-                    sg.Text("Keyword", key="-MFILTER_TEXT-", font=("Arial", 12),),
+                    sg.Text("Keyword", key="-MFILTER_TEXT-", font=("Arial", 12), size=(7, 1)),
                     sg.Input(
                         font=("Arial", 12),
                         size=(10, 1),
@@ -126,9 +126,9 @@ left_column = [
     ],
     [
         sg.Frame(
-            "Meals",
+            "Available Meals",
             element_justification="c",
-            size=(260, 300),
+            size=(260, 350),
             layout=[
                 [
                     sg.Text(
@@ -142,7 +142,7 @@ left_column = [
                 [
                     sg.Listbox(
                         values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()]),
-                        size=(18, 12),
+                        size=(18, 15),
                         expand_x=True,
                         pad=((5, 5), (5, 5)),
                         font=("Arial", 14),
@@ -184,16 +184,17 @@ middle_column = [
                     "Week Days",
                     element_justification="l",
                     vertical_alignment="top",
-                    size=(65, 200),
+                    size=(70, 220),
                     pad=(0, 0),
                     layout=[
                         [
                             sg.Checkbox(
                                 day,
-                                font=("Arial", 12),
+                                font=("Arial", 14),
                                 default=False,
                                 key=f"-{day.upper()}-",
                                 enable_events=False,
+                                auto_size_text=True,
                                 size=(6, 10),
                             )
                         ]
@@ -239,7 +240,7 @@ right_column = [
     [
         sg.Frame(
             "Ingredients",
-            size=(260, 300),
+            size=(260, 350),
             expand_x=True,
             expand_y=True,
             element_justification="c",
@@ -257,7 +258,7 @@ right_column = [
                 [
                     sg.Listbox(
                         values=[],
-                        size=(18, 12),
+                        size=(18, 15),
                         expand_x=True,
                         pad=((5, 5), (5, 5)),
                         font=("Arial", 14),
@@ -359,6 +360,7 @@ input_section = [
                     size=(12, 1),
                     justification="center",
                     expand_x=True,
+                    tooltip="Add your own category by typing in the box.",
                 )
             ],
             [
@@ -371,6 +373,7 @@ input_section = [
                     enable_events=False,
                     readonly=False,
                     expand_x=True,
+                    tooltip="Add your own category by typing in the box.",
                 ),
             ],
         ],
@@ -380,9 +383,9 @@ input_section = [
         [
             [
                 sg.Button(
-                    "Full Recipe",
+                    "Detailed Recipe",
                     font=("Arial", 12),
-                    size=(10, 1),
+                    size=(14, 1),
                     expand_x=True,
                     key="-RECIPE-",
                     tooltip="Full detailed recipe information",
@@ -424,16 +427,16 @@ main_left_column = [
                     element_justification="c",
                     layout=item_selection_section,
                     pad=(0, 0),
-                    size=(620, 380),
+                    size=(620, 440),
                 )
             ],
             [
                 sg.Frame(
                     "New Meals",
                     element_justification="c",
-                    layout=[input_text, input_section_buttons, input_section],
+                    layout=[input_text, input_section, input_section_buttons],
                     pad=(0, 0),
-                    size=(620, 200),
+                    size=(620, 140),
                 )
             ],
         ]
