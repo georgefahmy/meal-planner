@@ -134,7 +134,7 @@ def recipe_viewer(meals=None):
     ]
     recipe_right_click_menu = [
         "&Right",
-        ["Delete Recipe",],
+        ["Delete Recipe"],
     ]
     available_recipes = [
         [
