@@ -134,3 +134,5 @@ _backup/
 _push_release.sh
 utils/meal_json.json
 resources/process_pdfs.py
+utils/process_meals_json.py
+resources/recipes*
