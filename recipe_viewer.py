@@ -433,6 +433,7 @@ def recipe_viewer(meals=None):
 
             recipe_window["title_frame"].update(visible=True)
             recipe_window["title"].update(value=recipe["title"])
+            recipe_window["subtitle"].update(value="")
             if recipe["subtitle"]:
                 recipe_window["subtitle"].update(value=recipe["subtitle"])
 
