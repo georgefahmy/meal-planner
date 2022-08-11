@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.3.1] - 2022-08-11
+When updating a recipe, if the overwrite is confirmed, will also update the basic recipe ingredients list.
+
+### Fixed
+- Fixed an issue that did not update the basic list of ingredients when a detailed recipe is updated
+
+
 ## [v3.3.0] - 2022-08-11
 Improved the overall format of the meal selection and new meal sections. Larger viewing areas for the available meals, as well as ingredients makes it easier to read meal names that are more characters. Also improved the week day selection to be a completely vertically aligned list of days.
 

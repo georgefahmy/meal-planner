@@ -788,9 +788,19 @@ while True:
 
         recipe = recipes(capwords(selected_meal), recipe_data=existing_recipe)
         if recipe:
-            confirm = sg.popup_ok_cancel("Overwrite existing recipe?")
+            confirm = sg.popup_ok_cancel(
+                "Overwrite existing recipe?",
+                icon=base64.b64encode(open(str(icon_file), "rb").read()),
+            )
             if confirm == "OK":
                 update_meal_recipe(db_file, json.dumps(recipe), selected_meal)
+                basic_ingredients = [
+                    ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
+                ]
+                edited_ingredients = ", ".join(sorted(list(set(basic_ingredients))))
+                update_meal_ingredients(db_file, selected_meal, edited_ingredients)
+                window["-MEAL_INGREDIENTS_LIST-"].update(values=sorted(basic_ingredients))
+
             else:
                 sg.popup_ok("Recipe not overwritten")
 

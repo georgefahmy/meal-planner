@@ -277,6 +277,8 @@ Available units and abbreviations:
                 i += 1
 
         if "remove_ingredient" in event:
+            icon_file = wd + "/resources/burger-10956.png"
+            sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
             row = recipe_window.FindElementWithFocus().Key
             recipe_window[event].Widget.destroy()
             recipe_window[event].Widget.master.pack_forget()
@@ -287,6 +289,8 @@ Available units and abbreviations:
             recipe_window["column"].contents_changed()
 
         if event == "save_recipe":
+            icon_file = wd + "/resources/burger-10956.png"
+            sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
             raw_ingredients = []
             recipe = {}
             recipe["ingredients"] = {}
