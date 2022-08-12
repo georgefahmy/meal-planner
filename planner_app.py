@@ -795,10 +795,12 @@ while True:
             if confirm == "OK":
                 update_meal_recipe(db_file, json.dumps(recipe), selected_meal)
                 basic_ingredients = [
-                    ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
+                    capwords(ingredient["ingredient"])
+                    for ingredient in recipe["ingredients"].values()
                 ]
                 edited_ingredients = ", ".join(sorted(list(set(basic_ingredients))))
                 update_meal_ingredients(db_file, selected_meal, edited_ingredients)
+                meals = {meal: info for meal, info in read_all_meals(db_file).items()}
                 window["-MEAL_INGREDIENTS_LIST-"].update(values=sorted(basic_ingredients))
 
             else:
