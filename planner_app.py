@@ -915,18 +915,9 @@ while True:
 
         pass
     if event == "-EXPORT_PLAN-":
-        export_plan_path = sg.popup_get_file(
-            "Export Plan",
-            title="Export Plan",
-            save_as=True,
-            default_extension=".txt",
-            file_types=((".txt"),),
-            font=("Arial", 12),
-        )
-        if not export_plan_path:
-            continue
-        if not str(start) in export_plan_path:
-            export_plan_path = export_plan_path.split(".")[0] + f"_{str(start)}.txt"
+
+        picked_date = current_plan_dict["date"]
+        export_plan_path = f"weekly_plan_{picked_date}.txt"
 
         day_plan = []
         day_plan.append(f"Plan for the {picked_date}\n")
@@ -1676,7 +1667,7 @@ while True:
             plan_ingredients = ", ".join(plan_ingredients)
             current_plan_dict["ingredients"] = plan_ingredients
 
-            if read_current_plans(db_file, str(start)):
+            if read_current_plans(db_file, str(current_plan_dict["date"])):
                 confirm_overwrite = sg.popup_yes_no(f"Overwrite existing plan?", font=("Arial", 14))
                 new = False
             else:
