@@ -52,7 +52,7 @@ today_name = today.strftime("%A")
 
 start = today - datetime.timedelta(days=datetime.datetime.today().isoweekday() % 7)
 weeks_dates = [start + datetime.timedelta(days=x) for x in range(7)]
-picked_date = f"Week of {str(start)}"
+picked_date = str(start)
 
 blank_plan_dict = {
     "date": str(start),
@@ -762,7 +762,7 @@ window.refresh()
 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
 
 
-window["-WEEK-"].update(value=picked_date)
+window["-WEEK-"].update(value="Week of " + picked_date)
 plan_ingredients = None
 
 # Start the window loop
@@ -857,6 +857,7 @@ while True:
         week_start = selected_day - datetime.timedelta(days=selected_day.isoweekday() % 7)
         window["-WEEK-"].update(f"Week of {str(week_start)}")
         current_plan_dict["date"] = str(week_start)
+        picked_date = str(week_start)
 
     if event == "-LOAD_PLAN-":
         date = popup_get_date()
@@ -870,7 +871,7 @@ while True:
         plan = read_current_plans(db_file, str(week_start))
         if plan:
             gui_table = [[day] + [", ".join(meals)] for day, meals in plan["meals"].items()]
-            picked_date = f"Week of {str(week_start)}"
+            picked_date = str(week_start)
             plan_meals = [
                 meal.lower() for meals in plan["meals"].values() for meal in meals if meal
             ]
@@ -907,7 +908,7 @@ while True:
 
             # Update and clear the checkboxes once the database is loaded
             current_plan_dict = plan
-            window["-WEEK-"].update(picked_date)
+            window["-WEEK-"].update("Week of " + picked_date)
             window["-TABLE-"].update(values=gui_table)
             window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
         else:
@@ -915,16 +916,16 @@ while True:
 
         pass
     if event == "-EXPORT_PLAN-":
-
-        picked_date = current_plan_dict["date"]
-        export_plan_path = f"weekly_plan_{picked_date}.txt"
+        export_plan_path = sg.popup_get_file("Choose Export Location", save_as=True)
+        if picked_date not in export_plan_path:
+            export_plan_path = export_plan_path + f"_{picked_date}.txt"
 
         day_plan = []
-        day_plan.append(f"Plan for the {picked_date}\n")
+        day_plan.append(f"Plan for the week of {picked_date}\n")
         for day, meal in current_plan_dict["meals"].items():
-            if not meal:
+            if not meal[0]:
                 day_plan.append(f"{day}:")
-                day_plan.append("No Planned Meal\n\n")
+                day_plan.append("No Planned Meal\n\n"),
                 continue
             day_plan.append(f"{day}:")
             for meal in meal:
@@ -937,7 +938,7 @@ while True:
                     day_plan.append("\n".join(wrapped_ingredients))
                     day_plan.append("\n")
         day_plan.append("All Ingredients:")
-        day_plan.append(current_plan_dict["ingredients"])
+        day_plan.append(", ".join(current_plan_dict["ingredients"]))
         plan_text = "\n".join(day_plan)
         with open(export_plan_path, "w") as fp:
             fp.write(plan_text)
@@ -961,9 +962,6 @@ while True:
                 [sg.Button("Okay", key="OKAY"), sg.Button("Cancel", key="CANCEL")],
             ],
             disable_close=False,
-            location=((screen_width / 2) - 150, screen_height / 5),
-            size=(200, 220),
-            relative_location=(-100, 0),
         )
         while True:
             event, values = plan_date_window.read()
@@ -1071,7 +1069,7 @@ while True:
                             " ",
                             " ".join(
                                 [
-                                    ingredient["quantity"] if ingredient["quantity"] else 1,
+                                    ingredient["quantity"] if ingredient["quantity"] else "1",
                                     ingredient["units"] if ingredient["units"] else "",
                                     capwords(ingredient["ingredient"])
                                     if ingredient["ingredient"]
@@ -1118,7 +1116,7 @@ while True:
                                 " ",
                                 " ".join(
                                     [
-                                        ingredient["quantity"] if ingredient["quantity"] else 1,
+                                        ingredient["quantity"] if ingredient["quantity"] else "1",
                                         ingredient["units"] if ingredient["units"] else "",
                                         capwords(ingredient["ingredient"])
                                         if ingredient["ingredient"]
