@@ -88,6 +88,17 @@ def open_recipes_window(meals):
             break
 
 
+def matchingKeys(dictionary, searchString):
+    filtered_meals = [
+        key
+        for key, val in dictionary.items()
+        if searchString.lower() in key.lower()
+        or any(searchString.lower() in s["ingredient"].lower() for s in val["ingredients"].values())
+        or searchString.lower() in val["recipe_category"]
+    ]
+    return filtered_meals
+
+
 def recipe_viewer(meals=None):
     if not meals:
         available_meals = read_all_recipes(db_file)
@@ -115,7 +126,10 @@ def recipe_viewer(meals=None):
                         element_justification="l",
                         expand_x=True,
                     ),
-                    sg.Text("", expand_x=True),
+                    sg.Text("Search: "),
+                    sg.Input(
+                        key="-RFILTER-", font=("Arial", 14), enable_events=True, expand_x=True
+                    ),
                     sg.Column(
                         [
                             [
@@ -166,7 +180,14 @@ def recipe_viewer(meals=None):
             "",
             [
                 [sg.Text("", font=("Arial Bold", 18), justification="l", key="title")],
-                [sg.Text("", font=("Arial Italic", 12), justification="l", key="subtitle",)],
+                [
+                    sg.Text(
+                        "",
+                        font=("Arial Italic", 12),
+                        justification="l",
+                        key="subtitle",
+                    )
+                ],
             ],
             relief="flat",
             visible=False,
@@ -201,7 +222,15 @@ def recipe_viewer(meals=None):
                         element_justification="l",
                     ),
                     sg.Column(
-                        layout=[[sg.Text("", font=("Arial Bold", 12), justification="l",)]],
+                        layout=[
+                            [
+                                sg.Text(
+                                    "",
+                                    font=("Arial Bold", 12),
+                                    justification="l",
+                                )
+                            ]
+                        ],
                         expand_x=True,
                         element_justification="c",
                     ),
@@ -239,7 +268,14 @@ def recipe_viewer(meals=None):
                         key="instruction_header",
                     )
                 ],
-                [sg.Text("", font=("Arial", 12), justification="l", key="instructions",)],
+                [
+                    sg.Text(
+                        "",
+                        font=("Arial", 12),
+                        justification="l",
+                        key="instructions",
+                    )
+                ],
             ],
             relief="flat",
             expand_x=True,
@@ -262,9 +298,14 @@ def recipe_viewer(meals=None):
     icon_file = wd + "/resources/burger-10956.png"
     sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
     recipe_window = sg.Window(
-        "Recipe Interface", layout=layout, resizable=True, size=(900, 600), finalize=True,
+        "Recipe Interface",
+        layout=layout,
+        resizable=True,
+        size=(900, 600),
+        finalize=True,
     )
-
+    meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+    available_meals = read_all_recipes(db_file)
     while True:
         event, values = recipe_window.read()
         if event in (sg.WIN_CLOSED, "close_window"):
@@ -275,6 +316,19 @@ def recipe_viewer(meals=None):
             # DEBUG to print out the events and values
             print(event, values)
             pass
+
+        if event == "-RFILTER-":
+            # Typing in the search box will filter the main meal list based on the name of the meal
+            # as well as ingredients in any meal
+            meals = {
+                json.loads(recipe)["title"]: json.loads(recipe)
+                for recipe in available_meals.values()
+                if recipe
+            }
+            filtered_meals = sorted(
+                [capwords(meal) for meal in matchingKeys(meals, values["-RFILTER-"])]
+            )
+            recipe_window["available_meals"].update(values=sorted(filtered_meals))
 
         if event == "export_recipe":
             selected_meal = values["available_meals"][0].lower()
