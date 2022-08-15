@@ -887,7 +887,9 @@ while True:
                                 " ",
                                 " ".join(
                                     [
-                                        ingredient["quantity"] if ingredient["quantity"] else 1,
+                                        str(ingredient["quantity"])
+                                        if ingredient["quantity"]
+                                        else "1",
                                         ingredient["units"] if ingredient["units"] else "",
                                         capwords(ingredient["ingredient"])
                                         if ingredient["ingredient"]
@@ -1069,7 +1071,7 @@ while True:
                             " ",
                             " ".join(
                                 [
-                                    ingredient["quantity"] if ingredient["quantity"] else "1",
+                                    str(ingredient["quantity"]) if ingredient["quantity"] else "1",
                                     ingredient["units"] if ingredient["units"] else "",
                                     capwords(ingredient["ingredient"])
                                     if ingredient["ingredient"]
@@ -1116,7 +1118,9 @@ while True:
                                 " ",
                                 " ".join(
                                     [
-                                        ingredient["quantity"] if ingredient["quantity"] else "1",
+                                        str(ingredient["quantity"])
+                                        if ingredient["quantity"]
+                                        else "1",
                                         ingredient["units"] if ingredient["units"] else "",
                                         capwords(ingredient["ingredient"])
                                         if ingredient["ingredient"]
@@ -1175,7 +1179,7 @@ while True:
                             " ",
                             " ".join(
                                 [
-                                    ingredient["quantity"] if ingredient["quantity"] else 1,
+                                    str(ingredient["quantity"]) if ingredient["quantity"] else "1",
                                     ingredient["units"] if ingredient["units"] else "",
                                     capwords(ingredient["ingredient"])
                                     if ingredient["ingredient"]
@@ -1609,7 +1613,7 @@ while True:
                             " ",
                             " ".join(
                                 [
-                                    ingredient["quantity"] if ingredient["quantity"] else "1",
+                                    str(ingredient["quantity"]) if ingredient["quantity"] else "1",
                                     ingredient["units"] if ingredient["units"] else "",
                                     capwords(ingredient["ingredient"])
                                     if ingredient["ingredient"]

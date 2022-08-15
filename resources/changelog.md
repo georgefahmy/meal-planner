@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.4.0] - 2022-08-15
+Added a new search feature to the recipe viewer. This will allow searching through all available recipes for ingredients, or categories, or titles. Looking for all your available recipes that have 'Chicken' as an ingredient, now you can!
+
+### Added
+- Added a search bar to the recipe viewer window.
+
+
 ## [v3.3.2] - 2022-08-13
 Fixed a bug with saving plans that would use the wrong date.
 

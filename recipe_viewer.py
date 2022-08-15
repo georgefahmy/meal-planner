@@ -350,8 +350,8 @@ def recipe_viewer(meals=None):
 
         if event == "import_recipe":
             import_files_path = sg.popup_get_file(
-                "Export Recipe",
-                title="Export Recipe",
+                "Import Recipe",
+                title="Import Recipe",
                 default_extension="rcp",
                 multiple_files=True,
                 file_types=(".rcp"),
