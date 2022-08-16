@@ -193,7 +193,7 @@ middle_column = [
                                 font=("Arial", 14),
                                 default=False,
                                 key=f"-{day.upper()}-",
-                                enable_events=False,
+                                enable_events=True,
                                 auto_size_text=True,
                                 size=(6, 10),
                             )
@@ -1423,6 +1423,11 @@ while True:
         )
     if event == "-VIEW_RECIPE-":
         w = display_recipe(recipe)
+
+    if event in ("-MON-", "-TUE-", "-WED-", "-THU-", "-FRI-", "-SAT-", "-SUN-"):
+        all_days = [f"-{day.upper()}-" for day in ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]]
+        for day in [day for day in all_days if day != event]:
+            window[day].update(value=False)
 
     if event == "-CANCEL-":
         # Meal selection Cancel, clear out all the values for the checkboxes and meal list and
