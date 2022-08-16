@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.4.2] - 2022-08-15
+Fixed a bug with renaming meals. Now when changing a meal with a recipe, it will also update the recipe name.
+
+### Fixed
+- Fixed a bug with the renaming of meals and recipes
+
+
 ## [v3.4.1] - 2022-08-15
 When selecting a new day checkbox, any other days already checked will be deselected.
 

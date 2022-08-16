@@ -1240,6 +1240,11 @@ while True:
             if not new_meal_name["-NEWMEALNAME-"]:
                 continue
             new_meal_name = new_meal_name["-NEWMEALNAME-"].lower()
+            recipe = read_meal_recipe(db_file, selected_meal)
+            if recipe:
+                recipe["title"] = capwords(new_meal_name)
+                update_meal_recipe(db_file, json.dumps(recipe), new_meal_name)
+
             update_meal_name(db_file, new_meal_name, selected_meal)
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             window["-MEAL_LIST-"].update(
