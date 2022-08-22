@@ -1447,6 +1447,7 @@ while True:
         window["-MEAL_LIST-"].update(sorted([capwords(meal) for meal in meals.keys()]))
         window["-MEAL_INGREDIENTS_LIST-"].update([])
         window["-CFILTER-"].update(set_to_index=[0])
+        window["-MFILTER-"].update(value="")
         window["-VIEW_RECIPE-"].update(disabled=True)
         window["-CATEGORY_TEXT-"].update(visible=False, value="category")
         menu_bar_layout = [
@@ -1680,7 +1681,9 @@ while True:
             current_plan_dict["ingredients"] = plan_ingredients
 
             if read_current_plans(db_file, str(current_plan_dict["date"])):
-                confirm_overwrite = sg.popup_yes_no(f"Overwrite existing plan?", font=("Arial", 14))
+                confirm_overwrite = sg.popup_yes_no(
+                    f"Overwrite plan for {str(current_plan_dict['date'])}?", font=("Arial", 14)
+                )
                 new = False
             else:
                 confirm_overwrite = "No"
