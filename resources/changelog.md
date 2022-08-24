@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.4.4] - 2022-08-23
+Fixed an issue with capitalizing recipe names in the recipe interface.
+
+### New
+- Fixed an issue with capitalizing meal names in the recipe interface after submitting a new recipe.
+
+
 ## [v3.4.3] - 2022-08-22
 Fixed an issue with clearing the meal selection window not erasing the keyword filter. Now when Cancel is chosen, the Keyword box will be cleared as well. Also updated the overwrite plan confirmation with the current selected date to be more clear for which plan the system thinks its overwriting.
 

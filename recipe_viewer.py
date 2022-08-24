@@ -180,14 +180,7 @@ def recipe_viewer(meals=None):
             "",
             [
                 [sg.Text("", font=("Arial Bold", 18), justification="l", key="title")],
-                [
-                    sg.Text(
-                        "",
-                        font=("Arial Italic", 12),
-                        justification="l",
-                        key="subtitle",
-                    )
-                ],
+                [sg.Text("", font=("Arial Italic", 12), justification="l", key="subtitle",)],
             ],
             relief="flat",
             visible=False,
@@ -222,15 +215,7 @@ def recipe_viewer(meals=None):
                         element_justification="l",
                     ),
                     sg.Column(
-                        layout=[
-                            [
-                                sg.Text(
-                                    "",
-                                    font=("Arial Bold", 12),
-                                    justification="l",
-                                )
-                            ]
-                        ],
+                        layout=[[sg.Text("", font=("Arial Bold", 12), justification="l",)]],
                         expand_x=True,
                         element_justification="c",
                     ),
@@ -268,14 +253,7 @@ def recipe_viewer(meals=None):
                         key="instruction_header",
                     )
                 ],
-                [
-                    sg.Text(
-                        "",
-                        font=("Arial", 12),
-                        justification="l",
-                        key="instructions",
-                    )
-                ],
+                [sg.Text("", font=("Arial", 12), justification="l", key="instructions",)],
             ],
             relief="flat",
             expand_x=True,
@@ -298,11 +276,7 @@ def recipe_viewer(meals=None):
     icon_file = wd + "/resources/burger-10956.png"
     sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
     recipe_window = sg.Window(
-        "Recipe Interface",
-        layout=layout,
-        resizable=True,
-        size=(900, 600),
-        finalize=True,
+        "Recipe Interface", layout=layout, resizable=True, size=(900, 600), finalize=True,
     )
     meals = {meal: info for meal, info in read_all_meals(db_file).items()}
     available_meals = read_all_recipes(db_file)
@@ -443,8 +417,8 @@ def recipe_viewer(meals=None):
                     category=new_category,
                 )
                 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-            available_meals = read_all_recipes(db_file)
-            recipe_window["available_meals"].update(values=available_meals)
+            available_meals = [capwords(meal_name) for meal_name in read_all_recipes(db_file)]
+            recipe_window["available_meals"].update(values=sorted(available_meals))
 
         if event in ("available_meals"):
 
