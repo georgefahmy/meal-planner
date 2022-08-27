@@ -589,6 +589,7 @@ menu_bar_layout = [
     ["Help", ["!About", "!How To", "!Feedback"]],
 ]
 
+# TODO put a button that will randomly pick 5 meals for the next week and plan those.
 # ----- Full layout -----
 full_layout = [
     [
