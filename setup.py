@@ -32,7 +32,7 @@ setup(
         "recipe-scrapers",
     ],
     packages=find_packages(),
-    version="3.4.4",
+    version="3.4.5",
     license="GNU GENERAL PUBLIC LICENSE",
     author="George Fahmy",
     description="Meal Planner PRO",

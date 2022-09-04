@@ -298,7 +298,11 @@ input_section = [
         [
             [
                 sg.Text(
-                    "Meal", font=("Arial", 14), size=(10, 1), justification="center", expand_x=True,
+                    "Meal",
+                    font=("Arial", 14),
+                    size=(10, 1),
+                    justification="center",
+                    expand_x=True,
                 )
             ],
             [sg.Input(size=(11, 2), font=("Arial", 14), key="-MEAL-", enable_events=False)],
@@ -468,9 +472,18 @@ meal_plan_section = [
                     key="-WEEK-",
                     expand_x=True,
                 ),
-                sg.Button("Load Plan", key="-LOAD_PLAN-",),
-                sg.Button("Export Plan", key="-EXPORT_PLAN-",),
-                sg.Button("Available Plans", key="-AVAILABLE_PLANS-",),
+                sg.Button(
+                    "Load Plan",
+                    key="-LOAD_PLAN-",
+                ),
+                sg.Button(
+                    "Export Plan",
+                    key="-EXPORT_PLAN-",
+                ),
+                sg.Button(
+                    "Available Plans",
+                    key="-AVAILABLE_PLANS-",
+                ),
             ],
             [
                 sg.Table(
@@ -595,9 +608,19 @@ full_layout = [
         [sg.Menu(menu_bar_layout, font=("Arial", "12"), key="-MENU-")],
         [sg.Text("Meal Planner PRO", font=("Arial", 20), justification="center", expand_x=True)],
         [sg.HorizontalSeparator()],
-        sg.Column([main_left_column], size=(400, 600), element_justification="c", expand_x=True,),
+        sg.Column(
+            [main_left_column],
+            size=(400, 600),
+            element_justification="c",
+            expand_x=True,
+        ),
         sg.VSeperator(),
-        sg.Column([main_right_column], size=(400, 600), element_justification="c", expand_x=True,),
+        sg.Column(
+            [main_right_column],
+            size=(400, 600),
+            element_justification="c",
+            expand_x=True,
+        ),
     ]
 ]
 
@@ -908,7 +931,7 @@ while True:
                 [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
             )
 
-            # Update and clear the checkboxes once the database is loaded
+            # Update and clear the checkboxes once the plan is loaded
             current_plan_dict = plan
             window["-WEEK-"].update("Week of " + picked_date)
             window["-TABLE-"].update(values=gui_table)
@@ -925,7 +948,7 @@ while True:
         day_plan = []
         day_plan.append(f"Plan for the week of {picked_date}\n")
         for day, meal in current_plan_dict["meals"].items():
-            if not meal[0]:
+            if not meal:
                 day_plan.append(f"{day}:")
                 day_plan.append("No Planned Meal\n\n"),
                 continue
@@ -940,7 +963,7 @@ while True:
                     day_plan.append("\n".join(wrapped_ingredients))
                     day_plan.append("\n")
         day_plan.append("All Ingredients:")
-        day_plan.append(", ".join(current_plan_dict["ingredients"]))
+        day_plan.append(current_plan_dict["ingredients"])
         plan_text = "\n".join(day_plan)
         with open(export_plan_path, "w") as fp:
             fp.write(plan_text)
@@ -1145,7 +1168,10 @@ while True:
     if event == "Load Database":
 
         new_file_path = sg.popup_get_file(
-            "Load new Database", title="Load Database", file_types=((".db"),), font=("Arial", 12),
+            "Load new Database",
+            title="Load Database",
+            file_types=((".db"),),
+            font=("Arial", 12),
         )
         if not new_file_path:
             continue
@@ -1329,7 +1355,13 @@ while True:
             _, edited_ingredients = sg.Window(
                 "Edit Ingredients",
                 [
-                    [sg.Text("Edit Ingredient(s)", font=("Arial", 14), justification="c",)],
+                    [
+                        sg.Text(
+                            "Edit Ingredient(s)",
+                            font=("Arial", 14),
+                            justification="c",
+                        )
+                    ],
                     [
                         sg.Multiline(
                             default_text=capwords(", ".join(sorted(ingredients))),
