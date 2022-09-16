@@ -1505,7 +1505,7 @@ while True:
     if event == "-MEAL_SUBMIT-":
         # Submit a new meal and the ingredients and recipe (if available) then add the meal to
         # the database
-
+        recipe = ""
         new_recipe = values["-RECIPE_LINK-"].lower()
         if new_recipe:
             recipe = process_recipe_link(new_recipe)
@@ -1568,6 +1568,39 @@ while True:
     if event == "-PLAN-CLEAR-":
         # Empty out the table and return it to the default values
         current_plan_dict = blank_plan_dict
+        plan_meals = [
+            meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
+        ]
+
+        plan_ingredients = []
+        for meal in plan_meals:
+            meal_recipe = read_meal_recipe(db_file, meal)
+            if meal_recipe:
+                for ingredient in meal_recipe["ingredients"].values():
+                    plan_ingredients.append(
+                        re.sub(
+                            "\s+",
+                            " ",
+                            " ".join(
+                                [
+                                    str(ingredient["quantity"]) if ingredient["quantity"] else "1",
+                                    ingredient["units"] if ingredient["units"] else "",
+                                    capwords(ingredient["ingredient"])
+                                    if ingredient["ingredient"]
+                                    else "",
+                                ]
+                            ),
+                        ).strip()
+                    )
+            else:
+                plan_ingredients.extend(
+                    list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
+                )
+
+        plan_ingredients = list(set(plan_ingredients))
+        plan_ingredients = sorted(
+            [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
+        )
         window["-TABLE-"].update(blank_gui_table)
         window["-PLAN_INGREDIENTS_LIST-"].update([])
 
