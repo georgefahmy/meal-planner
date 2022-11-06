@@ -7,7 +7,7 @@ def popup_get_date(
     start_mon=None,
     start_day=None,
     start_year=None,
-    begin_at_sunday_plus=0,
+    begin_at_sunday_plus=1,
     no_titlebar=True,
     title="Choose Date",
     keep_on_top=True,
