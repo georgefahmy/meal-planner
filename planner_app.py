@@ -50,7 +50,7 @@ make_database(db_file)
 today = datetime.date.today()
 today_name = today.strftime("%A")
 
-start = today - datetime.timedelta(days=(datetime.datetime.today().weekday()) % 7)
+start = today - datetime.timedelta(days=(datetime.datetime.today().isoweekday()) % 7)
 weeks_dates = [start + datetime.timedelta(days=x) for x in range(7)]
 picked_date = str(start)
 
@@ -58,13 +58,13 @@ blank_plan_dict = {
     "date": str(start),
     "ingredients": [],
     "meals": {
+        "Sunday": [""],
         "Monday": [""],
         "Tuesday": [""],
         "Wednesday": [""],
         "Thursday": [""],
         "Friday": [""],
         "Saturday": [""],
-        "Sunday": [""],
     },
 }
 
@@ -198,7 +198,7 @@ middle_column = [
                                 size=(6, 10),
                             )
                         ]
-                        for day in ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+                        for day in ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
                     ],
                 ),
             ],
@@ -854,7 +854,7 @@ while True:
             continue
         month, day, year = date
         selected_day = datetime.date(year=year, month=month, day=day)
-        week_start = selected_day - datetime.timedelta(days=selected_day.weekday() % 7)
+        week_start = selected_day - datetime.timedelta(days=selected_day.isoweekday() % 7)
         window["-WEEK-"].update(f"Week of {str(week_start)}")
         current_plan_dict["date"] = str(week_start)
         picked_date = str(week_start)
@@ -866,7 +866,7 @@ while True:
             continue
         month, day, year = date
         selected_day = datetime.date(year=year, month=month, day=day)
-        week_start = selected_day - datetime.timedelta(days=selected_day.weekday() % 7)
+        week_start = selected_day - datetime.timedelta(days=selected_day.isoweekday() % 7)
         current_plan_dict["date"] = str(week_start)
         plan = read_current_plans(db_file, str(week_start))
         if plan:
