@@ -1,0 +1,22 @@
+New and Changes:
+    ☐ Change - Every recipe should have a corresponding detailed recipe. No more simple and detailed.
+    ☐ Change - Only one way to enter a recipe.
+    ☐ Change - New Recipe section opens recipe viewer as the only way to enter a new recipe.
+    ☐ Change - Example of ingredient syntax should be easily visible (no tips button, or in addition to tips button)
+    ☐ Change - Change start day to Monday everywhere.
+    ☐ Change - Ingredients section cleanup (may not be needed)
+    ☐ New - Automatic saving of plans as meals are added to the weekly plan
+    ☐ New - Submitting the plan automatically exports the weekly plan, and the shopping list
+    ☐ New - Table should be updated to optionally include breakfast/lunch and dinner (explore making a user options file):
+        ☐ Include an optional breakfast/lunch/dinner flag with each meal selection
+    ☐ New - Shopping List by recipe for all recipes:
+        ☐ Organize all shopping lists by recipes
+        ☐ Generate a bulleted list for each recipe
+        ☐ Format the ingredients with quantities (i.e. 2 onions)
+    ☐ New - Table Manipulation:
+        ☐ The ability to drag meals (maybe)
+        ☐ Table editing for ease of changing which meals get put onto which days
+    ☐ Refactor - Modularize code for reuse (basically write better code):
+        ☐ Clean up layouts of sections of the GUI to not repeat code
+        ☐ Clean up the reuse of event triggers
+        ☐ Clean up the loading of meals and recipes from the database to utilize a function
