@@ -268,14 +268,7 @@ right_column = [
                         select_mode=sg.LISTBOX_SELECT_MODE_SINGLE,
                     )
                 ],
-                [
-                    sg.Button(
-                        "View Recipe",
-                        disabled=True,
-                        disabled_button_color=("black", "gray"),
-                        key="-VIEW_RECIPE-",
-                    )
-                ],
+                [sg.Button("View Recipe", key="-VIEW_RECIPE-",)],
             ],
         ),
     ],

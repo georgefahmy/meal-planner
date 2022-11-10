@@ -21,8 +21,9 @@ New and Changes:
     ☐ New - Table Manipulation:
         ☐ The ability to drag meals (maybe)
         ☐ Table editing for ease of changing which meals get put onto which days
-    ☐ New - Make database accessible online
-        pysimpleguiweb - have to access the server via a public address (look this up in remote.it) https://github.com/PySimpleGUI/PySimpleGUI/issues/2462 is a good reference.
+    ☐ New - Make database accessible online.
+        ☐ pysimpleguiweb - have to access the server via a public address (look this up in remote.it) https://github.com/PySimpleGUI/PySimpleGUI/issues/2462 is a good reference
+        ☐ Remi - this might be the best solution
     ☐ New - Associate a "Login" with each database. keep it locked unless logged in.
 
     ☐ Refactor - Modularize code for reuse (basically write better code):
