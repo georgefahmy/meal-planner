@@ -1,8 +1,10 @@
 New and Changes:
-    ☐ Improvement - Every recipe should have a corresponding detailed recipe. No more simple and detailed.
-    ☐ Improvement - Only one way to enter a recipe.
+    ✔ Improvement - Every recipe should have a corresponding detailed recipe. No more simple and detailed. @done(2022-11-13 14:18) @project(New and Changes)
+    ✔ Improvement - Only one way to enter a recipe. @done(2022-11-13 14:18) @project(New and Changes)
     ☐ Improvement - New Recipe section opens recipe viewer as the only way to enter a new recipe.
-    ☐ Improvement - Example of ingredient syntax should be easily visible (no tips button, or in addition to tips button)
+        ☐ Redo the recipe link stuff.
+        ☐ New Meal section should just have Recipe from URL (and submit button) or New Meal Button. - this opens the recipe view window. 
+    ✘ Improvement - Example of ingredient syntax should be easily visible (no tips button, or in addition to tips button) @cancelled(2022-11-13 14:25) @project(New and Changes)
     ☐ Improvement - Change start day to Monday everywhere.
     ☐ Improvement - Ingredients section cleanup (may not be needed)
     ☐ Improvement - Online recipe parcer library compatibility. Fail gracefully if loading a new recipe doesn't work.
