@@ -319,6 +319,8 @@ Available units and abbreviations:
                             if recipe_window[element.Key].get()
                             else None
                         )
+            if not raw_ingredients:
+                raw_ingredients = [recipe["title"]]
 
             for j, raw_ingredient in enumerate(raw_ingredients):
                 recipe["ingredients"][f"ingredient_{j}"] = {}

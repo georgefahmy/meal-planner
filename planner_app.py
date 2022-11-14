@@ -291,7 +291,7 @@ item_selection_section = [
 
 # Bottom left quadrant - New meal submission - meal, ingredients, links, submit, clear
 input_text = [
-    sg.Text("New Meal", font=("Arial", 18), size=(50, 1), justification="c"),
+    sg.Text("New Meal", font=("Arial", 18), size=(50, 2), justification="c"),
 ]
 input_section = [
     sg.Column(
@@ -344,18 +344,6 @@ input_section = [
     ),
 ]
 
-input_section_buttons = [
-    sg.Column(
-        [
-            [
-                sg.Button("Add to Database", visible=True, key="-MEAL_SUBMIT-", enable_events=True),
-                sg.Button("Clear", visible=True, key="-MEAL-CLEAR-", enable_events=True),
-            ]
-        ],
-        element_justification="c",
-    )
-]
-
 main_left_column = [
     sg.Column(
         [
@@ -372,7 +360,7 @@ main_left_column = [
                 sg.Frame(
                     "New Meals",
                     element_justification="c",
-                    layout=[input_text, input_section, input_section_buttons],
+                    layout=[input_text, input_section],
                     pad=(0, 0),
                     size=(620, 140),
                 )
