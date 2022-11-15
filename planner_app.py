@@ -641,10 +641,18 @@ def process_recipe_link(recipe_link):
     except:
         return recipe
 
-    recipe["title"] = scraped_recipe.schema.title()
-    recipe["directions"] = re.sub("\n", " ", scraped_recipe.schema.instructions())
-    recipe["recipe_category"] = scraped_recipe.schema.category()
-    raw_ingredients = scraped_recipe.schema.ingredients()
+    recipe["title"] = scraped_recipe.schema.title() if scraped_recipe.schema.title() else ""
+    recipe["directions"] = (
+        re.sub("\n", " ", scraped_recipe.schema.instructions())
+        if scraped_recipe.schema.instructions()
+        else ""
+    )
+    recipe["recipe_category"] = (
+        scraped_recipe.schema.category() if scraped_recipe.schema.category() else "Dinner"
+    )
+    raw_ingredients = (
+        scraped_recipe.schema.ingredients() if scraped_recipe.schema.ingredients() else []
+    )
 
     ingredients = {}
     for i, raw_ingredient in enumerate(raw_ingredients):
