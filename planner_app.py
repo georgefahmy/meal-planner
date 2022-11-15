@@ -427,13 +427,7 @@ meal_plan_section = [
 ]
 plan_section_buttons = [
     sg.Column(
-        [
-            [
-                sg.Button("Save Plan", visible=True, key="-PLAN-SUBMIT-", enable_events=True),
-                sg.Button("Clear", visible=True, key="-PLAN-CLEAR-", enable_events=True),
-                sg.Button("Delete Plan", visible=True, key="-PLAN-DELETE-", enable_events=True),
-            ]
-        ],
+        [[sg.Button("Clear", visible=True, key="-PLAN-CLEAR-", enable_events=True),]],
         element_justification="c",
     )
 ]
@@ -1099,6 +1093,11 @@ while True:
         window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
         window["-TABLE-"].update(values=gui_table)
 
+        plan_ingredients = ", ".join(plan_ingredients)
+        current_plan_dict["ingredients"] = plan_ingredients
+
+        add_plan(db_file, current_plan_dict, True)
+
     if event == "Delete::table":
         for row in values["-TABLE-"]:
             current_plan_dict["meals"][gui_table[row][0]] = [""]
@@ -1147,6 +1146,11 @@ while True:
 
             window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
             window["-TABLE-"].update(values=gui_table)
+
+            plan_ingredients = ", ".join(plan_ingredients)
+            current_plan_dict["ingredients"] = plan_ingredients
+
+            add_plan(db_file, current_plan_dict, True)
 
     if event == "Load Database":
 
@@ -1409,6 +1413,7 @@ while True:
         window["-MEAL_LIST-"].update(filtered_meals)
 
     if event == "-MEAL_LIST-":
+        # Choosing an item from the list of meals will update the ingredients list for that meal
         menu_bar_layout = [
             ["&File", ["Load Database", "Export Database"]],
             ["Edit", ["Edit Meal", "Edit Ingredients"]],
@@ -1416,15 +1421,18 @@ while True:
             ["Help", ["!About", "!How To", "!Feedback"]],
         ]
         window["-MENU-"].update(menu_definition=menu_bar_layout)
-        # Choosing an item from the list of meals will update the ingredients list for that meal
+
         if not values["-MEAL_LIST-"]:
             continue
+
         selected_meal = values["-MEAL_LIST-"][0].lower()
         recipe = read_meal_recipe(db_file, selected_meal)
+
         if recipe:
             window["-VIEW_RECIPE-"].update(disabled=False)
         else:
             window["-VIEW_RECIPE-"].update(disabled=True)
+
         ingredients_list = meals[selected_meal]["ingredients"]
         window["-MEAL_INGREDIENTS_LIST-"].update(
             sorted([capwords(ingredient) for ingredient in ingredients_list])
@@ -1463,74 +1471,6 @@ while True:
             ["Help", ["!About", "!How To", "!Feedback"]],
         ]
         window["-MENU-"].update(menu_definition=menu_bar_layout)
-
-    if event == "-MEAL-CLEAR-":
-        # Clear the new meal submission boxes
-        window["-MEAL-"].update(value="")
-        window["-RECIPE_LINK-"].update(value="")
-        try:
-            window["-RECIPE_NOTE-"].update(visible=False)
-            recipe = ""
-        except:
-            pass
-
-    if event == "-MEAL_SUBMIT-":
-        # Submit a new meal and the ingredients and recipe (if available) then add the meal to
-        # the database
-        recipe = ""
-        new_recipe = values["-RECIPE_LINK-"].lower()
-        if new_recipe:
-            recipe = process_recipe_link(new_recipe)
-            recipe = recipes(capwords(recipe["title"]), recipe_data=recipe)
-            if not recipe:
-                continue
-            basic_ingredients = [
-                ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
-            ]
-            new_meal = recipe["title"].lower()
-            new_ingredients = ", ".join(basic_ingredients).lower()
-            new_category = recipe["recipe_category"].lower()
-        else:
-            new_meal = values["-MEAL-"].lower()
-            new_category = "Dinner"
-            new_ingredients = new_meal
-
-        meal_categories = list(dict.fromkeys(settings["meal_categories"]))
-        meal_categories.append(capwords(new_category))
-        meal_categories = list(dict.fromkeys(meal_categories))
-        settings["meal_categories"] = meal_categories
-        with open(file_path, "w") as fp:
-            json.dump(settings, fp, sort_keys=True, indent=4)
-
-        if not recipe:
-            recipe = recipes(capwords(new_meal), recipe_data=new_meal)
-
-        if new_meal:
-            add_meal(
-                db_file,
-                new_meal,
-                ingredients=new_ingredients,
-                recipe_link=new_recipe,
-                recipe=json.dumps(recipe),
-                category=new_category,
-            )
-            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-            window["-MEAL_LIST-"].update(sorted([capwords(meal) for meal in meals.keys()]))
-            window["-MEAL-"].update(value="")
-            window["-RECIPE_LINK-"].update(value="")
-            recipe = ""
-            window["-RECIPE_NOTE-"].update(visible=False)
-            window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
-
-        else:
-            sg.Window(
-                "ERROR",
-                [
-                    [sg.Text("No Meal Added", font=("Arial", 16), justification="c")],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-            ).read(close=True)
 
     if event == "-PLAN-CLEAR-":
         # Empty out the table and return it to the default values
@@ -1626,7 +1566,7 @@ while True:
         # row in the plan table to reflect the meal selection, check if there is already an
         # item in place, and if so, add to it (useful for adding salad + main meal)
         for day in selected_days:
-            if not current_plan_dict["meals"][day][0]:
+            if not current_plan_dict["meals"][day]:
                 current_plan_dict["meals"][day] = selected_meal
 
             elif current_plan_dict["meals"][day] == selected_meal:
@@ -1680,6 +1620,11 @@ while True:
         window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
         window["-MEAL_LIST-"].update(set_to_index=[])
 
+        plan_ingredients = ", ".join(plan_ingredients)
+        current_plan_dict["ingredients"] = plan_ingredients
+
+        add_plan(db_file, current_plan_dict, True)
+
         # Commenting this out so that I can make it optional later on with a user setting.
         # window["-MON-"].update(value=False)
         # window["-TUE-"].update(value=False)
@@ -1688,89 +1633,6 @@ while True:
         # window["-FRI-"].update(value=False)
         # window["-SAT-"].update(value=False)
         # window["-SUN-"].update(value=False)
-
-    if event == "-PLAN-SUBMIT-":
-        plan_meals = [
-            meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
-        ]
-        if len(plan_meals) > 0:
-            plan_ingredients = sorted(
-                list(
-                    set(
-                        capwords(
-                            ", ".join(
-                                [", ".join(meals[meal]["ingredients"]) for meal in plan_meals]
-                            )
-                        ).split(", ")
-                    )
-                )
-            )
-            plan_ingredients = sorted(
-                [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
-            )
-
-            plan_ingredients = ", ".join(plan_ingredients)
-            current_plan_dict["ingredients"] = plan_ingredients
-
-            if read_current_plans(db_file, str(current_plan_dict["date"])):
-                confirm_overwrite = sg.popup_yes_no(
-                    f"Overwrite plan for {str(current_plan_dict['date'])}?", font=("Arial", 14)
-                )
-                new = False
-            else:
-                confirm_overwrite = "No"
-                new = True
-
-            if not new and confirm_overwrite == "Yes":
-                overwrite = True
-            else:
-                overwrite = False
-
-            add_plan(db_file, current_plan_dict, overwrite)
-
-            if new:
-                okay = sg.popup_ok(
-                    f"Meal Plan submitted for Week of {current_plan_dict['date']}",
-                    font=("Arial", 16),
-                    auto_close=True,
-                    auto_close_duration=10,
-                )
-            else:
-                if overwrite:
-                    okay = sg.popup_ok(
-                        f"Meal Plan updated for Week of {current_plan_dict['date']}",
-                        font=("Arial", 16),
-                        auto_close=True,
-                        auto_close_duration=10,
-                    )
-                else:
-                    sg.Window(
-                        "ERROR",
-                        [
-                            [
-                                sg.Text(
-                                    "Meal Plan not overwritten",
-                                    font=("Arial", 16),
-                                    justification="c",
-                                )
-                            ],
-                            [sg.Button("Okay")],
-                        ],
-                        disable_close=False,
-                    ).read(close=True)
-                    continue
-
-        else:
-            sg.Window(
-                "ERROR",
-                [
-                    [sg.Text("Plan is Empty", font=("Arial", 16), justification="c")],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-                size=(150, 80),
-            ).read(close=True)
-            continue
 
     if event == "-AVAILABLE_PLANS-":
         all_plans = read_all_plans(db_file)
