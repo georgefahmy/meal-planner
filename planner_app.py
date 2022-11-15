@@ -640,16 +640,17 @@ def process_recipe_link(recipe_link):
         scraped_recipe = scrape_me(recipe_link, wild_mode=True)
     except:
         return recipe
-    recipe["title"] = scraped_recipe.title()
-    recipe["directions"] = re.sub("\n", " ", scraped_recipe.instructions())
-    recipe["recipe_category"] = scraped_recipe.category()
-    raw_ingredients = scraped_recipe.ingredients()
+
+    recipe["title"] = scraped_recipe.schema.title()
+    recipe["directions"] = re.sub("\n", " ", scraped_recipe.schema.instructions())
+    recipe["recipe_category"] = scraped_recipe.schema.category()
+    raw_ingredients = scraped_recipe.schema.ingredients()
 
     ingredients = {}
     for i, raw_ingredient in enumerate(raw_ingredients):
-        raw_ingredient = re.sub("\(,", ",", raw_ingredient)
-        raw_ingredient = re.sub("\)", "", raw_ingredient)
-        raw_ingredient = re.sub(",*", "", raw_ingredient)
+        raw_ingredient = re.sub(" \(,", ",", raw_ingredient)
+        raw_ingredient = re.sub(" \)", "", raw_ingredient)
+        raw_ingredient = re.sub(",", "", raw_ingredient)
 
         ingredients[f"ingredient_{i}"] = {}
         ingredients[f"ingredient_{i}"]["raw_ingredient"] = raw_ingredient

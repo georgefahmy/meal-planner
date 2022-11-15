@@ -5,10 +5,10 @@ New and Changes:
         ✔ Redo the recipe link stuff. @done(2022-11-13 17:51) @project(New and Changes)
         ✔ New Meal section should just have Recipe from URL (and submit button) or New Meal Button. - this opens the recipe view window.  @done(2022-11-13 17:52) @project(New and Changes)
     ✘ Improvement - Example of ingredient syntax should be easily visible (no tips button, or in addition to tips button) @cancelled(2022-11-13 14:25) @project(New and Changes)
-    ☐ Improvement - Change start day to Monday everywhere.
-    ☐ Improvement - Ingredients section cleanup (may not be needed)
+    ✔ Improvement - Change start day to Monday everywhere. @done(2022-11-13 17:54) @project(New and Changes)
+    ✘ Improvement - Ingredients section cleanup (may not be needed) @cancelled(2022-11-14 17:51) @project(New and Changes)
     ☐ Improvement - Online recipe parcer library compatibility. Fail gracefully if loading a new recipe doesn't work.
-    ☐ Improvement - Update database creation and SQL functions to handle the Monday == first day of the week functionality
+    ✔ Improvement - Update database creation and SQL functions to handle the Monday == first day of the week functionality @done(2022-11-14 17:53) @project(New and Changes)
     ☐ Improvement - Weekly Plan export needs to be better (possibly link with shopping list improvements below)
 
     ☐ New - Automatic saving of plans as meals are added to the weekly plan
