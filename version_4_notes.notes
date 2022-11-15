@@ -7,9 +7,8 @@ New and Changes:
     ✘ Improvement - Example of ingredient syntax should be easily visible (no tips button, or in addition to tips button) @cancelled(2022-11-13 14:25) @project(New and Changes)
     ✔ Improvement - Change start day to Monday everywhere. @done(2022-11-13 17:54) @project(New and Changes)
     ✘ Improvement - Ingredients section cleanup (may not be needed) @cancelled(2022-11-14 17:51) @project(New and Changes)
-    ☐ Improvement - Online recipe parcer library compatibility. Fail gracefully if loading a new recipe doesn't work.
+    ✔ Improvement - Online recipe parcer library compatibility. Fail gracefully if loading a new recipe doesn't work. @done(2022-11-14 18:00) @project(New and Changes)
     ✔ Improvement - Update database creation and SQL functions to handle the Monday == first day of the week functionality @done(2022-11-14 17:53) @project(New and Changes)
-    ☐ Improvement - Weekly Plan export needs to be better (possibly link with shopping list improvements below)
 
     ☐ New - Automatic saving of plans as meals are added to the weekly plan
     ☐ New - Submitting the plan automatically exports the weekly plan, and the shopping list
@@ -17,16 +16,19 @@ New and Changes:
     ☐ New - Table should be updated to optionally include breakfast/lunch and dinner (explore making a user options file):
         ☐ Include an optional breakfast/lunch/dinner flag with each meal selection
     ☐ New - Shopping List by recipe for all recipes:
+        ☐ Improvement - Weekly Plan export needs to be better (possibly link with shopping list improvements below)
         ☐ Organize all shopping lists by recipes
         ☐ Generate a bulleted list for each recipe
         ☐ Format the ingredients with quantities (i.e. 2 onions)
     ☐ New - Table Manipulation:
         ☐ The ability to drag meals (maybe)
         ☐ Table editing for ease of changing which meals get put onto which days
-    ☐ New - Make database accessible online.
-        ☐ pysimpleguiweb - have to access the server via a public address (look this up in remote.it) https://github.com/PySimpleGUI/PySimpleGUI/issues/2462 is a good reference
-        ☐ Remi - this might be the best solution
-    ☐ New - Associate a "Login" with each database. keep it locked unless logged in.
+
+    ☐ New - Online Access:
+        ☐ Make database accessible online:
+            ☐ pysimpleguiweb - have to access the server via a public address (look this up in remote.it) https://github.com/PySimpleGUI/PySimpleGUI/issues/2462 is a good reference
+            ☐ Remi - this might be the best solution
+        ☐ Associate a "Login" with each database. keep it locked unless logged in.
 
     ☐ Refactor - Modularize code for reuse (basically write better code):
         ☐ Clean up layouts of sections of the GUI to not repeat code
