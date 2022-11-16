@@ -394,8 +394,6 @@ meal_plan_section = [
                     key="-WEEK-",
                     expand_x=True,
                 ),
-                sg.Button("Load Plan", key="-LOAD_PLAN-",),
-                sg.Button("Export Plan", key="-EXPORT_PLAN-",),
                 sg.Button("Available Plans", key="-AVAILABLE_PLANS-",),
             ],
             [
@@ -859,174 +857,179 @@ while True:
         current_plan_dict["date"] = str(week_start)
         picked_date = str(week_start)
 
-    if event == "-LOAD_PLAN-":
-        date = popup_get_date()
-        if not date:
-            print("No date selected")
-            continue
-        month, day, year = date
-        selected_day = datetime.date(year=year, month=month, day=day)
-        week_start = selected_day - datetime.timedelta(days=selected_day.weekday() % 7)
-        current_plan_dict["date"] = str(week_start)
-        plan = read_current_plans(db_file, str(week_start))
-        if plan:
-            gui_table = [[day] + [", ".join(meals)] for day, meals in plan["meals"].items()]
-            picked_date = str(week_start)
-            plan_meals = [
-                meal.lower() for meals in plan["meals"].values() for meal in meals if meal
-            ]
-
-            plan_ingredients = []
-            for meal in plan_meals:
-                meal_recipe = read_meal_recipe(db_file, meal)
-                if meal_recipe:
-                    for ingredient in meal_recipe["ingredients"].values():
-                        plan_ingredients.append(
-                            re.sub(
-                                "\s+",
-                                " ",
-                                " ".join(
-                                    [
-                                        str(ingredient["quantity"])
-                                        if ingredient["quantity"]
-                                        else "1",
-                                        ingredient["units"] if ingredient["units"] else "",
-                                        capwords(ingredient["ingredient"])
-                                        if ingredient["ingredient"]
-                                        else "",
-                                    ]
-                                ),
-                            ).strip()
-                        )
-                else:
-                    plan_ingredients.extend(
-                        list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
-                    )
-
-            plan_ingredients = list(set(plan_ingredients))
-            plan_ingredients = sorted(
-                [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
-            )
-
-            # Update and clear the checkboxes once the plan is loaded
-            current_plan_dict = plan
-            window["-WEEK-"].update("Week of " + picked_date)
-            window["-TABLE-"].update(values=gui_table)
-            window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
-        else:
-            sg.popup_ok("No plan available for that week")
-
-        pass
-    if event == "-EXPORT_PLAN-":
-        export_plan_path = sg.popup_get_file("Choose Export Location", save_as=True)
-        if picked_date not in export_plan_path:
-            export_plan_path = export_plan_path + f"_{picked_date}.txt"
-
-        day_plan = []
-        day_plan.append(f"Plan for the week of {picked_date}\n")
-        for day, meal in current_plan_dict["meals"].items():
-            if not meal:
-                day_plan.append(f"{day}:")
-                day_plan.append("No Planned Meal\n\n"),
-                continue
-            day_plan.append(f"{day}:")
-            for meal in meal:
-                if meal:
-                    day_plan.append(f"-{meal}-")
-                    day_plan.append("Ingredients:")
-                    wrapped_ingredients = textwrap.wrap(
-                        capwords(", ".join(meals[meal.lower()]["ingredients"])), 50
-                    )
-                    day_plan.append("\n".join(wrapped_ingredients))
-                    day_plan.append("\n")
-        day_plan.append("All Ingredients:")
-        day_plan.append(current_plan_dict["ingredients"])
-        plan_text = "\n".join(day_plan)
-        with open(export_plan_path, "w") as fp:
-            fp.write(plan_text)
-            fp.close()
-
-    if event == "-PLAN-DELETE-":
-
-        plan_dates = [str(date) for date in read_all_plans(db_file).keys()]
-        plan_date_window = sg.Window(
-            "Available Plans",
+    if event == "-AVAILABLE_PLANS-":
+        all_plans = read_all_plans(db_file)
+        available_plans = list(all_plans.keys())
+        confirm, selected_plan = sg.Window(
+            "Available Meal Plans",
             [
+                [sg.Text("Available Meal Plans", font=("Arial", 16), justification="c")],
+                [sg.Listbox(available_plans, font=("Arial", 12), size=(40, 20))],
                 [
-                    sg.Listbox(
-                        values=plan_dates,
-                        font=("Arial", 14),
-                        key="-SELECTED_PLAN_DATE-",
-                        enable_events=True,
-                        size=(20, 10),
-                    )
+                    sg.Button("View Plan"),
+                    sg.Button("Load Plan"),
+                    sg.Button("Delete"),
+                    sg.Button("Export"),
+                    sg.Text("", expand_x=True),
+                    sg.Button("Cancel"),
                 ],
-                [sg.Button("Okay", key="OKAY"), sg.Button("Cancel", key="CANCEL")],
             ],
             disable_close=False,
-        )
-        while True:
-            event, values = plan_date_window.read()
-            if event == sg.WIN_CLOSED or event == "CANCEL":
-                proceed = False
-                plan_date_window.close()
-                break
+        ).read(close=True)
 
-            if event:
-                # print(event, values)
-                pass
-            if event == "OKAY":
-                if not values["-SELECTED_PLAN_DATE-"]:
-                    confirmation = sg.popup_ok_cancel("No Date Selected")
-                    continue
-                proceed = True
-                plan_date_window.close()
-                break
-            if event == "-SELECTED_PLAN_DATE-":
-                date = values["-SELECTED_PLAN_DATE-"][0]
-                plan = read_current_plans(db_file, date)
-                plan_text = []
-                days_text = []
-                i = 0
-                weeks_dates = [
-                    datetime.datetime.strptime(date, "%Y-%m-%d").date() + datetime.timedelta(days=x)
-                    for x in range(7)
+        if not selected_plan[0]:
+            continue
+
+        if confirm in (None, "Cancel"):
+            continue
+
+        if confirm == "Load Plan":
+            plan_key = selected_plan[0][0]
+
+            plan = read_current_plans(db_file, plan_key)
+            if plan:
+                gui_table = [[day] + [", ".join(meals)] for day, meals in plan["meals"].items()]
+                picked_date = str(plan["date"])
+                plan_meals = [
+                    meal.lower() for meals in plan["meals"].values() for meal in meals if meal
                 ]
-                for day, meal in plan["meals"].items():
-                    meal = ", ".join(meal) if meal else ""
-                    days_text.append(
-                        f"{day} {str(weeks_dates[i].month)}/{str(weeks_dates[i].day)}: {meal}"
-                    )
-                    i += 1
-                days_text = "\n".join(days_text)
-                plan_ingredients = "\n".join(textwrap.wrap(plan["ingredients"], 60))
-                plan_text.append(
-                    f"Week of {date}\n\n{days_text}\n\nPlan Ingredients:\n{plan_ingredients}"
-                )
-                plan_text = "\n\n".join(plan_text)
-                # sg.popup_scrolled(
-                #     plan_text, title="Available Meal Plans", size=(60, 20), font=("Arial", 12),
-                # )
-                plan_window = sg.Window(
-                    "Meal Plans",
-                    [
-                        [sg.Text("Meal Plans", font=("Arial", 16), justification="c")],
-                        [sg.Multiline(plan_text, font=("Arial", 12), size=(60, 20), disabled=True)],
-                        [sg.Button("Okay")],
-                    ],
-                    disable_close=False,
-                    location=((screen_width / 2) - 100, screen_height / 10),
-                    relative_location=(-200, 0),
-                    size=(400, 370),
-                ).read(close=True)
 
-        if not proceed:
+                plan_ingredients = []
+                for meal in plan_meals:
+                    meal_recipe = read_meal_recipe(db_file, meal)
+                    if meal_recipe:
+                        for ingredient in meal_recipe["ingredients"].values():
+                            plan_ingredients.append(
+                                re.sub(
+                                    "\s+",
+                                    " ",
+                                    " ".join(
+                                        [
+                                            str(ingredient["quantity"])
+                                            if ingredient["quantity"]
+                                            else "1",
+                                            ingredient["units"] if ingredient["units"] else "",
+                                            capwords(ingredient["ingredient"])
+                                            if ingredient["ingredient"]
+                                            else "",
+                                        ]
+                                    ),
+                                ).strip()
+                            )
+                    else:
+                        plan_ingredients.extend(
+                            list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
+                        )
+
+                plan_ingredients = list(set(plan_ingredients))
+                plan_ingredients = sorted(
+                    [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
+                )
+
+                # Update and clear the checkboxes once the plan is loaded
+                current_plan_dict = plan
+                window["-WEEK-"].update("Week of " + plan["date"])
+                window["-TABLE-"].update(values=gui_table)
+                window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
+
             continue
-        confirmation = sg.popup_ok_cancel("Permenantly delete plan?")
-        if confirmation == "Cancel":
+
+        def export_plan(selected_plan):
+            plan_key = selected_plan[0][0]
+            current_plan_dict = read_current_plans(db_file, plan_key)
+
+            settings = json.load(open(file_path, "r"))
+            export_plan_path = settings["export_plan_path"]
+            if not export_plan_path:
+                export_plan_path = sg.popup_get_folder("Choose Export Location", save_as=True)
+                settings = json.load(open(file_path, "r"))
+                settings["export_plan_path"] = export_plan_path
+                with open(file_path, "w") as fp:
+                    json.dump(settings, fp, sort_keys=True, indent=4)
+
+            if current_plan_dict["date"] not in export_plan_path:
+                export_plan_path = export_plan_path + f"plan_{current_plan_dict['date']}.txt"
+
+            day_plan = []
+            day_plan.append(f"Plan for the week of {current_plan_dict['date']}\n")
+            for day, meal in current_plan_dict["meals"].items():
+                if not meal:
+                    day_plan.append(f"{day}:")
+                    day_plan.append("No Planned Meal\n\n"),
+                    continue
+                day_plan.append(f"{day}:")
+                for meal in meal:
+                    if meal:
+                        day_plan.append(f"-{meal}-")
+                        day_plan.append("Ingredients:")
+                        wrapped_ingredients = textwrap.wrap(
+                            capwords(", ".join(meals[meal.lower()]["ingredients"])), 50
+                        )
+                        day_plan.append("\n".join(wrapped_ingredients))
+                        day_plan.append("\n")
+            day_plan.append("All Ingredients:")
+            day_plan.append(current_plan_dict["ingredients"])
+            plan_text = "\n".join(day_plan)
+            with open(export_plan_path, "w") as fp:
+                fp.write(plan_text)
+                fp.close()
+
+        if confirm == "Export" and selected_plan[0]:
+            export_plan(selected_plan)
             continue
-        remove_plan(db_file, date)
-        confirmation = sg.popup_ok(f"Plan for week of {date}\npermentantly deleted")
+
+        if confirm == "Delete" and selected_plan[0]:
+            plan_key = selected_plan[0][0]
+
+            confirmation = sg.popup_ok_cancel(f"Permenantly delete plan for week of {plan_key}?")
+            if confirmation == "Cancel":
+                continue
+
+            remove_plan(db_file, plan_key)
+            confirmation = sg.popup_ok(f"Plan for week of {plan_key}\npermentantly deleted")
+            continue
+
+        if confirm == "View Plan":
+
+            plan_key = selected_plan[0][0]
+            plan = all_plans[plan_key]
+
+            plan_text = []
+            days_text = []
+            i = 0
+
+            weeks_dates = [
+                datetime.datetime.strptime(plan["date"], "%Y-%m-%d").date()
+                + datetime.timedelta(days=x)
+                for x in range(7)
+            ]
+
+            for day, meal in plan["meals"].items():
+                meal = ", ".join(meal) if meal else ""
+                days_text.append(
+                    f"{day} {str(weeks_dates[i].month)}/{str(weeks_dates[i].day)}: {meal}"
+                )
+                i += 1
+
+            days_text = "\n".join(days_text)
+            plan_ingredients = "\n".join(textwrap.wrap(plan["ingredients"], 60))
+
+            plan_text.append(f"{days_text}\n\nPlan Ingredients:\n{plan_ingredients}\n")
+            plan_text = "\n\n".join(plan_text)
+
+            confirm_export, _ = sg.Window(
+                "Available Meal Plans",
+                [
+                    [sg.Text(f"Plan for {plan['date']}", font=("Arial", 16), justification="c")],
+                    [sg.Multiline(plan_text, font=("Arial", 12), size=(60, 20), disabled=True)],
+                    [sg.Button("Okay"), sg.Button("Export")],
+                ],
+                disable_close=False,
+            ).read(close=True)
+
+            if confirm_export == "Export":
+                export_plan(selected_plan)
+                continue
 
     if event == "Edit Selection::edit":
         if not values["-TABLE-"]:
@@ -1513,7 +1516,7 @@ while True:
 
     if event == "-ADD_TO_PLAN-":
         # Add a selected meal to a day of the week in the plan table
-        selected_meal = ", ".join(values["-MEAL_LIST-"])
+        # selected_meal = ", ".join(values["-MEAL_LIST-"])
         selected_meal = values["-MEAL_LIST-"]
 
         # If no meal is selected when the 'add to plan' button is pressed
@@ -1528,6 +1531,7 @@ while True:
                 disable_close=False,
             ).read(close=True)
             continue
+
         days_of_week = {
             "Sunday": values["-SUN-"],
             "Monday": values["-MON-"],
@@ -1538,13 +1542,13 @@ while True:
             "Saturday": values["-SAT-"],
         }
         day_index = {
-            "Sunday": 0,
-            "Monday": 1,
-            "Tuesday": 2,
-            "Wednesday": 3,
-            "Thursday": 4,
-            "Friday": 5,
-            "Saturday": 6,
+            "Monday": 0,
+            "Tuesday": 1,
+            "Wednesday": 2,
+            "Thursday": 3,
+            "Friday": 4,
+            "Saturday": 5,
+            "Sunday": 6,
         }
         selected_days = [day for day, val in days_of_week.items() if val == True]
 
@@ -1566,7 +1570,7 @@ while True:
         # row in the plan table to reflect the meal selection, check if there is already an
         # item in place, and if so, add to it (useful for adding salad + main meal)
         for day in selected_days:
-            if not current_plan_dict["meals"][day]:
+            if not current_plan_dict["meals"][day][0]:
                 current_plan_dict["meals"][day] = selected_meal
 
             elif current_plan_dict["meals"][day] == selected_meal:
@@ -1623,7 +1627,11 @@ while True:
         plan_ingredients = ", ".join(plan_ingredients)
         current_plan_dict["ingredients"] = plan_ingredients
 
-        add_plan(db_file, current_plan_dict, True)
+        # Check if we're creating a new plan or updating an existing one
+        all_plans = read_all_plans(db_file)
+        overwrite = True if current_plan_dict["date"] in all_plans.keys() else False
+
+        add_plan(db_file, current_plan_dict, overwrite)
 
         # Commenting this out so that I can make it optional later on with a user setting.
         # window["-MON-"].update(value=False)
@@ -1633,38 +1641,3 @@ while True:
         # window["-FRI-"].update(value=False)
         # window["-SAT-"].update(value=False)
         # window["-SUN-"].update(value=False)
-
-    if event == "-AVAILABLE_PLANS-":
-        all_plans = read_all_plans(db_file)
-        plan_text = []
-        for date, plan in all_plans.items():
-            days_text = []
-            i = 0
-            weeks_dates = [
-                datetime.datetime.strptime(date, "%Y-%m-%d").date() + datetime.timedelta(days=x)
-                for x in range(7)
-            ]
-            for day, meal in plan["meals"].items():
-                meal = ", ".join(meal) if meal else ""
-                days_text.append(
-                    f"{day} {str(weeks_dates[i].month)}/{str(weeks_dates[i].day)}: {meal}"
-                )
-                i += 1
-            days_text = "\n".join(days_text)
-            plan_ingredients = "\n".join(textwrap.wrap(plan["ingredients"], 60))
-            plan_text.append(
-                f"Week of {date}\n\n{days_text}\n\nPlan Ingredients:\n{plan_ingredients}\n"
-            )
-        plan_text = "\n\n".join(plan_text)
-        # sg.popup_scrolled(
-        #     plan_text, title="Available Meal Plans", size=(60, 20), font=("Arial", 12),
-        # )
-        sg.Window(
-            "Available Meal Plans",
-            [
-                [sg.Text("Available Meal Plans", font=("Arial", 16), justification="c")],
-                [sg.Multiline(plan_text, font=("Arial", 12), size=(60, 20), disabled=True)],
-                [sg.Button("Okay")],
-            ],
-            disable_close=False,
-        ).read(close=True)
