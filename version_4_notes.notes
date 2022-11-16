@@ -9,8 +9,8 @@ New and Changes:
     ✘ Improvement - Ingredients section cleanup (may not be needed) @cancelled(2022-11-14 17:51) @project(New and Changes)
     ✔ Improvement - Online recipe parcer library compatibility. Fail gracefully if loading a new recipe doesn't work. @done(2022-11-14 18:00) @project(New and Changes)
     ✔ Improvement - Update database creation and SQL functions to handle the Monday == first day of the week functionality @done(2022-11-14 17:53) @project(New and Changes)
-    ☐ Improvement - Within the Available Plans window, move the "delete plan" functionality to there, as well as improve the display of the plans
-        ☐ Clean this up to provide a list of available plans, then when clicking the plan, display that plan in a new window.
+    ✔ Improvement - Within the Available Plans window, move the "delete plan" functionality to there, as well as improve the display of the plans @done(2022-11-15 16:41) @project(New and Changes)
+        ✔ Clean this up to provide a list of available plans, then when clicking the plan, display that plan in a new window. @done(2022-11-15 15:30) @project(New and Changes)
 
     ✔ New - Automatic saving of plans as meals are added to the weekly plan @done(2022-11-15 10:20) @project(New and Changes)
         ✔ Remove the "Save Plan" button since it will be automatic   @done(2022-11-15 10:20) @project(New and Changes)

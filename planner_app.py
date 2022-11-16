@@ -940,15 +940,15 @@ while True:
 
             settings = json.load(open(file_path, "r"))
             export_plan_path = settings["export_plan_path"]
+
             if not export_plan_path:
-                export_plan_path = sg.popup_get_folder("Choose Export Location", save_as=True)
-                settings = json.load(open(file_path, "r"))
+                export_plan_path = sg.popup_get_folder("Choose Export Location")
                 settings["export_plan_path"] = export_plan_path
                 with open(file_path, "w") as fp:
                     json.dump(settings, fp, sort_keys=True, indent=4)
 
             if current_plan_dict["date"] not in export_plan_path:
-                export_plan_path = export_plan_path + f"plan_{current_plan_dict['date']}.txt"
+                export_plan_path = export_plan_path + "/" + f"plan_{current_plan_dict['date']}.txt"
 
             day_plan = []
             day_plan.append(f"Plan for the week of {current_plan_dict['date']}\n")
@@ -973,9 +973,11 @@ while True:
             with open(export_plan_path, "w") as fp:
                 fp.write(plan_text)
                 fp.close()
+            return export_plan_path
 
         if confirm == "Export" and selected_plan[0]:
-            export_plan(selected_plan)
+            export_plan_path = export_plan(selected_plan)
+            sg.popup_ok(f"Saved to {export_plan_path}")
             continue
 
         if confirm == "Delete" and selected_plan[0]:
@@ -1028,7 +1030,8 @@ while True:
             ).read(close=True)
 
             if confirm_export == "Export":
-                export_plan(selected_plan)
+                export_plan_path = export_plan(selected_plan)
+                sg.popup_ok(f"Saved to {export_plan_path}")
                 continue
 
     if event == "Edit Selection::edit":
