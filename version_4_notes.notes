@@ -15,6 +15,7 @@ New and Changes:
     ✔ New - Automatic saving of plans as meals are added to the weekly plan @done(2022-11-15 10:20) @project(New and Changes)
         ✔ Remove the "Save Plan" button since it will be automatic   @done(2022-11-15 10:20) @project(New and Changes)
     ✘ New - Submitting the plan automatically exports the weekly plan, and the shopping list @cancelled(2022-11-15 10:33) @project(New and Changes)
+    ☐ New - Add a window to edit user settings saved inthe settings.json file
     ☐ New - Add support for Windows executable in the build process
     ☐ New - Table should be updated to optionally include breakfast/lunch and dinner (explore making a user options file):
         ☐ Include an optional breakfast/lunch/dinner flag with each meal selection
@@ -23,8 +24,8 @@ New and Changes:
         ☐ Organize all shopping lists by recipes
         ☐ Generate a bulleted list for each recipe
         ☐ Format the ingredients with quantities (i.e. 2 onions)
-    ☐ New - Table Manipulation:
-        ☐ The ability to drag meals (maybe)
+    ☐ New - Table Manipulation (Maybe):
+        ☐ The ability to drag meals
         ☐ Table editing for ease of changing which meals get put onto which days
 
     ☐ New - Online Access:
