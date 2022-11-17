@@ -11,6 +11,7 @@ New and Changes:
     ✔ Improvement - Update database creation and SQL functions to handle the Monday == first day of the week functionality @done(2022-11-14 17:53) @project(New and Changes)
     ✔ Improvement - Within the Available Plans window, move the "delete plan" functionality to there, as well as improve the display of the plans @done(2022-11-15 16:41) @project(New and Changes)
         ✔ Clean this up to provide a list of available plans, then when clicking the plan, display that plan in a new window. @done(2022-11-15 15:30) @project(New and Changes)
+    ☐ Improvement - recipe export path should be saved to settings and default the name to the title
 
     ✔ New - Automatic saving of plans as meals are added to the weekly plan @done(2022-11-15 10:20) @project(New and Changes)
         ✔ Remove the "Save Plan" button since it will be automatic   @done(2022-11-15 10:20) @project(New and Changes)
