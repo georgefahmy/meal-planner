@@ -931,6 +931,9 @@ while True:
                 with open(file_path, "w") as fp:
                     json.dump(settings, fp, sort_keys=True, indent=4)
 
+            if not export_plan_path:
+                return
+
             if current_plan_dict["date"] not in export_plan_path:
                 export_plan_path = export_plan_path + "/" + f"plan_{current_plan_dict['date']}.txt"
 
@@ -961,6 +964,8 @@ while True:
 
         if confirm == "Export" and selected_plan[0]:
             export_plan_path = export_plan(selected_plan)
+            if not export_plan_path:
+                continue
             sg.popup_ok(f"Saved to {export_plan_path}")
             continue
 
