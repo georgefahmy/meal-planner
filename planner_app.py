@@ -381,7 +381,7 @@ gui_table = [[day] + [", ".join(meals)] for day, meals in blank_plan_dict["meals
 
 table_right_click = [
     "&Right",
-    ["Edit Selection::edit", "Delete::table"],
+    ["Change Day::edit", "Delete Item::edit", "Clear Row::table"],
 ]
 
 meal_plan_section = [
@@ -1022,8 +1022,82 @@ while True:
                 export_plan_path = export_plan(selected_plan)
                 sg.popup_ok(f"Saved to {export_plan_path}")
                 continue
+    if event == "Change Day::edit":
+        if not values["-TABLE-"]:
+            continue
 
-    if event == "Edit Selection::edit":
+        selected_row = values["-TABLE-"][0]
+
+        available_foods = current_plan_dict["meals"][gui_table[selected_row][0]]
+        confirm, chosen_food = sg.Window(
+            "Edit Selected Day",
+            [
+                [sg.Text("Select Meal to Move", font=("Arial", 14), justification="c")],
+                [sg.Listbox(values=available_foods, font=("Arial", 14), size=(200, 6))],
+                [sg.Button("Okay"), sg.Button("Cancel")],
+            ],
+            disable_close=False,
+            size=(225, 200),
+        ).read(close=True)
+
+        if confirm == "Cancel":
+            continue
+
+        if not chosen_food[0]:
+            continue
+
+        chosen_food = chosen_food[0][0]
+
+        all_days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        available_days = [day for i, day in enumerate(all_days) if i != selected_row]
+
+        confirm, chosen_day = sg.Window(
+            "Choose New Day",
+            [
+                [sg.Text("Choose New Day", font=("Arial", 14), justification="c")],
+                [sg.Listbox(values=available_days, font=("Arial", 14), size=(200, 6))],
+                [sg.Button("Okay"), sg.Button("Cancel")],
+            ],
+            disable_close=False,
+            size=(225, 200),
+        ).read(close=True)
+
+        if confirm == "Cancel":
+            continue
+
+        if not chosen_day[0]:
+            continue
+
+        chosen_day = chosen_day[0][0]
+        new_row = all_days.index(chosen_day)
+
+        current_plan_dict["meals"][gui_table[selected_row][0]].remove(chosen_food)
+
+        if not len(current_plan_dict["meals"][chosen_day]):
+            current_plan_dict["meals"][chosen_day] = [chosen_food]
+
+        elif current_plan_dict["meals"][chosen_day] == [chosen_food]:
+            continue
+
+        else:
+            current_plan_dict["meals"][chosen_day] = current_plan_dict["meals"][chosen_day] + [
+                chosen_food
+            ]
+
+        gui_table = [
+            [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
+        ]
+
+        plan_meals = [
+            meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
+        ]
+
+        window["-TABLE-"].update(values=gui_table)
+        window["-MEAL_LIST-"].update(set_to_index=[])
+
+        add_plan(db_file, current_plan_dict, True)
+
+    if event == "Delete Item::edit":
         if not values["-TABLE-"]:
             continue
 
@@ -1090,7 +1164,7 @@ while True:
 
         add_plan(db_file, current_plan_dict, True)
 
-    if event == "Delete::table":
+    if event == "Clear Row::table":
         for row in values["-TABLE-"]:
             current_plan_dict["meals"][gui_table[row][0]] = ""
 

@@ -1,11 +1,5 @@
 New and Changes:
 
-    New - Table Manipulation (Maybe):
-        Add the ability to move a meal from one day to another day through a right click option.  -> right click -> 'move to another day' -> <day dropdown> -> meal moves from current day to new day
-        ☐ Add right click option for "Move to Another Day"
-        ☐ Add list of days to choose from
-        ☐ Move meal to selected day
-
     New - Add a window to edit user settings saved in the settings.json file:
         ☐ Have a button in the menu for opening the settings
         ☐ Display the different settings avaialble with the current values
@@ -34,6 +28,10 @@ New and Changes:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+    ✔ Add the ability to move a meal from one day to another day through a right click option.  -> right click -> 'move to another day' -> <day dropdown> -> meal moves from current day to new day @done(2022-11-17 12:27) @project(New and Changes / New - Table Manipulation \(Maybe\))
+    ✔ Add right click option for "Move to Another Day" @done(2022-11-17 12:26) @project(New and Changes / New - Table Manipulation \(Maybe\))
+    ✔ Add list of days to choose from @done(2022-11-17 12:26) @project(New and Changes / New - Table Manipulation \(Maybe\))
+    ✔ Move meal to selected day @done(2022-11-17 12:26) @project(New and Changes / New - Table Manipulation \(Maybe\))
     ✘ Improvement - Weekly Plan export needs to be better (possibly link with shopping list improvements below) @cancelled(2022-11-16 22:45) @project(New and Changes / ☐ New - Shopping List by recipe for all recipes)
     ✔ Improvement - recipe export path should be saved to settings and default the name to the title @done(2022-11-16 22:19) @project(New and Changes)
     ✔ Improvement - Every recipe should have a corresponding detailed recipe. No more simple and detailed. @done(2022-11-13 14:18) @project(New and Changes)
