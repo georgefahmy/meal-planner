@@ -1,12 +1,23 @@
 New and Changes:
 
-    ☐ New - Add a window to edit user settings saved in the settings.json file
-    ☐ New - Add support for Windows executable in the build process
+    New - Table Manipulation (Maybe):
+        Add the ability to move a meal from one day to another day through a right click option.  -> right click -> 'move to another day' -> <day dropdown> -> meal moves from current day to new day
+        ☐ Add right click option for "Move to Another Day"
+        ☐ Add list of days to choose from
+        ☐ Move meal to selected day
+
+    New - Add a window to edit user settings saved in the settings.json file:
+        ☐ Have a button in the menu for opening the settings
+        ☐ Display the different settings avaialble with the current values
+        ☐ Allow editing of those values and then save the settings file - this will require utilizing the same file path stuff for the database file path.
+        ☐ Think about more user settings that can be customized
+
+    New - Add support for Windows executable in the build process:
+        ☐ Implement the windows version of py2app (py2exe)
+        ☐ Test it on a VM or something
+
     New - Table should be updated to optionally include breakfast/lunch and dinner (explore making a user options file):
         ☐ Include an optional breakfast/lunch/dinner flag with each meal selection
-    New - Table Manipulation (Maybe):
-        ☐ The ability to drag meals
-        ☐ Table editing for ease of changing which meals get put onto which days
 
     New - Online Access:
         Make database accessible online:
