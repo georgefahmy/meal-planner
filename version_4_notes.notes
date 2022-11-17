@@ -2,21 +2,19 @@ New and Changes:
 
     ☐ New - Add a window to edit user settings saved in the settings.json file
     ☐ New - Add support for Windows executable in the build process
-    ☐ New - Table should be updated to optionally include breakfast/lunch and dinner (explore making a user options file):
+    New - Table should be updated to optionally include breakfast/lunch and dinner (explore making a user options file):
         ☐ Include an optional breakfast/lunch/dinner flag with each meal selection
-    ☐ New - Shopping List by recipe for all recipes:
-        ☐ Improvement - Weekly Plan export needs to be better (possibly link with shopping list improvements below)
-    ☐ New - Table Manipulation (Maybe):
+    New - Table Manipulation (Maybe):
         ☐ The ability to drag meals
         ☐ Table editing for ease of changing which meals get put onto which days
 
-    ☐ New - Online Access:
-        ☐ Make database accessible online:
+    New - Online Access:
+        Make database accessible online:
             ☐ pysimpleguiweb - have to access the server via a public address (look this up in remote.it) https://github.com/PySimpleGUI/PySimpleGUI/issues/2462 is a good reference
             ☐ Remi - this might be the best solution
         ☐ Associate a "Login" with each database. keep it locked unless logged in.
 
-    ☐ Refactor - Modularize code for reuse (basically write better code):
+    Refactor - Modularize code for reuse (basically write better code):
         ☐ Clean up layouts of sections of the GUI to not repeat code
         ☐ Clean up the reuse of event triggers
         ☐ Clean up the loading of meals and recipes from the database to utilize a function
@@ -25,6 +23,7 @@ New and Changes:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+    ✘ Improvement - Weekly Plan export needs to be better (possibly link with shopping list improvements below) @cancelled(2022-11-16 22:45) @project(New and Changes / ☐ New - Shopping List by recipe for all recipes)
     ✔ Improvement - recipe export path should be saved to settings and default the name to the title @done(2022-11-16 22:19) @project(New and Changes)
     ✔ Improvement - Every recipe should have a corresponding detailed recipe. No more simple and detailed. @done(2022-11-13 14:18) @project(New and Changes)
     ✔ Improvement - Only one way to enter a recipe. @done(2022-11-13 14:18) @project(New and Changes)

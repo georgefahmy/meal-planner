@@ -61,17 +61,17 @@ blank_plan_dict = {
     "date": str(start),
     "ingredients": [],
     "meals": {
-        "Monday": [""],
-        "Tuesday": [""],
-        "Wednesday": [""],
-        "Thursday": [""],
-        "Friday": [""],
-        "Saturday": [""],
-        "Sunday": [""],
+        "Monday": "",
+        "Tuesday": "",
+        "Wednesday": "",
+        "Thursday": "",
+        "Friday": "",
+        "Saturday": "",
+        "Sunday": "",
     },
 }
 
-blank_gui_table = [[day] + meals for day, meals in blank_plan_dict["meals"].items()]
+blank_gui_table = [[day] + [", ".join(meals)] for day, meals in blank_plan_dict["meals"].items()]
 
 
 # --------------------------------- Define Layout ---------------------------------
@@ -377,7 +377,7 @@ main_left_column = [
 
 current_plan_dict = blank_plan_dict
 
-gui_table = [[day] + meals for day, meals in current_plan_dict["meals"].items()]
+gui_table = [[day] + [", ".join(meals)] for day, meals in blank_plan_dict["meals"].items()]
 
 table_right_click = [
     "&Right",
@@ -909,7 +909,7 @@ while True:
                 for ingredient, count in counter.items():
                     plan_ingredients.append(f"{count} {capwords(ingredient)}")
 
-                plan_ingredients = "\n".join(sorted(plan_ingredients))
+                plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
 
                 current_plan_dict = plan
                 window["-WEEK-"].update("Week of " + plan["date"])
@@ -1082,19 +1082,17 @@ while True:
         for ingredient, count in counter.items():
             plan_ingredients.append(f"{count} {capwords(ingredient)}")
 
-        plan_ingredients = "\n".join(sorted(plan_ingredients))
+        current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
+        plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
 
         window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
         window["-TABLE-"].update(values=gui_table)
-
-        plan_ingredients = ", ".join(plan_ingredients)
-        current_plan_dict["ingredients"] = plan_ingredients
 
         add_plan(db_file, current_plan_dict, True)
 
     if event == "Delete::table":
         for row in values["-TABLE-"]:
-            current_plan_dict["meals"][gui_table[row][0]] = [""]
+            current_plan_dict["meals"][gui_table[row][0]] = ""
 
             gui_table = [
                 [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
@@ -1133,13 +1131,11 @@ while True:
             for ingredient, count in counter.items():
                 plan_ingredients.append(f"{count} {capwords(ingredient)}")
 
-            plan_ingredients = "\n".join(sorted(plan_ingredients))
+            current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
+            plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
 
             window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
             window["-TABLE-"].update(values=gui_table)
-
-            plan_ingredients = ", ".join(plan_ingredients)
-            current_plan_dict["ingredients"] = plan_ingredients
 
             add_plan(db_file, current_plan_dict, True)
 
@@ -1196,7 +1192,7 @@ while True:
         for ingredient, count in counter.items():
             plan_ingredients.append(f"{count} {capwords(ingredient)}")
 
-        plan_ingredients = "\n".join(sorted(plan_ingredients))
+        plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
 
         # Update and clear the checkboxes once the database is loaded
         window["-TABLE-"].update(values=gui_table)
@@ -1496,7 +1492,7 @@ while True:
         for ingredient, count in counter.items():
             plan_ingredients.append(f"{count} {capwords(ingredient)}")
 
-        plan_ingredients = "\n".join(sorted(plan_ingredients))
+        plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
 
         window["-TABLE-"].update(blank_gui_table)
         window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
@@ -1603,15 +1599,13 @@ while True:
         for ingredient, count in counter.items():
             plan_ingredients.append(f"{count} {capwords(ingredient)}")
 
-        plan_ingredients = "\n".join(sorted(plan_ingredients))
+        current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
+        plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
 
         # Update and clear the checkboxes once the meal is submitted to the plan
         window["-TABLE-"].update(values=gui_table)
         window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
         window["-MEAL_LIST-"].update(set_to_index=[])
-
-        plan_ingredients = ", ".join(plan_ingredients)
-        current_plan_dict["ingredients"] = plan_ingredients
 
         # Check if we're creating a new plan or updating an existing one
         all_plans = read_all_plans(db_file)
