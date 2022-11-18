@@ -1,4 +1,5 @@
 New and Changes:
+    ☐ Improvement - Clean up exported plan formatting "export_plan(selected_plan)"
 
     New - Add a window to edit user settings saved in the settings.json file:
         ☐ Have a button in the menu for opening the settings
@@ -17,15 +18,15 @@ New and Changes:
         ☐ Associate a "Login" with each database. keep it locked unless logged in.
 
     Refactor - Modularize code for reuse (basically write better code):
-        ☐ Clean up layouts of sections of the GUI to not repeat code
         ☐ Identify repeated code and turn it into functions that can be called
-        ☐ Clean up the reuse of event triggers
-        ☐ Clean up the loading of meals and recipes from the database to utilize a function
         ☐ Rename the recipe_interface and recipe_viewer files to better describe their functions
         ☐ Reorganize the folders to better organize the SQL functions and recipe interfaces and main interface
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+    ✔ Clean up layouts of sections of the GUI to not repeat code @done(2022-11-17 18:39) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
+    ✔ Clean up the reuse of event triggers @done(2022-11-17 18:39) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
+    ✔ Clean up the loading of meals and recipes from the database to utilize a function @done(2022-11-17 18:39) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
     ✔ Improvement - Fix the right click meal to edit ingredients and just remove it to only have the "Update Recipe" option @done(2022-11-17 17:26) @project(New and Changes)
     ✘ Include an optional breakfast/lunch/dinner flag with each meal selection @cancelled(2022-11-17 16:27) @project(New and Changes / New - Table should be updated to optionally include breakfast/lunch and dinner \(explore making a user options file\))
     ✔ Add the ability to move a meal from one day to another day through a right click option.  -> right click -> 'move to another day' -> <day dropdown> -> meal moves from current day to new day @done(2022-11-17 12:27) @project(New and Changes / New - Table Manipulation \(Maybe\))
