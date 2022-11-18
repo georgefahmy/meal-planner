@@ -3,7 +3,7 @@ New and Changes:
 
     New - Add a window to edit user settings saved in the settings.json file:
         ☐ Have a button in the menu for opening the settings
-        ☐ Display the different settings avaialble with the current values
+        ☐ Display the different settings available with the current values
         ☐ Allow editing of those values and then save the settings file - this will require utilizing the same file path stuff for the database file path.
         ☐ Think about more user settings that can be customized
 
@@ -11,7 +11,7 @@ New and Changes:
         ☐ Implement the windows version of py2app (py2exe)
         ☐ Test it on a VM or something
 
-    New - Online Access:
+    New - Online Access (may move to version 5):
         Make database accessible online:
             ☐ pysimpleguiweb - have to access the server via a public address (look this up in remote.it) https://github.com/PySimpleGUI/PySimpleGUI/issues/2462 is a good reference
             ☐ Remi - this might be the best solution
@@ -19,11 +19,11 @@ New and Changes:
 
     Refactor - Modularize code for reuse (basically write better code):
         ☐ Identify repeated code and turn it into functions that can be called
-        ☐ Rename the recipe_interface and recipe_viewer files to better describe their functions
-        ☐ Reorganize the folders to better organize the SQL functions and recipe interfaces and main interface
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+    ✘ Rename the recipe_interface and recipe_viewer files to better describe their functions @cancelled(2022-11-17 19:33) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
+    ✘ Reorganize the folders to better organize the SQL functions and recipe interfaces and main interface @cancelled(2022-11-17 19:33) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
     ✔ Clean up layouts of sections of the GUI to not repeat code @done(2022-11-17 18:39) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
     ✔ Clean up the reuse of event triggers @done(2022-11-17 18:39) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
     ✔ Clean up the loading of meals and recipes from the database to utilize a function @done(2022-11-17 18:39) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
