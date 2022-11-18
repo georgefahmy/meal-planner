@@ -669,7 +669,7 @@ def generate_plan_shopping_list(plan_meals):
                         ((ingredient["units"] + " ") if ingredient["units"] else "")
                         + ingredient["ingredient"]
                     ]
-                    * ceil(float(Fraction(ingredient["quantity"])))
+                    * ceil(float(sum(Fraction(s) for s in ingredient["quantity"].split())))
                 )
             else:
                 # just add the ingredient to the full list for counting.

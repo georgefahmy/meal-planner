@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v4.0.0] - 2022-11-17
 
+Version 4.0 is here! This version features a highly simplified interface for entering new recipes. You can either enter them manually or from a URL.
+
+The new plan interface allows you to easily move meals from one day to another with a simple right click on the table, choosing your meal and then an action. Speaking of plans, when a meal is added to the weekly plan, the plan is automatically saved in the database, so if you close the program and come back you won't lose your progress.
+
+Meal plans are now easily accessible from the "Available Plans" button. You can load past plans, view plans and export them to a text file to share.  
+
+The Plan Ingredients list now features adding like ingredients together to get a proper total quantity. This makes generating a shopping list much easier now that the total ingredients across all meals is known.
+
+A lot of background work has been done to clean up the underlying code for efficiency. Also, to make things a bit clearly, Monday is now the first day of the week on the calendar as well as the table. 
+
 ### New
 - Formatting of the ingredients list with quantities
 - Adding like ingredients to calculate an accurate list of ingredients
