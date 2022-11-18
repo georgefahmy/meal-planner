@@ -53,7 +53,7 @@ make_database(db_file)
 today = datetime.date.today()
 today_name = today.strftime("%A")
 
-start = today - datetime.timedelta(days=(datetime.datetime.today().isoweekday()) % 7)
+start = today - datetime.timedelta(days=(datetime.datetime.today().weekday()) % 7)
 weeks_dates = [start + datetime.timedelta(days=x) for x in range(7)]
 picked_date = str(start)
 
@@ -664,6 +664,9 @@ def generate_plan_shopping_list(plan_meals):
         meal_title = meal_recipe["title"]
         for ingredient in meal_recipe["ingredients"].values():
             if ingredient["quantity"]:
+                if "-" in ingredient["quantity"]:
+                    ingredient["quantity"] = ingredient["quantity"].split("-")[-1]
+
                 full_plan_shopping_list.extend(
                     [
                         ((ingredient["units"] + " ") if ingredient["units"] else "")
@@ -687,6 +690,8 @@ def generate_plan_shopping_list(plan_meals):
 
     current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
     plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
+
+    gui_table = [[day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()]
 
     window["-WEEK-"].update("Week of " + current_plan_dict["date"])
     window["-TABLE-"].update(values=gui_table)
