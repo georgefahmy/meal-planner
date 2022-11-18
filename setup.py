@@ -15,7 +15,10 @@ DATA_FILES = [
     "resources/burger.icns",
     "utils",
 ]
-OPTIONS = {"iconfile": "/Users/GFahmy/Documents/projects/meal-planner/resources/burger.icns"}
+OPTIONS = {
+    "iconfile": "/Users/GFahmy/Documents/projects/meal-planner/resources/burger.icns",
+    "packages": ["tcl8", "tcl8.6", "tk8.6"],
+}
 
 setup(
     app=APP,
