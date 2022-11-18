@@ -676,6 +676,38 @@ def process_recipe_link(recipe_link):
     return recipe
 
 
+def generate_plan_shopping_list(plan_meals):
+    full_plan_shopping_list = []
+    for meal in plan_meals:
+        meal_shopping_list = []
+        meal_recipe = read_meal_recipe(db_file, meal)
+        meal_title = meal_recipe["title"]
+        for ingredient in meal_recipe["ingredients"].values():
+            if ingredient["quantity"]:
+                full_plan_shopping_list.extend(
+                    [
+                        ((ingredient["units"] + " ") if ingredient["units"] else "")
+                        + ingredient["ingredient"]
+                    ]
+                    * ceil(float(Fraction(ingredient["quantity"])))
+                )
+            else:
+                # just add the ingredient to the full list for counting.
+                full_plan_shopping_list.extend(
+                    [
+                        ((ingredient["units"] + " ") if ingredient["units"] else "")
+                        + ingredient["ingredient"]
+                    ]
+                )
+
+    counter = Counter(full_plan_shopping_list)
+    plan_ingredients = []
+    for ingredient, count in counter.items():
+        plan_ingredients.append(f"{count} {capwords(ingredient)}")
+
+    return plan_ingredients
+
+
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
 icon_file = wd + "/resources/burger-10956.png"
@@ -872,32 +904,7 @@ while True:
                     meal.lower() for meals in plan["meals"].values() for meal in meals if meal
                 ]
 
-                full_plan_shopping_list = []
-                for meal in plan_meals:
-                    meal_shopping_list = []
-                    meal_recipe = read_meal_recipe(db_file, meal)
-                    meal_title = meal_recipe["title"]
-                    for ingredient in meal_recipe["ingredients"].values():
-                        if ingredient["quantity"]:
-                            full_plan_shopping_list.extend(
-                                [
-                                    ((ingredient["units"] + " ") if ingredient["units"] else "")
-                                    + ingredient["ingredient"]
-                                ]
-                                * ceil(float(Fraction(ingredient["quantity"])))
-                            )
-                        else:
-                            # just add the ingredient to the full list for counting.
-                            full_plan_shopping_list.extend(
-                                [
-                                    ((ingredient["units"] + " ") if ingredient["units"] else "")
-                                    + ingredient["ingredient"]
-                                ]
-                            )
-                counter = Counter(full_plan_shopping_list)
-                plan_ingredients = []
-                for ingredient, count in counter.items():
-                    plan_ingredients.append(f"{count} {capwords(ingredient)}")
+                plan_ingredients = generate_plan_shopping_list(plan_meals)
 
                 plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
 
@@ -1090,32 +1097,7 @@ while True:
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
 
-        full_plan_shopping_list = []
-        for meal in plan_meals:
-            meal_shopping_list = []
-            meal_recipe = read_meal_recipe(db_file, meal)
-            meal_title = meal_recipe["title"]
-            for ingredient in meal_recipe["ingredients"].values():
-                if ingredient["quantity"]:
-                    full_plan_shopping_list.extend(
-                        [
-                            ((ingredient["units"] + " ") if ingredient["units"] else "")
-                            + ingredient["ingredient"]
-                        ]
-                        * ceil(float(Fraction(ingredient["quantity"])))
-                    )
-                else:
-                    # just add the ingredient to the full list for counting.
-                    full_plan_shopping_list.extend(
-                        [
-                            ((ingredient["units"] + " ") if ingredient["units"] else "")
-                            + ingredient["ingredient"]
-                        ]
-                    )
-        counter = Counter(full_plan_shopping_list)
-        plan_ingredients = []
-        for ingredient, count in counter.items():
-            plan_ingredients.append(f"{count} {capwords(ingredient)}")
+        plan_ingredients = generate_plan_shopping_list(plan_meals)
 
         current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
         plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
@@ -1140,32 +1122,7 @@ while True:
                 if meal
             ]
 
-            full_plan_shopping_list = []
-            for meal in plan_meals:
-                meal_shopping_list = []
-                meal_recipe = read_meal_recipe(db_file, meal)
-                meal_title = meal_recipe["title"]
-                for ingredient in meal_recipe["ingredients"].values():
-                    if ingredient["quantity"]:
-                        full_plan_shopping_list.extend(
-                            [
-                                ((ingredient["units"] + " ") if ingredient["units"] else "")
-                                + ingredient["ingredient"]
-                            ]
-                            * ceil(float(Fraction(ingredient["quantity"])))
-                        )
-                    else:
-                        # just add the ingredient to the full list for counting.
-                        full_plan_shopping_list.extend(
-                            [
-                                ((ingredient["units"] + " ") if ingredient["units"] else "")
-                                + ingredient["ingredient"]
-                            ]
-                        )
-            counter = Counter(full_plan_shopping_list)
-            plan_ingredients = []
-            for ingredient, count in counter.items():
-                plan_ingredients.append(f"{count} {capwords(ingredient)}")
+            plan_ingredients = generate_plan_shopping_list(plan_meals)
 
             current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
             plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
@@ -1200,32 +1157,7 @@ while True:
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
 
-        full_plan_shopping_list = []
-        for meal in plan_meals:
-            meal_shopping_list = []
-            meal_recipe = read_meal_recipe(db_file, meal)
-            meal_title = meal_recipe["title"]
-            for ingredient in meal_recipe["ingredients"].values():
-                if ingredient["quantity"]:
-                    full_plan_shopping_list.extend(
-                        [
-                            ((ingredient["units"] + " ") if ingredient["units"] else "")
-                            + ingredient["ingredient"]
-                        ]
-                        * ceil(float(Fraction(ingredient["quantity"])))
-                    )
-                else:
-                    # just add the ingredient to the full list for counting.
-                    full_plan_shopping_list.extend(
-                        [
-                            ((ingredient["units"] + " ") if ingredient["units"] else "")
-                            + ingredient["ingredient"]
-                        ]
-                    )
-        counter = Counter(full_plan_shopping_list)
-        plan_ingredients = []
-        for ingredient, count in counter.items():
-            plan_ingredients.append(f"{count} {capwords(ingredient)}")
+        plan_ingredients = generate_plan_shopping_list(plan_meals)
 
         plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
 
@@ -1247,13 +1179,6 @@ while True:
         shutil.copyfile(db_file, export_database_path)
 
         # Future to expand for more options - will need to update the databse for additional columns
-    if event == "-MEAL_LIST-":
-        if values["-MEAL_LIST-"]:
-            meal_selection_rightclick_menu_def = ["&Right", ["Edit::recipe", "Delete::meal"]]
-        else:
-            meal_selection_rightclick_menu_def = ["&Right", ["!Edit::recipe", "!Delete::meal"]]
-
-        window["-MEAL_LIST-"].set_right_click_menu(meal_selection_rightclick_menu_def)
 
     if event == "Edit::recipe" and values["-MEAL_LIST-"]:
 
@@ -1333,6 +1258,14 @@ while True:
         ]
         window["-MENU-"].update(menu_definition=menu_bar_layout)
 
+        meal_selection_rightclick_menu_def = (
+            ["&Right", ["Edit::recipe", "Delete::meal"]]
+            if values["-MEAL_LIST-"]
+            else ["&Right", ["!Edit::recipe", "!Delete::meal"]]
+        )
+
+        window["-MEAL_LIST-"].set_right_click_menu(meal_selection_rightclick_menu_def)
+
         if not values["-MEAL_LIST-"]:
             continue
 
@@ -1351,6 +1284,7 @@ while True:
         window["-CATEGORY_TEXT-"].update(
             visible=True, value=capwords(meals[selected_meal]["category"])
         )
+
     if event == "-VIEW_RECIPE-":
         w = display_recipe(recipe)
 
@@ -1391,32 +1325,7 @@ while True:
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
 
-        full_plan_shopping_list = []
-        for meal in plan_meals:
-            meal_shopping_list = []
-            meal_recipe = read_meal_recipe(db_file, meal)
-            meal_title = meal_recipe["title"]
-            for ingredient in meal_recipe["ingredients"].values():
-                if ingredient["quantity"]:
-                    full_plan_shopping_list.extend(
-                        [
-                            ((ingredient["units"] + " ") if ingredient["units"] else "")
-                            + ingredient["ingredient"]
-                        ]
-                        * ceil(float(Fraction(ingredient["quantity"])))
-                    )
-                else:
-                    # just add the ingredient to the full list for counting.
-                    full_plan_shopping_list.extend(
-                        [
-                            ((ingredient["units"] + " ") if ingredient["units"] else "")
-                            + ingredient["ingredient"]
-                        ]
-                    )
-        counter = Counter(full_plan_shopping_list)
-        plan_ingredients = []
-        for ingredient, count in counter.items():
-            plan_ingredients.append(f"{count} {capwords(ingredient)}")
+        plan_ingredients = generate_plan_shopping_list(plan_meals)
 
         plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
 
@@ -1482,8 +1391,13 @@ while True:
             if not len(current_plan_dict["meals"][day]):
                 current_plan_dict["meals"][day] = selected_meal
 
-            elif selected_meal[0] in current_plan_dict["meals"][day]:
+            elif all(item in current_plan_dict["meals"][day] for item in selected_meal):
                 continue
+
+            elif any(item in current_plan_dict["meals"][day] for item in selected_meal):
+                selected_meal = [
+                    item for item in selected_meal if item not in current_plan_dict["meals"][day]
+                ]
 
             else:
                 current_plan_dict["meals"][day] = current_plan_dict["meals"][day] + selected_meal
@@ -1498,32 +1412,7 @@ while True:
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
 
-        full_plan_shopping_list = []
-        for meal in plan_meals:
-            meal_shopping_list = []
-            meal_recipe = read_meal_recipe(db_file, meal)
-            meal_title = meal_recipe["title"]
-            for ingredient in meal_recipe["ingredients"].values():
-                if ingredient["quantity"]:
-                    full_plan_shopping_list.extend(
-                        [
-                            ((ingredient["units"] + " ") if ingredient["units"] else "")
-                            + ingredient["ingredient"]
-                        ]
-                        * ceil(float(Fraction(ingredient["quantity"])))
-                    )
-                else:
-                    # just add the ingredient to the full list for counting.
-                    full_plan_shopping_list.extend(
-                        [
-                            ((ingredient["units"] + " ") if ingredient["units"] else "")
-                            + ingredient["ingredient"]
-                        ]
-                    )
-        counter = Counter(full_plan_shopping_list)
-        plan_ingredients = []
-        for ingredient, count in counter.items():
-            plan_ingredients.append(f"{count} {capwords(ingredient)}")
+        plan_ingredients = generate_plan_shopping_list(plan_meals)
 
         current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
         plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
@@ -1538,12 +1427,3 @@ while True:
         overwrite = True if current_plan_dict["date"] in all_plans.keys() else False
 
         add_plan(db_file, current_plan_dict, overwrite)
-
-        # Commenting this out so that I can make it optional later on with a user setting.
-        # window["-MON-"].update(value=False)
-        # window["-TUE-"].update(value=False)
-        # window["-WED-"].update(value=False)
-        # window["-THU-"].update(value=False)
-        # window["-FRI-"].update(value=False)
-        # window["-SAT-"].update(value=False)
-        # window["-SUN-"].update(value=False)
