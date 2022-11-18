@@ -35,8 +35,8 @@ else:
         return zip(a, b)
 
 
-settings = RecipeScraperSettings()
-settings._configure()
+scraper_settings = RecipeScraperSettings()
+scraper_settings._configure()
 
 try:
     wd = sys._MEIPASS
@@ -283,58 +283,58 @@ item_selection_section = [
 ]
 
 # Bottom left quadrant - New meal submission - meal, ingredients, links, submit, clear
-input_text = [
-    sg.Text("New Meal", font=("Arial", 18), size=(50, 2), justification="c"),
-]
 input_section = [
-    sg.Column(
-        [
+    [sg.Text("New Meal", font=("Arial", 18), size=(50, 2), justification="c"),],
+    [
+        sg.Column(
             [
-                sg.Button(
-                    "New Recipe",
-                    font=("Arial", 12),
-                    size=(20, 1),
-                    expand_x=True,
-                    key="-RECIPE-",
-                    tooltip="Full detailed recipe information",
-                )
+                [
+                    sg.Button(
+                        "New Recipe",
+                        font=("Arial", 12),
+                        size=(20, 1),
+                        expand_x=True,
+                        key="-RECIPE-",
+                        tooltip="Full detailed recipe information",
+                    )
+                ],
+                [
+                    sg.Text(
+                        "Recipe saved",
+                        font=("Arial", 10),
+                        size=(16, 1),
+                        expand_x=True,
+                        key="-RECIPE_NOTE-",
+                        visible=False,
+                    )
+                ],
             ],
+            element_justification="c",
+        ),
+        sg.Column(
             [
-                sg.Text(
-                    "Recipe saved",
-                    font=("Arial", 10),
-                    size=(16, 1),
-                    expand_x=True,
-                    key="-RECIPE_NOTE-",
-                    visible=False,
-                )
+                [
+                    sg.In(
+                        default_text="Paste Link Here (Optional)",
+                        size=(24, 2),
+                        font=("Arial Italic", 14),
+                        key="-RECIPE_LINK-",
+                        enable_events=False,
+                        tooltip="Paste a URL from your favorite recipe here",
+                    ),
+                    sg.Button(
+                        "Submit",
+                        size=(8, 1),
+                        font=("Arial", 12),
+                        key="-SUBMIT_RECIPE_URL-",
+                        enable_events=False,
+                        tooltip="Paste a URL from your favorite recipe here",
+                    ),
+                ],
             ],
-        ],
-        element_justification="c",
-    ),
-    sg.Column(
-        [
-            [
-                sg.In(
-                    default_text="Paste Link Here (Optional)",
-                    size=(24, 2),
-                    font=("Arial Italic", 14),
-                    key="-RECIPE_LINK-",
-                    enable_events=False,
-                    tooltip="Paste a URL from your favorite recipe here",
-                ),
-                sg.Button(
-                    "Submit",
-                    size=(8, 1),
-                    font=("Arial", 12),
-                    key="-SUBMIT_RECIPE_URL-",
-                    enable_events=False,
-                    tooltip="Paste a URL from your favorite recipe here",
-                ),
-            ],
-        ],
-        element_justification="c",
-    ),
+            element_justification="c",
+        ),
+    ],
 ]
 
 main_left_column = [
@@ -353,7 +353,7 @@ main_left_column = [
                 sg.Frame(
                     "New Meals",
                     element_justification="c",
-                    layout=[input_text, input_section],
+                    layout=input_section,
                     pad=(0, 0),
                     size=(620, 140),
                 )
@@ -375,82 +375,86 @@ default_table_right_click = [
 ]
 
 meal_plan_section = [
-    sg.Column(
-        [
+    [
+        sg.Column(
             [
-                sg.Button("Pick Date", key="-PICK_DATE-"),
-                sg.Text(
-                    "Week's Plan",
-                    size=(22, 1),
-                    font=("Arial", 18),
-                    justification="l",
-                    key="-WEEK-",
-                    expand_x=True,
-                ),
-                sg.Button("Available Plans", key="-AVAILABLE_PLANS-",),
+                [
+                    sg.Button("Pick Date", key="-PICK_DATE-"),
+                    sg.Text(
+                        "Week's Plan",
+                        size=(22, 1),
+                        font=("Arial", 18),
+                        justification="l",
+                        key="-WEEK-",
+                        expand_x=True,
+                    ),
+                    sg.Button("Available Plans", key="-AVAILABLE_PLANS-",),
+                ],
+                [
+                    sg.Table(
+                        values=gui_table,
+                        display_row_numbers=False,
+                        justification="l",
+                        num_rows=7,
+                        headings=["Day", "Meal"],
+                        font=("Arial", 14),
+                        text_color="black",
+                        background_color="lightgray",
+                        alternating_row_color="white",
+                        auto_size_columns=False,
+                        col_widths=(10, 30),
+                        selected_row_colors="lightblue on blue",
+                        enable_events=True,
+                        enable_click_events=False,
+                        right_click_menu=default_table_right_click,
+                        tooltip="Right click to edit or remove items",
+                        size=(40, 40),
+                        hide_vertical_scroll=True,
+                        key="-TABLE-",
+                    )
+                ],
             ],
-            [
-                sg.Table(
-                    values=gui_table,
-                    display_row_numbers=False,
-                    justification="l",
-                    num_rows=7,
-                    headings=["Day", "Meal"],
-                    font=("Arial", 14),
-                    text_color="black",
-                    background_color="lightgray",
-                    alternating_row_color="white",
-                    auto_size_columns=False,
-                    col_widths=(10, 30),
-                    selected_row_colors="lightblue on blue",
-                    enable_events=True,
-                    enable_click_events=False,
-                    right_click_menu=default_table_right_click,
-                    tooltip="Right click to edit or remove items",
-                    size=(40, 40),
-                    hide_vertical_scroll=True,
-                    key="-TABLE-",
-                )
-            ],
-        ],
-        element_justification="c",
-    ),
-]
-plan_section_buttons = [
-    sg.Column(
-        [[sg.Button("Clear", visible=True, key="-PLAN-CLEAR-", enable_events=True),]],
-        element_justification="c",
-    )
+            element_justification="c",
+        ),
+    ],
+    [
+        sg.Column(
+            [[sg.Button("Clear", visible=True, key="-PLAN-CLEAR-", enable_events=True),]],
+            element_justification="c",
+        )
+    ],
 ]
 
 # Bottom Right Quadrant - Table of ingredients
 ingredients_list_section = [
-    sg.Column(
-        [
+    [
+        sg.Column(
             [
-                sg.Text(
-                    "Plan Ingredients List",
-                    size=(40, 1),
-                    font=("Arial", 16),
-                    justification="c",
-                    expand_x=True,
-                )
+                [
+                    sg.Text(
+                        "Plan Ingredients List",
+                        size=(40, 1),
+                        font=("Arial", 16),
+                        justification="c",
+                        expand_x=True,
+                    )
+                ],
+                [
+                    sg.Multiline(
+                        "",
+                        font=("Arial", 14),
+                        size=(60, 17),
+                        key="-PLAN_INGREDIENTS_LIST-",
+                        enable_events=False,
+                        disabled=True,
+                        pad=(0, 0),
+                    )
+                ],
             ],
-            [
-                sg.Multiline(
-                    "",
-                    font=("Arial", 14),
-                    size=(60, 17),
-                    key="-PLAN_INGREDIENTS_LIST-",
-                    enable_events=False,
-                    disabled=True,
-                    pad=(0, 0),
-                )
-            ],
-        ],
-        element_justification="c",
-        pad=(0, 0),
-    )
+            element_justification="c",
+            pad=(0, 0),
+        )
+    ]
 ]
 
 main_right_column = [
@@ -459,7 +463,7 @@ main_right_column = [
             [
                 sg.Frame(
                     "Weekly Plan",
-                    layout=[meal_plan_section, plan_section_buttons],
+                    layout=meal_plan_section,
                     element_justification="c",
                     size=(620, 230),
                     pad=(0, 0),
@@ -468,7 +472,7 @@ main_right_column = [
             [
                 sg.Frame(
                     "Shopping List",
-                    layout=[ingredients_list_section],
+                    layout=ingredients_list_section,
                     element_justification="c",
                     size=(620, 350),
                     pad=(0, 0),
@@ -754,9 +758,12 @@ def add_meal_to_right_click_menu(meal_right_click_menu, meal, day):
     ]
     meal_sub_menu[3].pop(day)
     menu_extension = [meal, meal_sub_menu]
+
     if meal in [meal[0] for meal in meal_right_click_menu[1][3:]]:
         return meal_right_click_menu
+
     meal_right_click_menu[1].extend(menu_extension)
+
     return meal_right_click_menu
 
 
