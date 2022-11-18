@@ -708,6 +708,14 @@ def generate_plan_shopping_list(plan_meals):
     return plan_ingredients
 
 
+def error_window(text):
+    sg.Window(
+        "ERROR",
+        [[sg.Text(text, font=("Arial", 16), justification="c")], [sg.Button("Okay")],],
+        disable_close=False,
+    ).read(close=True)
+
+
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
 icon_file = wd + "/resources/burger-10956.png"
@@ -737,7 +745,7 @@ while True:
         # DEBUG to print out the events and values
         print(event, values)
 
-    if event in ["View Recipes"]:
+    if event == "View Recipes":
         recipe_viewer()
         meals = {meal: info for meal, info in read_all_meals(db_file).items()}
         window["-MEAL_LIST-"].update(
@@ -788,14 +796,7 @@ while True:
             window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
 
         else:
-            sg.Window(
-                "ERROR",
-                [
-                    [sg.Text("No Meal Added", font=("Arial", 16), justification="c")],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-            ).read(close=True)
+            error_window("No Meal Added")
 
     if event in ["New Recipe", "-RECIPE-"]:
         basic_recipe = {}
@@ -847,14 +848,7 @@ while True:
             window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
 
         else:
-            sg.Window(
-                "ERROR",
-                [
-                    [sg.Text("No Meal Added", font=("Arial", 16), justification="c")],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-            ).read(close=True)
+            error_window("No Meal Added")
 
     if event == "-PICK_DATE-":
         date = popup_get_date()
@@ -1217,21 +1211,7 @@ while True:
             window["-MEAL_INGREDIENTS_LIST-"].update([])
 
         else:
-            sg.Window(
-                "Canceled",
-                [
-                    [
-                        sg.Text(
-                            f"Canceled\n{selected_meal} was not deleted",
-                            font=("Arial", 14),
-                            justification="c",
-                            expand_x=True,
-                        )
-                    ],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-            ).read(close=True)
+            error_window(f"Canceled\n{selected_meal} was not deleted")
 
     if event == "-CFILTER-":
         if values["-CFILTER-"] == "All":
@@ -1340,14 +1320,7 @@ while True:
         # If no meal is selected when the 'add to plan' button is pressed
         # show popup warning and do nothing
         if not selected_meal:
-            sg.Window(
-                "ERROR",
-                [
-                    [sg.Text("No Meal Selected", font=("Arial", 16), justification="c")],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-            ).read(close=True)
+            error_window("No Meal Selected")
             continue
 
         days_of_week = {
@@ -1373,15 +1346,7 @@ while True:
         # If no day is selected when the 'add to plan' button is pressed
         # show popup warning and do nothing
         if not selected_days:
-            sg.Window(
-                "ERROR",
-                [
-                    [sg.Text("No Day Selected", font=("Arial", 16), justification="c")],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-                size=(150, 80),
-            ).read(close=True)
+            error_window("No Day Selected")
             continue
 
         # For each data selected when the 'add to plan' button is pressed, update the appropriate

@@ -18,6 +18,7 @@ New and Changes:
 
     Refactor - Modularize code for reuse (basically write better code):
         ☐ Clean up layouts of sections of the GUI to not repeat code
+        ☐ Identify repeated code and turn it into functions that can be called
         ☐ Clean up the reuse of event triggers
         ☐ Clean up the loading of meals and recipes from the database to utilize a function
         ☐ Rename the recipe_interface and recipe_viewer files to better describe their functions
