@@ -317,7 +317,7 @@ Available units and abbreviations:
                         directions = (
                             recipe_window["directions"].get()
                             if recipe_window[element.Key].get()
-                            else None
+                            else ""
                         )
             if not raw_ingredients:
                 raw_ingredients = [recipe["title"]]
