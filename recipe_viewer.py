@@ -99,7 +99,7 @@ def matchingKeys(dictionary, searchString):
     return filtered_meals
 
 
-def recipe_viewer(meals=None):
+def recipe_viewer(meals=None, settings=settings, file_path=file_path):
     if not meals:
         available_meals = read_all_recipes(db_file)
         meals = [capwords(meal) for meal, recipe in available_meals.items() if recipe]
