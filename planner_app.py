@@ -1208,8 +1208,6 @@ while True:
             window["-TABLE-"].update(values=gui_table)
             window["-TABLE-"].set_right_click_menu(default_table_right_click)
 
-            add_plan(db_file, current_plan_dict, True)
-
     if event == "Load Database":
 
         new_file_path = sg.popup_get_file(
