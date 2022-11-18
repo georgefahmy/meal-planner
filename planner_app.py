@@ -367,36 +367,12 @@ main_left_column = [
 
 current_plan_dict = blank_plan_dict
 
-gui_table = [[day] + [", ".join(meals)] for day, meals in blank_plan_dict["meals"].items()]
+gui_table = [[day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()]
 
 default_table_right_click = [
     "&Right",
     ["Clear Row::table", sg.MENU_SEPARATOR_LINE,],
 ]
-
-
-def add_meal_to_right_click_menu(meal_right_click_menu, meal, day):
-    meal_sub_menu = [
-        "Delete Item::" + meal,
-        sg.MENU_SEPARATOR_LINE,
-        "&Change Day",
-        [
-            "Monday::" + meal,
-            "Tuesday::" + meal,
-            "Wednesday::" + meal,
-            "Thursday::" + meal,
-            "Friday::" + meal,
-            "Saturday::" + meal,
-            "Sunday::" + meal,
-        ],
-    ]
-    meal_sub_menu[3].pop(day)
-    menu_extension = [meal, meal_sub_menu]
-    if meal in [meal[0] for meal in meal_right_click_menu[1][3:]]:
-        return meal_right_click_menu
-    meal_right_click_menu[1].extend(menu_extension)
-    return meal_right_click_menu
-
 
 meal_plan_section = [
     sg.Column(
@@ -716,6 +692,74 @@ def error_window(text):
     ).read(close=True)
 
 
+def export_plan(selected_plan):
+    plan_key = selected_plan[0][0]
+    current_plan_dict = read_current_plans(db_file, plan_key)
+
+    settings = json.load(open(file_path, "r"))
+    export_plan_path = settings["export_plan_path"]
+
+    if not export_plan_path:
+        export_plan_path = sg.popup_get_folder("Choose Export Location")
+        settings["export_plan_path"] = export_plan_path
+        with open(file_path, "w") as fp:
+            json.dump(settings, fp, sort_keys=True, indent=4)
+
+    if not export_plan_path:
+        return
+
+    if current_plan_dict["date"] not in export_plan_path:
+        export_plan_path = export_plan_path + "/" + f"plan_{current_plan_dict['date']}.txt"
+
+    day_plan = []
+    day_plan.append(f"Plan for the week of {current_plan_dict['date']}\n")
+    for day, meal in current_plan_dict["meals"].items():
+        if not meal:
+            day_plan.append(f"{day}:")
+            day_plan.append("No Planned Meal\n\n"),
+            continue
+        day_plan.append(f"{day}:")
+        for meal in meal:
+            if meal:
+                day_plan.append(f"-{meal}-")
+                day_plan.append("Ingredients:")
+                wrapped_ingredients = textwrap.wrap(
+                    capwords(", ".join(meals[meal.lower()]["ingredients"])), 50
+                )
+                day_plan.append("\n".join(wrapped_ingredients))
+                day_plan.append("\n")
+    day_plan.append("All Ingredients:")
+    day_plan.append(current_plan_dict["ingredients"])
+    plan_text = "\n".join(day_plan)
+    with open(export_plan_path, "w") as fp:
+        fp.write(plan_text)
+        fp.close()
+    return export_plan_path
+
+
+def add_meal_to_right_click_menu(meal_right_click_menu, meal, day):
+    meal_sub_menu = [
+        "Delete Item::" + meal,
+        sg.MENU_SEPARATOR_LINE,
+        "&Change Day",
+        [
+            "Monday::" + meal,
+            "Tuesday::" + meal,
+            "Wednesday::" + meal,
+            "Thursday::" + meal,
+            "Friday::" + meal,
+            "Saturday::" + meal,
+            "Sunday::" + meal,
+        ],
+    ]
+    meal_sub_menu[3].pop(day)
+    menu_extension = [meal, meal_sub_menu]
+    if meal in [meal[0] for meal in meal_right_click_menu[1][3:]]:
+        return meal_right_click_menu
+    meal_right_click_menu[1].extend(menu_extension)
+    return meal_right_click_menu
+
+
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
 icon_file = wd + "/resources/burger-10956.png"
@@ -890,68 +934,30 @@ while True:
         if confirm == "Load Plan":
             plan_key = selected_plan[0][0]
 
-            plan = read_current_plans(db_file, plan_key)
-            if plan:
-                gui_table = [[day] + [", ".join(meals)] for day, meals in plan["meals"].items()]
-                picked_date = str(plan["date"])
+            current_plan_dict = read_current_plans(db_file, plan_key)
+            if current_plan_dict:
+                picked_date = str(current_plan_dict["date"])
+
+                gui_table = [
+                    [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
+                ]
+
                 plan_meals = [
-                    meal.lower() for meals in plan["meals"].values() for meal in meals if meal
+                    meal.lower()
+                    for meals in current_plan_dict["meals"].values()
+                    for meal in meals
+                    if meal
                 ]
 
                 plan_ingredients = generate_plan_shopping_list(plan_meals)
 
                 plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
 
-                current_plan_dict = plan
                 window["-WEEK-"].update("Week of " + plan["date"])
                 window["-TABLE-"].update(values=gui_table)
                 window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
 
             continue
-
-        def export_plan(selected_plan):
-            plan_key = selected_plan[0][0]
-            current_plan_dict = read_current_plans(db_file, plan_key)
-
-            settings = json.load(open(file_path, "r"))
-            export_plan_path = settings["export_plan_path"]
-
-            if not export_plan_path:
-                export_plan_path = sg.popup_get_folder("Choose Export Location")
-                settings["export_plan_path"] = export_plan_path
-                with open(file_path, "w") as fp:
-                    json.dump(settings, fp, sort_keys=True, indent=4)
-
-            if not export_plan_path:
-                return
-
-            if current_plan_dict["date"] not in export_plan_path:
-                export_plan_path = export_plan_path + "/" + f"plan_{current_plan_dict['date']}.txt"
-
-            day_plan = []
-            day_plan.append(f"Plan for the week of {current_plan_dict['date']}\n")
-            for day, meal in current_plan_dict["meals"].items():
-                if not meal:
-                    day_plan.append(f"{day}:")
-                    day_plan.append("No Planned Meal\n\n"),
-                    continue
-                day_plan.append(f"{day}:")
-                for meal in meal:
-                    if meal:
-                        day_plan.append(f"-{meal}-")
-                        day_plan.append("Ingredients:")
-                        wrapped_ingredients = textwrap.wrap(
-                            capwords(", ".join(meals[meal.lower()]["ingredients"])), 50
-                        )
-                        day_plan.append("\n".join(wrapped_ingredients))
-                        day_plan.append("\n")
-            day_plan.append("All Ingredients:")
-            day_plan.append(current_plan_dict["ingredients"])
-            plan_text = "\n".join(day_plan)
-            with open(export_plan_path, "w") as fp:
-                fp.write(plan_text)
-                fp.close()
-            return export_plan_path
 
         if confirm == "Export" and selected_plan[0]:
             export_plan_path = export_plan(selected_plan)
@@ -1371,8 +1377,6 @@ while True:
             [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
         ]
 
-        # Update the table information with the plan meals and get the ingredients for those meals
-        # then create a unique list that is sorted and put it into the ingredients listbox
         plan_meals = [
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
