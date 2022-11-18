@@ -25,6 +25,7 @@ New and Changes:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+    ✔ Improvement - Fix the right click meal to edit ingredients and just remove it to only have the "Update Recipe" option @done(2022-11-17 17:26) @project(New and Changes)
     ✘ Include an optional breakfast/lunch/dinner flag with each meal selection @cancelled(2022-11-17 16:27) @project(New and Changes / New - Table should be updated to optionally include breakfast/lunch and dinner \(explore making a user options file\))
     ✔ Add the ability to move a meal from one day to another day through a right click option.  -> right click -> 'move to another day' -> <day dropdown> -> meal moves from current day to new day @done(2022-11-17 12:27) @project(New and Changes / New - Table Manipulation \(Maybe\))
     ✔ Add right click option for "Move to Another Day" @done(2022-11-17 12:26) @project(New and Changes / New - Table Manipulation \(Maybe\))
