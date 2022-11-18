@@ -32,13 +32,13 @@ def make_database(db_file=db_file):
         (
             id integer PRIMARY KEY,
             week_date text NOT NULL UNIQUE,
-            sunday text,
             monday text,
             tuesday text,
             wednesday text,
             thursday text,
             friday text,
             saturday text,
+            sunday text,
             ingredients text
         );
     """

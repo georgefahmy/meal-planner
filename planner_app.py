@@ -19,6 +19,9 @@ from recipe_scrapers import scrape_me
 from recipe_scrapers.settings import RecipeScraperSettings
 from recipe_scrapers.settings import default
 from string import capwords
+from math import ceil
+from fractions import Fraction
+from collections import Counter
 
 if sys.version_info.minor >= 10:
     from itertools import pairwise
@@ -32,8 +35,8 @@ else:
         return zip(a, b)
 
 
-settings = RecipeScraperSettings()
-settings._configure()
+scraper_settings = RecipeScraperSettings()
+scraper_settings._configure()
 
 try:
     wd = sys._MEIPASS
@@ -58,17 +61,17 @@ blank_plan_dict = {
     "date": str(start),
     "ingredients": [],
     "meals": {
-        "Sunday": [""],
-        "Monday": [""],
-        "Tuesday": [""],
-        "Wednesday": [""],
-        "Thursday": [""],
-        "Friday": [""],
-        "Saturday": [""],
+        "Monday": "",
+        "Tuesday": "",
+        "Wednesday": "",
+        "Thursday": "",
+        "Friday": "",
+        "Saturday": "",
+        "Sunday": "",
     },
 }
 
-blank_gui_table = [[day] + meals for day, meals in blank_plan_dict["meals"].items()]
+blank_gui_table = [[day] + [", ".join(meals)] for day, meals in blank_plan_dict["meals"].items()]
 
 
 # --------------------------------- Define Layout ---------------------------------
@@ -76,17 +79,7 @@ blank_gui_table = [[day] + meals for day, meals in blank_plan_dict["meals"].item
 # --------------------------------MAIN LEFT COLUMN---------------------------------
 # Top left quadrant - three columns, list of meals, selection checkboxes, submit or cancel
 
-meal_selection_rightclick_menu_def = [
-    "&Right",
-    [
-        "Change Meal Name",
-        "Edit Category",
-        "Edit Ingredients",
-        ["Add Ingredient", "Edit Ingredients"],
-        "Update Recipe",
-        "Delete Meal",
-    ],
-]
+meal_selection_rightclick_menu_def = ["&Right", ["!Edit::recipe", "!Delete::meal"]]
 
 
 left_column = [
@@ -271,9 +264,9 @@ right_column = [
                 [
                     sg.Button(
                         "View Recipe",
-                        disabled=True,
-                        disabled_button_color=("black", "gray"),
                         key="-VIEW_RECIPE-",
+                        disabled=True,
+                        disabled_button_color=("Black", "Gray"),
                     )
                 ],
             ],
@@ -290,132 +283,58 @@ item_selection_section = [
 ]
 
 # Bottom left quadrant - New meal submission - meal, ingredients, links, submit, clear
-input_text = [
-    sg.Text("New Meal", font=("Arial", 18), size=(50, 1), justification="c"),
-]
 input_section = [
-    sg.Column(
-        [
+    [sg.Text("New Meal", font=("Arial", 18), size=(50, 2), justification="c"),],
+    [
+        sg.Column(
             [
-                sg.Text(
-                    "Meal", font=("Arial", 14), size=(10, 1), justification="center", expand_x=True,
-                )
+                [
+                    sg.Button(
+                        "New Recipe",
+                        font=("Arial", 12),
+                        size=(20, 1),
+                        expand_x=True,
+                        key="-RECIPE-",
+                        tooltip="Full detailed recipe information",
+                    )
+                ],
+                [
+                    sg.Text(
+                        "Recipe saved",
+                        font=("Arial", 10),
+                        size=(16, 1),
+                        expand_x=True,
+                        key="-RECIPE_NOTE-",
+                        visible=False,
+                    )
+                ],
             ],
-            [sg.Input(size=(11, 2), font=("Arial", 14), key="-MEAL-", enable_events=False)],
-        ],
-        element_justification="c",
-    ),
-    sg.Column(
-        [
+            element_justification="c",
+        ),
+        sg.Column(
             [
-                sg.Text(
-                    "Ingredients",
-                    font=("Arial", 14),
-                    size=(10, 1),
-                    justification="center",
-                    expand_x=True,
-                )
+                [
+                    sg.In(
+                        default_text="Paste Link Here (Optional)",
+                        size=(24, 2),
+                        font=("Arial Italic", 14),
+                        key="-RECIPE_LINK-",
+                        enable_events=False,
+                        tooltip="Paste a URL from your favorite recipe here",
+                    ),
+                    sg.Button(
+                        "Submit",
+                        size=(8, 1),
+                        font=("Arial", 12),
+                        key="-SUBMIT_RECIPE_URL-",
+                        enable_events=False,
+                        tooltip="Paste a URL from your favorite recipe here",
+                    ),
+                ],
             ],
-            [
-                sg.In(
-                    size=(11, 2),
-                    font=("Arial", 14),
-                    key="-INGREDIENTS-",
-                    enable_events=False,
-                    tooltip="Use Commas to separate ingredients.",
-                )
-            ],
-        ],
-        element_justification="c",
-    ),
-    sg.Column(
-        [
-            [
-                sg.Text(
-                    "Recipe Link",
-                    font=("Arial", 14),
-                    size=(10, 1),
-                    justification="center",
-                    expand_x=True,
-                )
-            ],
-            [
-                sg.In(
-                    size=(11, 2),
-                    font=("Arial", 14),
-                    key="-RECIPE_LINK-",
-                    enable_events=False,
-                    tooltip="Paste a URL from your favorite recipe here",
-                )
-            ],
-        ],
-        element_justification="c",
-    ),
-    sg.Column(
-        [
-            [
-                sg.Text(
-                    "Meal Category",
-                    font=("Arial", 14),
-                    size=(12, 1),
-                    justification="center",
-                    expand_x=True,
-                    tooltip="Add your own category by typing in the box.",
-                )
-            ],
-            [
-                sg.Combo(
-                    default_value=meal_categories[1],
-                    values=meal_categories[1:],
-                    font=("Arial", 12),
-                    size=(10, 1),
-                    key="-NEWCATEGORY-",
-                    enable_events=False,
-                    readonly=False,
-                    expand_x=True,
-                    tooltip="Add your own category by typing in the box.",
-                ),
-            ],
-        ],
-        element_justification="c",
-    ),
-    sg.Column(
-        [
-            [
-                sg.Button(
-                    "Detailed Recipe",
-                    font=("Arial", 12),
-                    size=(14, 1),
-                    expand_x=True,
-                    key="-RECIPE-",
-                    tooltip="Full detailed recipe information",
-                )
-            ],
-            [
-                sg.Text(
-                    "Recipe saved",
-                    font=("Arial", 10),
-                    size=(10, 1),
-                    expand_x=True,
-                    key="-RECIPE_NOTE-",
-                    visible=False,
-                )
-            ],
-        ],
-        element_justification="c",
-    ),
-]
-
-input_section_buttons = [
-    sg.Column(
-        [
-            [
-                sg.Button("Add to Database", visible=True, key="-MEAL_SUBMIT-", enable_events=True),
-                sg.Button("Clear", visible=True, key="-MEAL-CLEAR-", enable_events=True),
-            ]
-        ],
-        element_justification="c",
-    )
+            element_justification="c",
+        ),
+    ],
 ]
 
 main_left_column = [
@@ -434,7 +353,7 @@ main_left_column = [
                 sg.Frame(
                     "New Meals",
                     element_justification="c",
-                    layout=[input_text, input_section, input_section_buttons],
+                    layout=input_section,
                     pad=(0, 0),
                     size=(620, 140),
                 )
@@ -448,113 +367,94 @@ main_left_column = [
 
 current_plan_dict = blank_plan_dict
 
-gui_table = [[day] + meals for day, meals in current_plan_dict["meals"].items()]
+gui_table = [[day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()]
 
-table_right_click = [
+default_table_right_click = [
     "&Right",
-    ["Edit Selection::edit", "Delete::table"],
+    ["Clear Row::table", sg.MENU_SEPARATOR_LINE,],
 ]
 
 meal_plan_section = [
-    sg.Column(
-        [
+    [
+        sg.Column(
             [
-                sg.Button("Pick Date", key="-PICK_DATE-"),
-                sg.Text(
-                    "Week's Plan",
-                    size=(22, 1),
-                    font=("Arial", 18),
-                    justification="l",
-                    key="-WEEK-",
-                    expand_x=True,
-                ),
-                sg.Button("Load Plan", key="-LOAD_PLAN-",),
-                sg.Button("Export Plan", key="-EXPORT_PLAN-",),
-                sg.Button("Available Plans", key="-AVAILABLE_PLANS-",),
+                [
+                    sg.Button("Pick Date", key="-PICK_DATE-"),
+                    sg.Text(
+                        "Week's Plan",
+                        size=(22, 1),
+                        font=("Arial", 18),
+                        justification="l",
+                        key="-WEEK-",
+                        expand_x=True,
+                    ),
+                    sg.Button("Available Plans", key="-AVAILABLE_PLANS-",),
+                ],
+                [
+                    sg.Table(
+                        values=gui_table,
+                        display_row_numbers=False,
+                        justification="l",
+                        num_rows=7,
+                        headings=["Day", "Meal"],
+                        font=("Arial", 14),
+                        text_color="black",
+                        background_color="lightgray",
+                        alternating_row_color="white",
+                        auto_size_columns=False,
+                        col_widths=(10, 30),
+                        selected_row_colors="lightblue on blue",
+                        enable_events=True,
+                        enable_click_events=False,
+                        right_click_menu=default_table_right_click,
+                        tooltip="Right click to edit or remove items",
+                        size=(40, 40),
+                        hide_vertical_scroll=True,
+                        key="-TABLE-",
+                    )
+                ],
             ],
-            [
-                sg.Table(
-                    values=gui_table,
-                    display_row_numbers=False,
-                    justification="l",
-                    num_rows=7,
-                    headings=["Day", "Meal"],
-                    font=("Arial", 14),
-                    text_color="black",
-                    background_color="lightgray",
-                    alternating_row_color="white",
-                    auto_size_columns=False,
-                    col_widths=(10, 30),
-                    selected_row_colors="lightblue on blue",
-                    enable_events=True,
-                    enable_click_events=False,
-                    right_click_menu=table_right_click,
-                    tooltip="Right click to remove items",
-                    size=(40, 40),
-                    hide_vertical_scroll=True,
-                    key="-TABLE-",
-                )
-            ],
-        ],
-        element_justification="c",
-    ),
-]
-plan_section_buttons = [
-    sg.Column(
-        [
-            [
-                sg.Button("Save Plan", visible=True, key="-PLAN-SUBMIT-", enable_events=True),
-                sg.Button("Clear", visible=True, key="-PLAN-CLEAR-", enable_events=True),
-                sg.Button("Delete Plan", visible=True, key="-PLAN-DELETE-", enable_events=True),
-            ]
-        ],
-        element_justification="c",
-    )
-]
-# Get meal and ingredient information from the database
-meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-plan_meals = [
-    meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
-]
-plan_ingredients = sorted(
-    list(
-        set(
-            capwords(
-                ", ".join([", ".join(meals[meal]["ingredients"]) for meal in plan_meals if meal])
-            ).split(", ")
+            element_justification="c",
+        ),
+    ],
+    [
+        sg.Column(
+            [[sg.Button("Clear", visible=True, key="-PLAN-CLEAR-", enable_events=True),]],
+            element_justification="c",
         )
-    )
-)
-plan_ingredients = sorted(
-    [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
-)
+    ],
+]
+
 # Bottom Right Quadrant - Table of ingredients
 ingredients_list_section = [
-    sg.Column(
-        [
+    [
+        sg.Column(
             [
-                sg.Text(
-                    "Plan Ingredients List",
-                    size=(40, 1),
-                    font=("Arial", 16),
-                    justification="c",
-                    expand_x=True,
-                )
+                [
+                    sg.Text(
+                        "Plan Ingredients List",
+                        size=(40, 1),
+                        font=("Arial", 16),
+                        justification="c",
+                        expand_x=True,
+                    )
+                ],
+                [
+                    sg.Multiline(
+                        "",
+                        font=("Arial", 14),
+                        size=(60, 17),
+                        key="-PLAN_INGREDIENTS_LIST-",
+                        enable_events=False,
+                        disabled=True,
+                        pad=(0, 0),
+                    )
+                ],
             ],
-            [
-                sg.Listbox(
-                    values=plan_ingredients,
-                    font=("Arial", 14),
-                    size=(60, 17),
-                    key="-PLAN_INGREDIENTS_LIST-",
-                    enable_events=False,
-                    pad=(0, 0),
-                )
-            ],
-        ],
-        element_justification="c",
-        pad=(0, 0),
-    )
+            element_justification="c",
+            pad=(0, 0),
+        )
+    ]
 ]
 
 main_right_column = [
@@ -563,7 +463,7 @@ main_right_column = [
             [
                 sg.Frame(
                     "Weekly Plan",
-                    layout=[meal_plan_section, plan_section_buttons],
+                    layout=meal_plan_section,
                     element_justification="c",
                     size=(620, 230),
                     pad=(0, 0),
@@ -572,7 +472,7 @@ main_right_column = [
             [
                 sg.Frame(
                     "Shopping List",
-                    layout=[ingredients_list_section],
+                    layout=ingredients_list_section,
                     element_justification="c",
                     size=(620, 350),
                     pad=(0, 0),
@@ -650,7 +550,7 @@ def display_recipe(recipe):
     left_ingredients = ["- " + "\n".join(textwrap.wrap(i[0], 40)) for i in ingredients if i[0]]
     right_ingredients = ["- " + "\n".join(textwrap.wrap(i[1], 40)) for i in ingredients if i[1]]
     layout = [
-        [sg.Text(recipe["title"], font=("Arial Bold", 18), justification="l")],
+        [sg.Text(capwords(recipe["title"]), font=("Arial Bold", 18), justification="l")],
         [
             sg.Text(
                 recipe["subtitle"],
@@ -705,7 +605,7 @@ for unit in units:
 
 fixed_units.reverse()
 unit_expression = "|".join(fixed_units)
-match_expression = f"([0-9\/\.\-\s]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s]*),?\s?(.*)?"
+match_expression = f"([0-9\/\.\-\s]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s\-\.]*),?\s?(.*)?"
 
 
 def process_recipe_link(recipe_link):
@@ -714,17 +614,26 @@ def process_recipe_link(recipe_link):
         scraped_recipe = scrape_me(recipe_link, wild_mode=True)
     except:
         return recipe
-    recipe["title"] = scraped_recipe.title()
-    recipe["directions"] = re.sub("\n", " ", scraped_recipe.instructions())
-    recipe["recipe_category"] = scraped_recipe.category()
-    raw_ingredients = scraped_recipe.ingredients()
+
+    recipe["title"] = scraped_recipe.schema.title() if scraped_recipe.schema.title() else ""
+    recipe["directions"] = (
+        re.sub("\n", " ", scraped_recipe.schema.instructions())
+        if scraped_recipe.schema.instructions()
+        else ""
+    )
+    recipe["recipe_category"] = (
+        scraped_recipe.schema.category() if scraped_recipe.schema.category() else "Dinner"
+    )
+    raw_ingredients = (
+        scraped_recipe.schema.ingredients() if scraped_recipe.schema.ingredients() else []
+    )
 
     ingredients = {}
     for i, raw_ingredient in enumerate(raw_ingredients):
         raw_ingredient = re.sub(" \(,", ",", raw_ingredient)
         raw_ingredient = re.sub(" \)", "", raw_ingredient)
         raw_ingredient = re.sub(",", "", raw_ingredient)
-        # print(raw_ingredient)
+
         ingredients[f"ingredient_{i}"] = {}
         ingredients[f"ingredient_{i}"]["raw_ingredient"] = raw_ingredient
         parsed_ingredient = list(
@@ -733,6 +642,7 @@ def process_recipe_link(recipe_link):
         for j, val in enumerate(parsed_ingredient):
             if val:
                 parsed_ingredient[j] = val.strip()
+
         parsed_ingredient = tuple(parsed_ingredient)
         (
             ingredients[f"ingredient_{i}"]["quantity"],
@@ -744,6 +654,125 @@ def process_recipe_link(recipe_link):
     recipe["ingredients"] = ingredients
     recipe["subtitle"] = ""
     return recipe
+
+
+def generate_plan_shopping_list(plan_meals):
+    full_plan_shopping_list = []
+    for meal in plan_meals:
+        meal_shopping_list = []
+        meal_recipe = read_meal_recipe(db_file, meal)
+        meal_title = meal_recipe["title"]
+        for ingredient in meal_recipe["ingredients"].values():
+            if ingredient["quantity"]:
+                full_plan_shopping_list.extend(
+                    [
+                        ((ingredient["units"] + " ") if ingredient["units"] else "")
+                        + ingredient["ingredient"]
+                    ]
+                    * ceil(float(Fraction(ingredient["quantity"])))
+                )
+            else:
+                # just add the ingredient to the full list for counting.
+                full_plan_shopping_list.extend(
+                    [
+                        ((ingredient["units"] + " ") if ingredient["units"] else "")
+                        + ingredient["ingredient"]
+                    ]
+                )
+
+    counter = Counter(full_plan_shopping_list)
+    plan_ingredients = []
+    for ingredient, count in counter.items():
+        plan_ingredients.append(f"{count} {capwords(ingredient)}")
+
+    current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
+    plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
+
+    window["-WEEK-"].update("Week of " + current_plan_dict["date"])
+    window["-TABLE-"].update(values=gui_table)
+    window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
+    window["-TABLE-"].set_right_click_menu(default_table_right_click)
+
+    return current_plan_dict
+
+
+def error_window(text):
+    sg.Window(
+        "ERROR",
+        [[sg.Text(text, font=("Arial", 16), justification="c")], [sg.Button("Okay")],],
+        disable_close=False,
+    ).read(close=True)
+
+
+def export_plan(selected_plan):
+    plan_key = selected_plan[0][0]
+    current_plan_dict = read_current_plans(db_file, plan_key)
+
+    settings = json.load(open(file_path, "r"))
+    export_plan_path = settings["export_plan_path"]
+
+    if not export_plan_path:
+        export_plan_path = sg.popup_get_folder("Choose Export Location")
+        settings["export_plan_path"] = export_plan_path
+        with open(file_path, "w") as fp:
+            json.dump(settings, fp, sort_keys=True, indent=4)
+
+    if not export_plan_path:
+        return
+
+    if current_plan_dict["date"] not in export_plan_path:
+        export_plan_path = export_plan_path + "/" + f"plan_{current_plan_dict['date']}.txt"
+
+    day_plan = []
+    day_plan.append(f"Plan for the week of {current_plan_dict['date']}\n")
+    for day, meal in current_plan_dict["meals"].items():
+        if not meal:
+            day_plan.append(f"{day}:")
+            day_plan.append("No Planned Meal\n\n"),
+            continue
+        day_plan.append(f"{day}:")
+        for meal in meal:
+            if meal:
+                day_plan.append(f"-{meal}-")
+                day_plan.append("Ingredients:")
+                wrapped_ingredients = textwrap.wrap(
+                    capwords(", ".join(meals[meal.lower()]["ingredients"])), 50
+                )
+                day_plan.append("\n".join(wrapped_ingredients))
+                day_plan.append("\n")
+    day_plan.append("All Ingredients:")
+    day_plan.append(current_plan_dict["ingredients"])
+    plan_text = "\n".join(day_plan)
+    with open(export_plan_path, "w") as fp:
+        fp.write(plan_text)
+        fp.close()
+    return export_plan_path
+
+
+def add_meal_to_right_click_menu(meal_right_click_menu, meal, day):
+    meal_sub_menu = [
+        "Delete Item::" + meal,
+        sg.MENU_SEPARATOR_LINE,
+        "&Change Day",
+        [
+            "Monday::" + meal,
+            "Tuesday::" + meal,
+            "Wednesday::" + meal,
+            "Thursday::" + meal,
+            "Friday::" + meal,
+            "Saturday::" + meal,
+            "Sunday::" + meal,
+        ],
+    ]
+    meal_sub_menu[3].pop(day)
+    menu_extension = [meal, meal_sub_menu]
+
+    if meal in [meal[0] for meal in meal_right_click_menu[1][3:]]:
+        return meal_right_click_menu
+
+    meal_right_click_menu[1].extend(menu_extension)
+
+    return meal_right_click_menu
 
 
 # --------------------------------- Create the Window ---------------------------------
@@ -782,71 +811,103 @@ while True:
             sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
         )
 
-    if event in ("Update Recipe", "Edit Recipe"):
-        selected_meal = values["-MEAL_LIST-"][0].lower()
-        existing_recipe = read_meal_recipe(db_file, selected_meal)
+    if event == "-SUBMIT_RECIPE_URL-" and ".com" in values["-RECIPE_LINK-"]:
+        new_recipe = values["-RECIPE_LINK-"].lower()
 
-        recipe = recipes(capwords(selected_meal), recipe_data=existing_recipe)
-        if recipe:
-            confirm = sg.popup_ok_cancel(
-                "Overwrite existing recipe?",
-                icon=base64.b64encode(open(str(icon_file), "rb").read()),
+        recipe = process_recipe_link(new_recipe)
+        recipe["recipe_category"] = (
+            recipe["recipe_category"] if recipe["recipe_category"] else "Dinner"
+        )
+        recipe = recipes(capwords(recipe["title"]), recipe_data=recipe)
+
+        if not recipe:
+            continue
+
+        basic_ingredients = [
+            ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
+        ]
+        new_meal = recipe["title"].lower()
+        new_ingredients = ", ".join(basic_ingredients).lower()
+        new_category = recipe["recipe_category"].lower()
+
+        meal_categories = list(dict.fromkeys(settings["meal_categories"]))
+        meal_categories.append(capwords(new_category))
+        meal_categories = list(dict.fromkeys(meal_categories))
+
+        settings["meal_categories"] = meal_categories
+        with open(file_path, "w") as fp:
+            json.dump(settings, fp, sort_keys=True, indent=4)
+
+        if new_meal:
+            add_meal(
+                db_file,
+                new_meal,
+                ingredients=new_ingredients,
+                recipe_link=new_recipe,
+                recipe=json.dumps(recipe),
+                category=new_category,
             )
-            if confirm == "OK":
-                update_meal_recipe(db_file, json.dumps(recipe), selected_meal)
-                basic_ingredients = [
-                    capwords(ingredient["ingredient"])
-                    for ingredient in recipe["ingredients"].values()
-                ]
-                edited_ingredients = ", ".join(sorted(list(set(basic_ingredients))))
-                update_meal_ingredients(db_file, selected_meal, edited_ingredients)
-                meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-                window["-MEAL_INGREDIENTS_LIST-"].update(values=sorted(basic_ingredients))
+            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+            window["-MEAL_LIST-"].update(sorted([capwords(meal) for meal in meals.keys()]))
+            window["-RECIPE_LINK-"].update(value="Paste Link Here (Optional)")
+            recipe = ""
+            window["-RECIPE_NOTE-"].update(visible=False)
+            window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
 
-            else:
-                sg.popup_ok("Recipe not overwritten")
+        else:
+            error_window("No Meal Added")
 
-    if event in ("-RECIPE-", "New Recipe"):
+    if event in ["New Recipe", "-RECIPE-"]:
         basic_recipe = {}
         basic_recipe["ingredients"] = {}
         basic_recipe["directions"] = ""
         basic_recipe["title"] = ""
         basic_recipe["subtitle"] = ""
-        basic_recipe["recipe_category"] = ""
+        basic_recipe["recipe_category"] = "Dinner"
         new_recipe_name = ""
-
-        if values["-MEAL-"]:
-            new_recipe_name = values["-MEAL-"]
-            basic_recipe["title"] = new_recipe_name
-
-        if values["-NEWCATEGORY-"]:
-            new_recipe_category = values["-NEWCATEGORY-"]
-            basic_recipe["recipe_category"] = new_recipe_category
-
-        if values["-INGREDIENTS-"]:
-            raw_ingredients = values["-INGREDIENTS-"].split(", ")
-            basic_recipe["ingredients"] = {}
-
-            for i, basic_ingredient in enumerate(raw_ingredients):
-                basic_recipe["ingredients"][f"ingredient_{i}"] = {}
-                basic_recipe["ingredients"][f"ingredient_{i}"]["quantity"] = ""
-                basic_recipe["ingredients"][f"ingredient_{i}"]["units"] = ""
-                basic_recipe["ingredients"][f"ingredient_{i}"]["ingredient"] = basic_ingredient
-                basic_recipe["ingredients"][f"ingredient_{i}"]["special_instruction"] = ""
 
         recipe = recipes(capwords(new_recipe_name), recipe_data=basic_recipe)
 
         if not recipe:
             continue
-        if not recipe["ingredients"]:
-            continue
-        window["-RECIPE_NOTE-"].update(visible=True)
+
+        if not recipe["directions"]:
+            recipe["directions"] = ""
+
         basic_ingredients = [
             ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
         ]
-        window["-INGREDIENTS-"].update(value=", ".join(basic_ingredients).lower())
-        window["-MEAL-"].update(value=capwords(recipe["title"]))
-        window["-NEWCATEGORY-"].update(value=capwords(recipe["recipe_category"]))
+        new_meal = recipe["title"].lower()
+        new_ingredients = ", ".join(basic_ingredients).lower() if basic_ingredients else new_meal
+
+        new_category = recipe["recipe_category"].lower() if recipe["recipe_category"] else "Dinner"
+
+        meal_categories = list(dict.fromkeys(settings["meal_categories"]))
+        meal_categories.append(capwords(new_category))
+        meal_categories = list(dict.fromkeys(meal_categories))
+
+        settings["meal_categories"] = meal_categories
+        with open(file_path, "w") as fp:
+            json.dump(settings, fp, sort_keys=True, indent=4)
+
+        if new_meal:
+            add_meal(
+                db_file,
+                new_meal,
+                ingredients=new_ingredients,
+                recipe_link="",
+                recipe=json.dumps(recipe),
+                category=new_category,
+            )
+            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+            window["-MEAL_LIST-"].update(sorted([capwords(meal) for meal in meals.keys()]))
+            window["-RECIPE_LINK-"].update(value="Paste Link Here (Optional)")
+            recipe = ""
+            window["-RECIPE_NOTE-"].update(visible=False)
+            window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
+
+        else:
+            error_window("No Meal Added")
 
     if event == "-PICK_DATE-":
         date = popup_get_date()
@@ -854,204 +915,189 @@ while True:
             continue
         month, day, year = date
         selected_day = datetime.date(year=year, month=month, day=day)
-        week_start = selected_day - datetime.timedelta(days=selected_day.isoweekday() % 7)
+        week_start = selected_day - datetime.timedelta(days=selected_day.weekday() % 7)
         window["-WEEK-"].update(f"Week of {str(week_start)}")
         current_plan_dict["date"] = str(week_start)
         picked_date = str(week_start)
 
-    if event == "-LOAD_PLAN-":
-        date = popup_get_date()
-        if not date:
-            print("No date selected")
-            continue
-        month, day, year = date
-        selected_day = datetime.date(year=year, month=month, day=day)
-        week_start = selected_day - datetime.timedelta(days=selected_day.isoweekday() % 7)
-        current_plan_dict["date"] = str(week_start)
-        plan = read_current_plans(db_file, str(week_start))
-        if plan:
-            gui_table = [[day] + [", ".join(meals)] for day, meals in plan["meals"].items()]
-            picked_date = str(week_start)
-            plan_meals = [
-                meal.lower() for meals in plan["meals"].values() for meal in meals if meal
-            ]
-
-            plan_ingredients = []
-            for meal in plan_meals:
-                meal_recipe = read_meal_recipe(db_file, meal)
-                if meal_recipe:
-                    for ingredient in meal_recipe["ingredients"].values():
-                        plan_ingredients.append(
-                            re.sub(
-                                "\s+",
-                                " ",
-                                " ".join(
-                                    [
-                                        str(ingredient["quantity"])
-                                        if ingredient["quantity"]
-                                        else "1",
-                                        ingredient["units"] if ingredient["units"] else "",
-                                        capwords(ingredient["ingredient"])
-                                        if ingredient["ingredient"]
-                                        else "",
-                                    ]
-                                ),
-                            ).strip()
-                        )
-                else:
-                    plan_ingredients.extend(
-                        list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
-                    )
-
-            plan_ingredients = list(set(plan_ingredients))
-            plan_ingredients = sorted(
-                [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
-            )
-
-            # Update and clear the checkboxes once the plan is loaded
-            current_plan_dict = plan
-            window["-WEEK-"].update("Week of " + picked_date)
-            window["-TABLE-"].update(values=gui_table)
-            window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
-        else:
-            sg.popup_ok("No plan available for that week")
-
-        pass
-    if event == "-EXPORT_PLAN-":
-        export_plan_path = sg.popup_get_file("Choose Export Location", save_as=True)
-        if picked_date not in export_plan_path:
-            export_plan_path = export_plan_path + f"_{picked_date}.txt"
-
-        day_plan = []
-        day_plan.append(f"Plan for the week of {picked_date}\n")
-        for day, meal in current_plan_dict["meals"].items():
-            if not meal:
-                day_plan.append(f"{day}:")
-                day_plan.append("No Planned Meal\n\n"),
-                continue
-            day_plan.append(f"{day}:")
-            for meal in meal:
-                if meal:
-                    day_plan.append(f"-{meal}-")
-                    day_plan.append("Ingredients:")
-                    wrapped_ingredients = textwrap.wrap(
-                        capwords(", ".join(meals[meal.lower()]["ingredients"])), 50
-                    )
-                    day_plan.append("\n".join(wrapped_ingredients))
-                    day_plan.append("\n")
-        day_plan.append("All Ingredients:")
-        day_plan.append(current_plan_dict["ingredients"])
-        plan_text = "\n".join(day_plan)
-        with open(export_plan_path, "w") as fp:
-            fp.write(plan_text)
-            fp.close()
-
-    if event == "-PLAN-DELETE-":
-
-        plan_dates = [str(date) for date in read_all_plans(db_file).keys()]
-        plan_date_window = sg.Window(
-            "Available Plans",
+    if event == "-AVAILABLE_PLANS-":
+        all_plans = read_all_plans(db_file)
+        available_plans = list(all_plans.keys())
+        confirm, selected_plan = sg.Window(
+            "Available Meal Plans",
             [
+                [sg.Text("Available Meal Plans", font=("Arial", 16), justification="c")],
+                [sg.Listbox(available_plans, font=("Arial", 12), size=(40, 20))],
                 [
-                    sg.Listbox(
-                        values=plan_dates,
-                        font=("Arial", 14),
-                        key="-SELECTED_PLAN_DATE-",
-                        enable_events=True,
-                        size=(20, 10),
-                    )
+                    sg.Button("View Plan"),
+                    sg.Button("Load Plan"),
+                    sg.Button("Delete"),
+                    sg.Button("Export"),
+                    sg.Text("", expand_x=True),
+                    sg.Button("Cancel"),
                 ],
-                [sg.Button("Okay", key="OKAY"), sg.Button("Cancel", key="CANCEL")],
             ],
             disable_close=False,
-        )
-        while True:
-            event, values = plan_date_window.read()
-            if event == sg.WIN_CLOSED or event == "CANCEL":
-                proceed = False
-                plan_date_window.close()
-                break
+        ).read(close=True)
 
-            if event:
-                # print(event, values)
-                pass
-            if event == "OKAY":
-                if not values["-SELECTED_PLAN_DATE-"]:
-                    confirmation = sg.popup_ok_cancel("No Date Selected")
-                    continue
-                proceed = True
-                plan_date_window.close()
-                break
-            if event == "-SELECTED_PLAN_DATE-":
-                date = values["-SELECTED_PLAN_DATE-"][0]
-                plan = read_current_plans(db_file, date)
-                plan_text = []
-                days_text = []
-                i = 0
-                weeks_dates = [
-                    datetime.datetime.strptime(date, "%Y-%m-%d").date() + datetime.timedelta(days=x)
-                    for x in range(7)
+        if not selected_plan[0]:
+            continue
+
+        if confirm in (None, "Cancel"):
+            continue
+
+        if confirm == "Load Plan":
+            plan_key = selected_plan[0][0]
+
+            current_plan_dict = read_current_plans(db_file, plan_key)
+            if current_plan_dict:
+                picked_date = str(current_plan_dict["date"])
+
+                gui_table = [
+                    [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
                 ]
-                for day, meal in plan["meals"].items():
-                    meal = ", ".join(meal) if meal else ""
-                    days_text.append(
-                        f"{day} {str(weeks_dates[i].month)}/{str(weeks_dates[i].day)}: {meal}"
-                    )
-                    i += 1
-                days_text = "\n".join(days_text)
-                plan_ingredients = "\n".join(textwrap.wrap(plan["ingredients"], 60))
-                plan_text.append(
-                    f"Week of {date}\n\n{days_text}\n\nPlan Ingredients:\n{plan_ingredients}"
+
+                plan_meals = [
+                    meal.lower()
+                    for meals in current_plan_dict["meals"].values()
+                    for meal in meals
+                    if meal
+                ]
+
+                current_plan_dict = generate_plan_shopping_list(plan_meals)
+
+            continue
+
+        if confirm == "Export" and selected_plan[0]:
+            export_plan_path = export_plan(selected_plan)
+            if not export_plan_path:
+                continue
+            sg.popup_ok(f"Saved to {export_plan_path}")
+            continue
+
+        if confirm == "Delete" and selected_plan[0]:
+            plan_key = selected_plan[0][0]
+
+            confirmation = sg.popup_ok_cancel(f"Permenantly delete plan for week of {plan_key}?")
+            if confirmation == "Cancel":
+                continue
+
+            remove_plan(db_file, plan_key)
+            confirmation = sg.popup_ok(f"Plan for week of {plan_key}\npermentantly deleted")
+            continue
+
+        if confirm == "View Plan":
+
+            plan_key = selected_plan[0][0]
+            plan = all_plans[plan_key]
+
+            plan_text = []
+            days_text = []
+            i = 0
+
+            weeks_dates = [
+                datetime.datetime.strptime(plan["date"], "%Y-%m-%d").date()
+                + datetime.timedelta(days=x)
+                for x in range(7)
+            ]
+
+            for day, meal in plan["meals"].items():
+                meal = ", ".join(meal) if meal else ""
+                days_text.append(
+                    f"{day} {str(weeks_dates[i].month)}/{str(weeks_dates[i].day)}: {meal}"
                 )
-                plan_text = "\n\n".join(plan_text)
-                # sg.popup_scrolled(
-                #     plan_text, title="Available Meal Plans", size=(60, 20), font=("Arial", 12),
-                # )
-                plan_window = sg.Window(
-                    "Meal Plans",
-                    [
-                        [sg.Text("Meal Plans", font=("Arial", 16), justification="c")],
-                        [sg.Multiline(plan_text, font=("Arial", 12), size=(60, 20), disabled=True)],
-                        [sg.Button("Okay")],
-                    ],
-                    disable_close=False,
-                    location=((screen_width / 2) - 100, screen_height / 10),
-                    relative_location=(-200, 0),
-                    size=(400, 370),
-                ).read(close=True)
+                i += 1
 
-        if not proceed:
-            continue
-        confirmation = sg.popup_ok_cancel("Permenantly delete plan?")
-        if confirmation == "Cancel":
-            continue
-        remove_plan(db_file, date)
-        confirmation = sg.popup_ok(f"Plan for week of {date}\npermentantly deleted")
+            days_text = "\n".join(days_text)
+            plan_ingredients = "\n".join(textwrap.wrap(plan["ingredients"], 60))
 
-    if event == "Edit Selection::edit":
+            plan_text.append(f"{days_text}\n\nPlan Ingredients:\n{plan_ingredients}\n")
+            plan_text = "\n\n".join(plan_text)
+
+            confirm_export, _ = sg.Window(
+                "Available Meal Plans",
+                [
+                    [sg.Text(f"Plan for {plan['date']}", font=("Arial", 16), justification="c")],
+                    [sg.Multiline(plan_text, font=("Arial", 12), size=(60, 20), disabled=True)],
+                    [sg.Button("Okay"), sg.Button("Export")],
+                ],
+                disable_close=False,
+            ).read(close=True)
+
+            if confirm_export == "Export":
+                export_plan_path = export_plan(selected_plan)
+                sg.popup_ok(f"Saved to {export_plan_path}")
+                continue
+
+    if event == "-TABLE-":
+
+        table_right_click = default_table_right_click = [
+            "&Right",
+            ["Clear Row::table", sg.MENU_SEPARATOR_LINE,],
+        ]
+
         if not values["-TABLE-"]:
+            window["-TABLE-"].set_right_click_menu(default_table_right_click)
             continue
 
         selected_row = values["-TABLE-"][0]
+
         available_foods = current_plan_dict["meals"][gui_table[selected_row][0]]
-        confirm, chosen_food = sg.Window(
-            "Edit Selected Day",
-            [
-                [sg.Text("Remove Specific Meals", font=("Arial", 14), justification="c")],
-                [sg.Listbox(values=available_foods, font=("Arial", 14), size=(200, 6))],
-                [sg.Button("Okay"), sg.Button("Cancel")],
-            ],
-            disable_close=False,
-            size=(225, 200),
-        ).read(close=True)
 
-        if confirm == "Cancel":
+        if not available_foods:
+            window["-TABLE-"].set_right_click_menu(default_table_right_click)
+
+        if available_foods:
+            for meal in available_foods:
+                add_meal_to_right_click_menu(table_right_click, meal, selected_row)
+
+        window["-TABLE-"].set_right_click_menu(table_right_click)
+
+    if (
+        event.split("::")[0]
+        in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",]
+        and values["-TABLE-"]
+    ):
+        selected_row = values["-TABLE-"][0]
+
+        chosen_day = event.split("::")[0]
+        chosen_food = event.split("::")[1]
+
+        current_plan_dict["meals"][gui_table[selected_row][0]].remove(chosen_food)
+
+        if not len(current_plan_dict["meals"][chosen_day]):
+            current_plan_dict["meals"][chosen_day] = [chosen_food]
+
+        elif current_plan_dict["meals"][chosen_day] == [chosen_food]:
             continue
 
-        if not chosen_food[0]:
+        else:
+            current_plan_dict["meals"][chosen_day] = current_plan_dict["meals"][chosen_day] + [
+                chosen_food
+            ]
+
+        gui_table = [
+            [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
+        ]
+
+        plan_meals = [
+            meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
+        ]
+
+        window["-TABLE-"].update(values=gui_table)
+        window["-MEAL_LIST-"].update(set_to_index=[])
+        window["-TABLE-"].set_right_click_menu(default_table_right_click)
+
+        add_plan(db_file, current_plan_dict, True)
+
+    if "Delete Item::" in event and values["-TABLE-"]:
+        chosen_food = event.split("::")[-1]
+
+        selected_row = values["-TABLE-"][0]
+
+        if not chosen_food:
             continue
 
-        chosen_food = chosen_food[0][0]
         current_plan_dict["meals"][gui_table[selected_row][0]].remove(chosen_food)
         gui_table = [
             [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
@@ -1060,42 +1106,13 @@ while True:
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
 
-        plan_ingredients = []
-        for meal in plan_meals:
-            meal_recipe = read_meal_recipe(db_file, meal)
-            if meal_recipe:
-                for ingredient in meal_recipe["ingredients"].values():
-                    plan_ingredients.append(
-                        re.sub(
-                            "\s+",
-                            " ",
-                            " ".join(
-                                [
-                                    str(ingredient["quantity"]) if ingredient["quantity"] else "1",
-                                    ingredient["units"] if ingredient["units"] else "",
-                                    capwords(ingredient["ingredient"])
-                                    if ingredient["ingredient"]
-                                    else "",
-                                ]
-                            ),
-                        ).strip()
-                    )
-            else:
-                plan_ingredients.extend(
-                    list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
-                )
+        current_plan_dict = generate_plan_shopping_list(plan_meals)
 
-        plan_ingredients = list(set(plan_ingredients))
-        plan_ingredients = sorted(
-            [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
-        )
+        add_plan(db_file, current_plan_dict, True)
 
-        window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
-        window["-TABLE-"].update(values=gui_table)
-
-    if event == "Delete::table":
+    if event == "Clear Row::table":
         for row in values["-TABLE-"]:
-            current_plan_dict["meals"][gui_table[row][0]] = [""]
+            current_plan_dict["meals"][gui_table[row][0]] = ""
 
             gui_table = [
                 [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
@@ -1107,40 +1124,7 @@ while True:
                 if meal
             ]
 
-            plan_ingredients = []
-            for meal in plan_meals:
-                meal_recipe = read_meal_recipe(db_file, meal)
-                if meal_recipe:
-                    for ingredient in meal_recipe["ingredients"].values():
-                        plan_ingredients.append(
-                            re.sub(
-                                "\s+",
-                                " ",
-                                " ".join(
-                                    [
-                                        str(ingredient["quantity"])
-                                        if ingredient["quantity"]
-                                        else "1",
-                                        ingredient["units"] if ingredient["units"] else "",
-                                        capwords(ingredient["ingredient"])
-                                        if ingredient["ingredient"]
-                                        else "",
-                                    ]
-                                ),
-                            ).strip()
-                        )
-                else:
-                    plan_ingredients.extend(
-                        list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
-                    )
-
-            plan_ingredients = list(set(plan_ingredients))
-            plan_ingredients = sorted(
-                [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
-            )
-
-            window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
-            window["-TABLE-"].update(values=gui_table)
+            current_plan_dict = generate_plan_shopping_list(plan_meals)
 
     if event == "Load Database":
 
@@ -1168,39 +1152,7 @@ while True:
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
 
-        plan_ingredients = []
-        for meal in plan_meals:
-            meal_recipe = read_meal_recipe(db_file, meal)
-            if meal_recipe:
-                for ingredient in meal_recipe["ingredients"].values():
-                    plan_ingredients.append(
-                        re.sub(
-                            "\s+",
-                            " ",
-                            " ".join(
-                                [
-                                    str(ingredient["quantity"]) if ingredient["quantity"] else "1",
-                                    ingredient["units"] if ingredient["units"] else "",
-                                    capwords(ingredient["ingredient"])
-                                    if ingredient["ingredient"]
-                                    else "",
-                                ]
-                            ),
-                        ).strip()
-                    )
-            else:
-                plan_ingredients.extend(
-                    list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
-                )
-
-        plan_ingredients = list(set(plan_ingredients))
-        plan_ingredients = sorted(
-            [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
-        )
-
-        # Update and clear the checkboxes once the database is loaded
-        window["-TABLE-"].update(values=gui_table)
-        window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
+        current_plan_dict = generate_plan_shopping_list(plan_meals)
 
     if event == "Export Database":
         export_database_path = sg.popup_get_file(
@@ -1217,174 +1169,44 @@ while True:
 
         # Future to expand for more options - will need to update the databse for additional columns
 
-    if event in ("Change Meal Name", "Edit Meal"):
-        if values["-MEAL_LIST-"]:
-            selected_meal = values["-MEAL_LIST-"][0].lower()
-            _, new_meal_name = sg.Window(
-                "Change Meal Name",
-                [
-                    [sg.Text("Change Name of Meal", font=("Arial", 14), justification="c")],
-                    [
-                        sg.Input(
-                            default_text=capwords(selected_meal),
-                            font=("Arial", 14),
-                            key="-NEWMEALNAME-",
-                            enable_events=False,
-                        )
-                    ],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-                size=(225, 100),
-            ).read(close=True)
-            if not new_meal_name["-NEWMEALNAME-"]:
-                continue
-            new_meal_name = new_meal_name["-NEWMEALNAME-"].lower()
-            recipe = read_meal_recipe(db_file, selected_meal)
-            if recipe:
-                recipe["title"] = capwords(new_meal_name)
-                update_meal_recipe(db_file, json.dumps(recipe), new_meal_name)
+    if event == "Edit::recipe" and values["-MEAL_LIST-"]:
 
-            update_meal_name(db_file, new_meal_name, selected_meal)
-            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-            window["-MEAL_LIST-"].update(
-                sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
-            )
+        selected_meal = values["-MEAL_LIST-"][0].lower()
+        existing_recipe = read_meal_recipe(db_file, selected_meal)
 
-    if event == "Edit Category":
-        if values["-MEAL_LIST-"]:
-            selected_meal = values["-MEAL_LIST-"][0].lower()
-            _, new_category = sg.Window(
-                "Change Meal Category",
-                [
-                    [sg.Text("Change Meal Category", font=("Arial", 14), justification="c")],
-                    [
-                        sg.Combo(
-                            values=meal_categories[1:],
-                            font=("Arial", 14),
-                            key="-NEWMEALCATEGORY-",
-                            enable_events=False,
-                        )
-                    ],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-                size=(225, 100),
-            ).read(close=True)
-            if not new_category["-NEWMEALCATEGORY-"]:
-                continue
-            new_category = new_category["-NEWMEALCATEGORY-"].lower()
-            meal_categories = list(dict.fromkeys(settings["meal_categories"]))
-            meal_categories.append(capwords(new_category))
-            meal_categories = list(dict.fromkeys(meal_categories))
-            settings["meal_categories"] = meal_categories
-            with open(file_path, "w") as fp:
-                json.dump(settings, fp, sort_keys=True, indent=4)
-            update_meal_category(db_file, new_category, selected_meal)
-            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-            window["-MEAL_LIST-"].update(
-                sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
+        recipe = recipes(capwords(selected_meal), recipe_data=existing_recipe)
+        if recipe:
+            confirm = sg.popup_ok_cancel(
+                "Overwrite existing recipe?",
+                icon=base64.b64encode(open(str(icon_file), "rb").read()),
             )
-            window["-NEWCATEGORY-"].update(set_to_index=[0], values=meal_categories[1:])
-            window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
-
-    if event == "Add Ingredient":
-        if values["-MEAL_LIST-"]:
-            selected_meal = values["-MEAL_LIST-"][0].lower()
-            ingredients = read_specific_meals(db_file, selected_meal)[selected_meal]
-            _, new_ingredients = sg.Window(
-                "Add Ingredients",
-                [
-                    [
-                        sg.Text(
-                            "Add Ingredient(s) - Separate w/ comma",
-                            font=("Arial", 14),
-                            justification="c",
-                        )
-                    ],
-                    [sg.Input(key="-NEWINGREDIENTS-", font=("Arial", 14), enable_events=False)],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-                size=(325, 100),
-            ).read(close=True)
-            if not new_ingredients["-NEWINGREDIENTS-"]:
-                continue
-            new_ingredients = new_ingredients["-NEWINGREDIENTS-"].lower().split(", ")
-            ingredients.extend(
-                [ingredient for ingredient in new_ingredients if ingredient not in ingredients]
-            )
-            updated_ingredients = ", ".join(ingredients)
-            update_meal_ingredients(db_file, selected_meal, updated_ingredients)
-            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-            ingredients_list = meals[selected_meal]["ingredients"]
-            window["-MEAL_INGREDIENTS_LIST-"].update(
-                [capwords(ingredient) for ingredient in ingredients_list]
-            )
-
-    if event in "Edit Ingredients":
-        if values["-MEAL_LIST-"]:
-            selected_meal = values["-MEAL_LIST-"][0].lower()
-            ingredients = read_specific_meals(db_file, selected_meal)[selected_meal]
-            _, edited_ingredients = sg.Window(
-                "Edit Ingredients",
-                [
-                    [sg.Text("Edit Ingredient(s)", font=("Arial", 14), justification="c",)],
-                    [
-                        sg.Multiline(
-                            default_text=capwords(", ".join(sorted(ingredients))),
-                            key="-EDITINGREDIENTS-",
-                            enable_events=False,
-                            font=("Arial", 14),
-                            autoscroll=True,
-                            rstrip=True,
-                            size=(200, 5),
-                        )
-                    ],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-                size=(400, 150),
-            ).read(close=True)
-            if not edited_ingredients["-EDITINGREDIENTS-"]:
-                continue
-            edited_ingredients = edited_ingredients["-EDITINGREDIENTS-"].lower().split(", ")
-            edited_ingredients = ", ".join(sorted(list(set(edited_ingredients))))
-            update_meal_ingredients(db_file, selected_meal, edited_ingredients)
-            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-            ingredients_list = meals[selected_meal]["ingredients"]
-            window["-MEAL_INGREDIENTS_LIST-"].update(
-                [capwords(ingredient) for ingredient in ingredients_list]
-            )
-
-    if event == "Delete Meal":
-        if values["-MEAL_LIST-"]:
-            selected_meal = values["-MEAL_LIST-"][0].lower()
-            confirm_delete = sg.popup_yes_no(f"Confirm delete: {selected_meal}")
-            if confirm_delete == "Yes":
-                remove_meal(db_file, selected_meal)
+            if confirm == "OK":
+                update_meal_recipe(db_file, json.dumps(recipe), selected_meal)
+                basic_ingredients = [
+                    capwords(ingredient["ingredient"])
+                    for ingredient in recipe["ingredients"].values()
+                ]
+                edited_ingredients = ", ".join(sorted(list(set(basic_ingredients))))
+                update_meal_ingredients(db_file, selected_meal, edited_ingredients)
                 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-                window["-MEAL_LIST-"].update(
-                    sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
-                )
-                window["-MEAL_INGREDIENTS_LIST-"].update([])
+                window["-MEAL_INGREDIENTS_LIST-"].update(values=sorted(basic_ingredients))
 
             else:
-                sg.Window(
-                    "Canceled",
-                    [
-                        [
-                            sg.Text(
-                                f"Canceled\n{selected_meal} was not deleted",
-                                font=("Arial", 14),
-                                justification="c",
-                                expand_x=True,
-                            )
-                        ],
-                        [sg.Button("Okay")],
-                    ],
-                    disable_close=False,
-                ).read(close=True)
+                sg.popup_ok("Recipe not overwritten")
+
+    if event == "Delete::meal" and values["-MEAL_LIST-"]:
+        selected_meal = values["-MEAL_LIST-"][0].lower()
+        confirm_delete = sg.popup_yes_no(f"Confirm delete: {selected_meal}")
+        if confirm_delete == "Yes":
+            remove_meal(db_file, selected_meal)
+            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+            window["-MEAL_LIST-"].update(
+                sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
+            )
+            window["-MEAL_INGREDIENTS_LIST-"].update([])
+
+        else:
+            error_window(f"Canceled\n{selected_meal} was not deleted")
 
     if event == "-CFILTER-":
         if values["-CFILTER-"] == "All":
@@ -1403,22 +1225,33 @@ while True:
         window["-MEAL_LIST-"].update(filtered_meals)
 
     if event == "-MEAL_LIST-":
+        # Choosing an item from the list of meals will update the ingredients list for that meal
         menu_bar_layout = [
             ["&File", ["Load Database", "Export Database"]],
-            ["Edit", ["Edit Meal", "Edit Ingredients"]],
             ["Recipes", ["New Recipe", "View Recipes", "Edit recipe"]],
             ["Help", ["!About", "!How To", "!Feedback"]],
         ]
         window["-MENU-"].update(menu_definition=menu_bar_layout)
-        # Choosing an item from the list of meals will update the ingredients list for that meal
+
+        meal_selection_rightclick_menu_def = (
+            ["&Right", ["Edit::recipe", "Delete::meal"]]
+            if values["-MEAL_LIST-"]
+            else ["&Right", ["!Edit::recipe", "!Delete::meal"]]
+        )
+
+        window["-MEAL_LIST-"].set_right_click_menu(meal_selection_rightclick_menu_def)
+
         if not values["-MEAL_LIST-"]:
             continue
+
         selected_meal = values["-MEAL_LIST-"][0].lower()
         recipe = read_meal_recipe(db_file, selected_meal)
+
         if recipe:
             window["-VIEW_RECIPE-"].update(disabled=False)
         else:
             window["-VIEW_RECIPE-"].update(disabled=True)
+
         ingredients_list = meals[selected_meal]["ingredients"]
         window["-MEAL_INGREDIENTS_LIST-"].update(
             sorted([capwords(ingredient) for ingredient in ingredients_list])
@@ -1426,6 +1259,7 @@ while True:
         window["-CATEGORY_TEXT-"].update(
             visible=True, value=capwords(meals[selected_meal]["category"])
         )
+
     if event == "-VIEW_RECIPE-":
         w = display_recipe(recipe)
 
@@ -1457,81 +1291,7 @@ while True:
             ["Help", ["!About", "!How To", "!Feedback"]],
         ]
         window["-MENU-"].update(menu_definition=menu_bar_layout)
-
-    if event == "-MEAL-CLEAR-":
-        # Clear the new meal submission boxes
-        window["-MEAL-"].update(value="")
-        window["-INGREDIENTS-"].update(value="")
-        window["-RECIPE_LINK-"].update(value="")
-        try:
-            window["-RECIPE_NOTE-"].update(visible=False)
-            recipe = ""
-        except:
-            pass
-        window["-NEWCATEGORY-"].update(set_to_index=[0])
-
-    if event == "-MEAL_SUBMIT-":
-        # Submit a new meal and the ingredients and recipe (if available) then add the meal to
-        # the database
-        recipe = ""
-        new_recipe = values["-RECIPE_LINK-"].lower()
-        if new_recipe:
-            recipe = process_recipe_link(new_recipe)
-            recipe = recipes(capwords(recipe["title"]), recipe_data=recipe)
-            if not recipe:
-                continue
-            basic_ingredients = [
-                ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
-            ]
-            new_meal = recipe["title"].lower()
-            new_ingredients = ", ".join(basic_ingredients).lower()
-            new_category = recipe["recipe_category"].lower()
-        else:
-            new_meal = values["-MEAL-"].lower()
-            new_ingredients = values["-INGREDIENTS-"].lower()
-            new_category = values["-NEWCATEGORY-"].lower()
-
-        meal_categories = list(dict.fromkeys(settings["meal_categories"]))
-        meal_categories.append(capwords(new_category))
-        meal_categories = list(dict.fromkeys(meal_categories))
-        settings["meal_categories"] = meal_categories
-        with open(file_path, "w") as fp:
-            json.dump(settings, fp, sort_keys=True, indent=4)
-
-        if not new_ingredients:
-            new_ingredients = new_meal
-
-        if not recipe:
-            recipe = ""
-
-        if new_meal:
-            add_meal(
-                db_file,
-                new_meal,
-                ingredients=new_ingredients,
-                recipe_link=new_recipe,
-                recipe=json.dumps(recipe),
-                category=new_category,
-            )
-            meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-            window["-MEAL_LIST-"].update(sorted([capwords(meal) for meal in meals.keys()]))
-            window["-MEAL-"].update(value="")
-            window["-INGREDIENTS-"].update(value="")
-            window["-RECIPE_LINK-"].update(value="")
-            recipe = ""
-            window["-RECIPE_NOTE-"].update(visible=False)
-            window["-NEWCATEGORY-"].update(set_to_index=[0], values=meal_categories[1:])
-            window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
-
-        else:
-            sg.Window(
-                "ERROR",
-                [
-                    [sg.Text("No Meal Added", font=("Arial", 16), justification="c")],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-            ).read(close=True)
+        window["-MEAL_LIST-"].set_right_click_menu(["&Right", ["!Edit::recipe", "!Delete::meal"]])
 
     if event == "-PLAN-CLEAR-":
         # Empty out the table and return it to the default values
@@ -1540,55 +1300,19 @@ while True:
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
 
-        plan_ingredients = []
-        for meal in plan_meals:
-            meal_recipe = read_meal_recipe(db_file, meal)
-            if meal_recipe:
-                for ingredient in meal_recipe["ingredients"].values():
-                    plan_ingredients.append(
-                        re.sub(
-                            "\s+",
-                            " ",
-                            " ".join(
-                                [
-                                    str(ingredient["quantity"]) if ingredient["quantity"] else "1",
-                                    ingredient["units"] if ingredient["units"] else "",
-                                    capwords(ingredient["ingredient"])
-                                    if ingredient["ingredient"]
-                                    else "",
-                                ]
-                            ),
-                        ).strip()
-                    )
-            else:
-                plan_ingredients.extend(
-                    list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
-                )
-
-        plan_ingredients = list(set(plan_ingredients))
-        plan_ingredients = sorted(
-            [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
-        )
-        window["-TABLE-"].update(blank_gui_table)
-        window["-PLAN_INGREDIENTS_LIST-"].update([])
+        current_plan_dict = generate_plan_shopping_list(plan_meals)
 
     if event == "-ADD_TO_PLAN-":
         # Add a selected meal to a day of the week in the plan table
-        selected_meal = ", ".join(values["-MEAL_LIST-"])
+        # selected_meal = ", ".join(values["-MEAL_LIST-"])
         selected_meal = values["-MEAL_LIST-"]
 
         # If no meal is selected when the 'add to plan' button is pressed
         # show popup warning and do nothing
         if not selected_meal:
-            sg.Window(
-                "ERROR",
-                [
-                    [sg.Text("No Meal Selected", font=("Arial", 16), justification="c")],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-            ).read(close=True)
+            error_window("No Meal Selected")
             continue
+
         days_of_week = {
             "Sunday": values["-SUN-"],
             "Monday": values["-MON-"],
@@ -1599,39 +1323,36 @@ while True:
             "Saturday": values["-SAT-"],
         }
         day_index = {
-            "Sunday": 0,
-            "Monday": 1,
-            "Tuesday": 2,
-            "Wednesday": 3,
-            "Thursday": 4,
-            "Friday": 5,
-            "Saturday": 6,
+            "Monday": 0,
+            "Tuesday": 1,
+            "Wednesday": 2,
+            "Thursday": 3,
+            "Friday": 4,
+            "Saturday": 5,
+            "Sunday": 6,
         }
         selected_days = [day for day, val in days_of_week.items() if val == True]
 
         # If no day is selected when the 'add to plan' button is pressed
         # show popup warning and do nothing
         if not selected_days:
-            sg.Window(
-                "ERROR",
-                [
-                    [sg.Text("No Day Selected", font=("Arial", 16), justification="c")],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-                size=(150, 80),
-            ).read(close=True)
+            error_window("No Day Selected")
             continue
 
         # For each data selected when the 'add to plan' button is pressed, update the appropriate
         # row in the plan table to reflect the meal selection, check if there is already an
         # item in place, and if so, add to it (useful for adding salad + main meal)
         for day in selected_days:
-            if not current_plan_dict["meals"][day][0]:
+            if not len(current_plan_dict["meals"][day]):
                 current_plan_dict["meals"][day] = selected_meal
 
-            elif current_plan_dict["meals"][day] == selected_meal:
+            elif all(item in current_plan_dict["meals"][day] for item in selected_meal):
                 continue
+
+            elif any(item in current_plan_dict["meals"][day] for item in selected_meal):
+                selected_meal = [
+                    item for item in selected_meal if item not in current_plan_dict["meals"][day]
+                ]
 
             else:
                 current_plan_dict["meals"][day] = current_plan_dict["meals"][day] + selected_meal
@@ -1640,170 +1361,14 @@ while True:
             [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
         ]
 
-        # Update the table information with the plan meals and get the ingredients for those meals
-        # then create a unique list that is sorted and put it into the ingredients listbox
         plan_meals = [
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
 
-        plan_ingredients = []
-        for meal in plan_meals:
-            meal_recipe = read_meal_recipe(db_file, meal)
-            if meal_recipe:
-                for ingredient in meal_recipe["ingredients"].values():
-                    plan_ingredients.append(
-                        re.sub(
-                            "\s+",
-                            " ",
-                            " ".join(
-                                [
-                                    str(ingredient["quantity"]) if ingredient["quantity"] else "1",
-                                    ingredient["units"] if ingredient["units"] else "",
-                                    capwords(ingredient["ingredient"])
-                                    if ingredient["ingredient"]
-                                    else "",
-                                ]
-                            ),
-                        ).strip()
-                    )
-            else:
-                plan_ingredients.extend(
-                    list(set(capwords(", ".join(meals[meal]["ingredients"])).split(", ")))
-                )
+        current_plan_dict = generate_plan_shopping_list(plan_meals)
 
-        plan_ingredients = list(set(plan_ingredients))
-        plan_ingredients = sorted(
-            [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
-        )
-
-        # Update and clear the checkboxes once the meal is submitted to the plan
-        window["-TABLE-"].update(values=gui_table)
-        window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
-        window["-MEAL_LIST-"].update(set_to_index=[])
-
-        # Commenting this out so that I can make it optional later on with a user setting.
-        # window["-MON-"].update(value=False)
-        # window["-TUE-"].update(value=False)
-        # window["-WED-"].update(value=False)
-        # window["-THU-"].update(value=False)
-        # window["-FRI-"].update(value=False)
-        # window["-SAT-"].update(value=False)
-        # window["-SUN-"].update(value=False)
-
-    if event == "-PLAN-SUBMIT-":
-        plan_meals = [
-            meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
-        ]
-        if len(plan_meals) > 0:
-            plan_ingredients = sorted(
-                list(
-                    set(
-                        capwords(
-                            ", ".join(
-                                [", ".join(meals[meal]["ingredients"]) for meal in plan_meals]
-                            )
-                        ).split(", ")
-                    )
-                )
-            )
-            plan_ingredients = sorted(
-                [plan_ingredient for plan_ingredient in plan_ingredients if plan_ingredient]
-            )
-
-            plan_ingredients = ", ".join(plan_ingredients)
-            current_plan_dict["ingredients"] = plan_ingredients
-
-            if read_current_plans(db_file, str(current_plan_dict["date"])):
-                confirm_overwrite = sg.popup_yes_no(
-                    f"Overwrite plan for {str(current_plan_dict['date'])}?", font=("Arial", 14)
-                )
-                new = False
-            else:
-                confirm_overwrite = "No"
-                new = True
-
-            if not new and confirm_overwrite == "Yes":
-                overwrite = True
-            else:
-                overwrite = False
-
-            add_plan(db_file, current_plan_dict, overwrite)
-
-            if new:
-                okay = sg.popup_ok(
-                    f"Meal Plan submitted for Week of {current_plan_dict['date']}",
-                    font=("Arial", 16),
-                    auto_close=True,
-                    auto_close_duration=10,
-                )
-            else:
-                if overwrite:
-                    okay = sg.popup_ok(
-                        f"Meal Plan updated for Week of {current_plan_dict['date']}",
-                        font=("Arial", 16),
-                        auto_close=True,
-                        auto_close_duration=10,
-                    )
-                else:
-                    sg.Window(
-                        "ERROR",
-                        [
-                            [
-                                sg.Text(
-                                    "Meal Plan not overwritten",
-                                    font=("Arial", 16),
-                                    justification="c",
-                                )
-                            ],
-                            [sg.Button("Okay")],
-                        ],
-                        disable_close=False,
-                    ).read(close=True)
-                    continue
-
-        else:
-            sg.Window(
-                "ERROR",
-                [
-                    [sg.Text("Plan is Empty", font=("Arial", 16), justification="c")],
-                    [sg.Button("Okay")],
-                ],
-                disable_close=False,
-                size=(150, 80),
-            ).read(close=True)
-            continue
-
-    if event == "-AVAILABLE_PLANS-":
+        # Check if we're creating a new plan or updating an existing one
         all_plans = read_all_plans(db_file)
-        plan_text = []
-        for date, plan in all_plans.items():
-            days_text = []
-            i = 0
-            weeks_dates = [
-                datetime.datetime.strptime(date, "%Y-%m-%d").date() + datetime.timedelta(days=x)
-                for x in range(7)
-            ]
-            for day, meal in plan["meals"].items():
-                meal = ", ".join(meal) if meal else ""
-                days_text.append(
-                    f"{day} {str(weeks_dates[i].month)}/{str(weeks_dates[i].day)}: {meal}"
-                )
-                i += 1
-            days_text = "\n".join(days_text)
-            plan_ingredients = "\n".join(textwrap.wrap(plan["ingredients"], 60))
-            plan_text.append(
-                f"Week of {date}\n\n{days_text}\n\nPlan Ingredients:\n{plan_ingredients}\n"
-            )
-        plan_text = "\n\n".join(plan_text)
-        # sg.popup_scrolled(
-        #     plan_text, title="Available Meal Plans", size=(60, 20), font=("Arial", 12),
-        # )
-        sg.Window(
-            "Available Meal Plans",
-            [
-                [sg.Text("Available Meal Plans", font=("Arial", 16), justification="c")],
-                [sg.Multiline(plan_text, font=("Arial", 12), size=(60, 20), disabled=True)],
-                [sg.Button("Okay")],
-            ],
-            disable_close=False,
-        ).read(close=True)
+        overwrite = True if current_plan_dict["date"] in all_plans.keys() else False
+
+        add_plan(db_file, current_plan_dict, overwrite)

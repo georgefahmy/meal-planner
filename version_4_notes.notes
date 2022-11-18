@@ -1,0 +1,55 @@
+New and Changes:
+    ☐ Improvement - Clean up exported plan formatting "export_plan(selected_plan)"
+
+    New - Add a window to edit user settings saved in the settings.json file:
+        ☐ Have a button in the menu for opening the settings
+        ☐ Display the different settings available with the current values
+        ☐ Allow editing of those values and then save the settings file - this will require utilizing the same file path stuff for the database file path.
+        ☐ Think about more user settings that can be customized
+
+    New - Add support for Windows executable in the build process:
+        ☐ Implement the windows version of py2app (py2exe)
+        ☐ Test it on a VM or something
+
+    New - Online Access (may move to version 5):
+        Make database accessible online:
+            ☐ pysimpleguiweb - have to access the server via a public address (look this up in remote.it) https://github.com/PySimpleGUI/PySimpleGUI/issues/2462 is a good reference
+            ☐ Remi - this might be the best solution
+        ☐ Associate a "Login" with each database. keep it locked unless logged in.
+
+    Refactor - Modularize code for reuse (basically write better code):
+        ☐ Identify repeated code and turn it into functions that can be called
+
+＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
+Archive:
+    ✘ Rename the recipe_interface and recipe_viewer files to better describe their functions @cancelled(2022-11-17 19:33) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
+    ✘ Reorganize the folders to better organize the SQL functions and recipe interfaces and main interface @cancelled(2022-11-17 19:33) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
+    ✔ Clean up layouts of sections of the GUI to not repeat code @done(2022-11-17 18:39) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
+    ✔ Clean up the reuse of event triggers @done(2022-11-17 18:39) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
+    ✔ Clean up the loading of meals and recipes from the database to utilize a function @done(2022-11-17 18:39) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
+    ✔ Improvement - Fix the right click meal to edit ingredients and just remove it to only have the "Update Recipe" option @done(2022-11-17 17:26) @project(New and Changes)
+    ✘ Include an optional breakfast/lunch/dinner flag with each meal selection @cancelled(2022-11-17 16:27) @project(New and Changes / New - Table should be updated to optionally include breakfast/lunch and dinner \(explore making a user options file\))
+    ✔ Add the ability to move a meal from one day to another day through a right click option.  -> right click -> 'move to another day' -> <day dropdown> -> meal moves from current day to new day @done(2022-11-17 12:27) @project(New and Changes / New - Table Manipulation \(Maybe\))
+    ✔ Add right click option for "Move to Another Day" @done(2022-11-17 12:26) @project(New and Changes / New - Table Manipulation \(Maybe\))
+    ✔ Add list of days to choose from @done(2022-11-17 12:26) @project(New and Changes / New - Table Manipulation \(Maybe\))
+    ✔ Move meal to selected day @done(2022-11-17 12:26) @project(New and Changes / New - Table Manipulation \(Maybe\))
+    ✘ Improvement - Weekly Plan export needs to be better (possibly link with shopping list improvements below) @cancelled(2022-11-16 22:45) @project(New and Changes / ☐ New - Shopping List by recipe for all recipes)
+    ✔ Improvement - recipe export path should be saved to settings and default the name to the title @done(2022-11-16 22:19) @project(New and Changes)
+    ✔ Improvement - Every recipe should have a corresponding detailed recipe. No more simple and detailed. @done(2022-11-13 14:18) @project(New and Changes)
+    ✔ Improvement - Only one way to enter a recipe. @done(2022-11-13 14:18) @project(New and Changes)
+    ✔ Improvement - New Recipe section opens recipe viewer as the only way to enter a new recipe. @done(2022-11-13 17:52) @project(New and Changes)
+    ✔ Redo the recipe link stuff. @done(2022-11-13 17:51) @project(New and Changes)
+    ✔ New Meal section should just have Recipe from URL (and submit button) or New Meal Button. - this opens the recipe view window.  @done(2022-11-13 17:52) @project(New and Changes)
+    ✘ Improvement - Example of ingredient syntax should be easily visible (no tips button, or in addition to tips button) @cancelled(2022-11-13 14:25) @project(New and Changes)
+    ✔ Improvement - Change start day to Monday everywhere. @done(2022-11-13 17:54) @project(New and Changes)
+    ✘ Improvement - Ingredients section cleanup (may not be needed) @cancelled(2022-11-14 17:51) @project(New and Changes)
+    ✔ Improvement - Online recipe parcer library compatibility. Fail gracefully if loading a new recipe doesn't work. @done(2022-11-14 18:00) @project(New and Changes)
+    ✔ Improvement - Update database creation and SQL functions to handle the Monday == first day of the week functionality @done(2022-11-14 17:53) @project(New and Changes)
+    ✔ Improvement - Within the Available Plans window, move the "delete plan" functionality to there, as well as improve the display of the plans @done(2022-11-15 16:41) @project(New and Changes)
+    ✔ Clean this up to provide a list of available plans, then when clicking the plan, display that plan in a new window. @done(2022-11-15 15:30) @project(New and Changes)
+    ✔ New - Automatic saving of plans as meals are added to the weekly plan @done(2022-11-15 10:20) @project(New and Changes)
+    ✔ Remove the "Save Plan" button since it will be automatic   @done(2022-11-15 10:20) @project(New and Changes)
+    ✘ New - Submitting the plan automatically exports the weekly plan, and the shopping list @cancelled(2022-11-15 10:33) @project(New and Changes)
+    ✘ Organize all shopping lists by recipes @cancelled(2022-11-16 22:04) @project(New and Changes / ☐ New - Shopping List by recipe for all recipes)
+    ✔ Generate a bulleted list for each recipe @done(2022-11-16 22:04) @project(New and Changes / ☐ New - Shopping List by recipe for all recipes)
+    ✔ Format the ingredients with quantities (i.e. 2 onions) @done(2022-11-16 22:05) @project(New and Changes / ☐ New - Shopping List by recipe for all recipes)

@@ -204,7 +204,7 @@ Available units and abbreviations:
 
     fixed_units.reverse()
     unit_expression = "|".join(fixed_units)
-    match_expression = f"([0-9\/\.\-\s]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s]*),?\s?(.*)?"
+    match_expression = f"([0-9\/\.\-\s]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s\-\.]*),?\s?(.*)?"
 
     i = 1
     if recipe_data:
@@ -300,6 +300,7 @@ Available units and abbreviations:
                     if "ingredient" in element.Key:
                         if recipe_window[element.Key].get():
                             raw_ingredients.append(recipe_window[element.Key].get())
+
                     if "recipe_title" in element.key:
                         recipe["title"] = recipe_window[element.Key].get()
 
@@ -318,6 +319,8 @@ Available units and abbreviations:
                             if recipe_window[element.Key].get()
                             else None
                         )
+            if not raw_ingredients:
+                raw_ingredients = [recipe["title"]]
 
             for j, raw_ingredient in enumerate(raw_ingredients):
                 recipe["ingredients"][f"ingredient_{j}"] = {}

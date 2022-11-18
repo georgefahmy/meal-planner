@@ -166,13 +166,13 @@ def add_plan(db_file, plan, overwrite=False):
 
     if overwrite:
         sql = f"""UPDATE plans SET
-            sunday = '{join_list(plan["meals"]["Sunday"])}',
             monday = '{join_list(plan["meals"]["Monday"])}',
             tuesday = '{join_list(plan["meals"]["Tuesday"])}',
             wednesday = '{join_list(plan["meals"]["Wednesday"])}',
             thursday = '{join_list(plan["meals"]["Thursday"])}',
             friday = '{join_list(plan["meals"]["Friday"])}',
             saturday = '{join_list(plan["meals"]["Saturday"])}',
+            sunday = '{join_list(plan["meals"]["Sunday"])}',
             ingredients = '{plan["ingredients"]}' WHERE week_date LIKE '{plan["date"]}'"""
     else:
         sql = f"""INSERT OR IGNORE INTO plans
@@ -196,18 +196,18 @@ def read_all_plans(db_file):
     cur = conn.cursor()
     cur.execute(
         """SELECT
-        week_date, sunday, monday, tuesday, wednesday, thursday, friday, saturday, ingredients
+        week_date, monday, tuesday, wednesday, thursday, friday, saturday, sunday, ingredients
         FROM plans"""
     )
     all_plans = cur.fetchall()
     days_of_week = [
-        "Sunday",
         "Monday",
         "Tuesday",
         "Wednesday",
         "Thursday",
         "Friday",
         "Saturday",
+        "Sunday",
     ]
     plans = {}
     for raw_plan in all_plans:
@@ -232,7 +232,7 @@ def read_current_plans(db_file, week_date):
     cur = conn.cursor()
     cur.execute(
         f"""SELECT
-        week_date, sunday, monday, tuesday, wednesday, thursday, friday, saturday, ingredients
+        week_date, monday, tuesday, wednesday, thursday, friday, saturday, sunday, ingredients
         FROM plans WHERE week_date LIKE ? """,
         (week_date,),
     )
@@ -242,13 +242,13 @@ def read_current_plans(db_file, week_date):
     else:
         current_plan = current_plan[0]
         days_of_week = [
-            "Sunday",
             "Monday",
             "Tuesday",
             "Wednesday",
             "Thursday",
             "Friday",
             "Saturday",
+            "Sunday",
         ]
         plan = {}
         plan["date"] = current_plan[0]

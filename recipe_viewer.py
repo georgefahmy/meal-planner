@@ -305,22 +305,31 @@ def recipe_viewer(meals=None):
             recipe_window["available_meals"].update(values=sorted(filtered_meals))
 
         if event == "export_recipe":
+            file_path = os.path.join(wd, "settings.json")
+            settings = json.load(open(file_path, "r"))
+
             selected_meal = values["available_meals"][0].lower()
             available_meals = read_all_recipes(db_file)
             meals = [capwords(meal) for meal, recipe in available_meals.items() if recipe]
             recipe = json.loads(available_meals[selected_meal])
-            export_file_path = sg.popup_get_file(
-                "Export Recipe",
-                title="Export Recipe",
-                default_extension="rcp",
-                save_as=True,
-                multiple_files=False,
-            )
-            if not export_file_path:
+            settings = json.load(open(file_path, "r"))
+            export_plan_path = settings["export_plan_path"]
+
+            if not export_plan_path:
+                export_recipe_path = sg.popup_get_folder("Export Recipe", title="Export Recipe")
+                settings["export_recipe_path"] = export_recipe_path
+                with open(file_path, "w") as fp:
+                    json.dump(settings, fp, sort_keys=True, indent=4)
+
+            if not export_recipe_path:
                 continue
 
-            with open(export_file_path, "w") as fp:
+            if recipe["title"] not in export_recipe_path:
+                export_recipe_path = export_recipe_path + "/" + f"{recipe['title']}.rcp"
+
+            with open(export_recipe_path, "w") as fp:
                 json.dump(recipe, fp, indent=4, sort_keys=True)
+                sg.popup_ok(f"Saved to {export_recipe_path}")
 
         if event == "import_recipe":
             import_files_path = sg.popup_get_file(
