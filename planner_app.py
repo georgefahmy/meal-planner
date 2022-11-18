@@ -1188,7 +1188,11 @@ while True:
                 ]
                 edited_ingredients = ", ".join(sorted(list(set(basic_ingredients))))
                 update_meal_ingredients(db_file, selected_meal, edited_ingredients)
+                update_meal_name(db_file, recipe["title"].lower(), selected_meal)
                 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+                window["-MEAL_LIST-"].update(
+                    values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
+                )
                 window["-MEAL_INGREDIENTS_LIST-"].update(values=sorted(basic_ingredients))
 
             else:

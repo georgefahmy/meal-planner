@@ -3,7 +3,7 @@
 INVENV=$(python3 -c 'import sys; print( True if "virtual" in sys.prefix else False)')
 VERSION=v$(python3 setup.py --version)
 
-if [ $INVENV == "True" ]; then
+if [ $INVENV == "False" ]; then
     echo "Please deactivate the virtual environment and run again"
     exit 0
 else
