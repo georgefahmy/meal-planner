@@ -685,7 +685,15 @@ def generate_plan_shopping_list(plan_meals):
     for ingredient, count in counter.items():
         plan_ingredients.append(f"{count} {capwords(ingredient)}")
 
-    return plan_ingredients
+    current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
+    plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
+
+    window["-WEEK-"].update("Week of " + current_plan_dict["date"])
+    window["-TABLE-"].update(values=gui_table)
+    window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
+    window["-TABLE-"].set_right_click_menu(default_table_right_click)
+
+    return current_plan_dict
 
 
 def error_window(text):
@@ -956,13 +964,7 @@ while True:
                     if meal
                 ]
 
-                plan_ingredients = generate_plan_shopping_list(plan_meals)
-
-                plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
-
-                window["-WEEK-"].update("Week of " + plan["date"])
-                window["-TABLE-"].update(values=gui_table)
-                window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
+                current_plan_dict = generate_plan_shopping_list(plan_meals)
 
             continue
 
@@ -1104,14 +1106,7 @@ while True:
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
 
-        plan_ingredients = generate_plan_shopping_list(plan_meals)
-
-        current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
-        plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
-
-        window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
-        window["-TABLE-"].update(values=gui_table)
-        window["-TABLE-"].set_right_click_menu(default_table_right_click)
+        current_plan_dict = generate_plan_shopping_list(plan_meals)
 
         add_plan(db_file, current_plan_dict, True)
 
@@ -1129,14 +1124,7 @@ while True:
                 if meal
             ]
 
-            plan_ingredients = generate_plan_shopping_list(plan_meals)
-
-            current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
-            plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
-
-            window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
-            window["-TABLE-"].update(values=gui_table)
-            window["-TABLE-"].set_right_click_menu(default_table_right_click)
+            current_plan_dict = generate_plan_shopping_list(plan_meals)
 
     if event == "Load Database":
 
@@ -1164,13 +1152,7 @@ while True:
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
 
-        plan_ingredients = generate_plan_shopping_list(plan_meals)
-
-        plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
-
-        # Update and clear the checkboxes once the database is loaded
-        window["-TABLE-"].update(values=gui_table)
-        window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
+        current_plan_dict = generate_plan_shopping_list(plan_meals)
 
     if event == "Export Database":
         export_database_path = sg.popup_get_file(
@@ -1318,12 +1300,7 @@ while True:
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
 
-        plan_ingredients = generate_plan_shopping_list(plan_meals)
-
-        plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
-
-        window["-TABLE-"].update(blank_gui_table)
-        window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
+        current_plan_dict = generate_plan_shopping_list(plan_meals)
 
     if event == "-ADD_TO_PLAN-":
         # Add a selected meal to a day of the week in the plan table
@@ -1388,15 +1365,7 @@ while True:
             meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
         ]
 
-        plan_ingredients = generate_plan_shopping_list(plan_meals)
-
-        current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
-        plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
-
-        # Update and clear the checkboxes once the meal is submitted to the plan
-        window["-TABLE-"].update(values=gui_table)
-        window["-PLAN_INGREDIENTS_LIST-"].update(plan_ingredients)
-        window["-MEAL_LIST-"].update(set_to_index=[])
+        current_plan_dict = generate_plan_shopping_list(plan_meals)
 
         # Check if we're creating a new plan or updating an existing one
         all_plans = read_all_plans(db_file)
