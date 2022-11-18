@@ -17,7 +17,7 @@ DATA_FILES = [
 ]
 OPTIONS = {
     "iconfile": "/Users/GFahmy/Documents/projects/meal-planner/resources/burger.icns",
-    "packages": ["tcl8", "tcl8.6", "tk8.6"],
+    "arch": "x86_64",
 }
 
 setup(
@@ -33,6 +33,7 @@ setup(
         "modulegraph",
         "macholib",
         "recipe-scrapers",
+        "pillow",
     ],
     packages=find_packages(),
     version="4.0",
