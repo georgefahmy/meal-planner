@@ -53,7 +53,7 @@ make_database(db_file)
 today = datetime.date.today()
 today_name = today.strftime("%A")
 
-start = today - datetime.timedelta(days=(datetime.datetime.today().weekday()) % 7)
+start = today - datetime.timedelta(days=(datetime.datetime.today().isoweekday()) % 7)
 weeks_dates = [start + datetime.timedelta(days=x) for x in range(7)]
 picked_date = str(start)
 
@@ -191,7 +191,7 @@ middle_column = [
                                 size=(6, 10),
                             )
                         ]
-                        for day in ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+                        for day in ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
                     ],
                 ),
             ],
