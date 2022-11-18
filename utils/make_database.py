@@ -11,7 +11,7 @@ except AttributeError:
 file_path = os.path.join(wd, "settings.json")
 
 settings = json.load(open(file_path, "r"))
-db_file = os.path.join(wd, "databse.db")
+db_file = os.path.join(wd, "database.db")
 
 
 def make_database(db_file=db_file):
