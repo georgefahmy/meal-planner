@@ -21,9 +21,7 @@ try:
 except AttributeError:
     wd = os.getcwd()
 
-file_path = os.path.join(wd, "settings.json")
-
-settings = json.load(open(file_path, "r"))
+settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
 db_file = os.path.join(wd, "database.db")
 meal_categories = list(dict.fromkeys(settings["meal_categories"]))
 
@@ -91,7 +89,6 @@ def recipes(meal_title=None, recipe_data=None):
                         values=meal_categories[1:],
                         font=font,
                         key="recipe_category",
-                        readonly=True,
                         expand_x=True,
                         pad=((5, 5), (5, 10)),
                     ),
