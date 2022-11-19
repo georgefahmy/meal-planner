@@ -7,21 +7,19 @@ New and Changes:
         ☐ Allow editing of those values and then save the settings file - this will require utilizing the same file path stuff for the database file path.
         ☐ Think about more user settings that can be customized
 
-    New - Add support for Windows executable in the build process:
-        ☐ Implement the windows version of py2app (py2exe)
-        ☐ Test it on a VM or something
-
-    New - Online Access (may move to version 5):
-        Make database accessible online:
-            ☐ pysimpleguiweb - have to access the server via a public address (look this up in remote.it) https://github.com/PySimpleGUI/PySimpleGUI/issues/2462 is a good reference
-            ☐ Remi - this might be the best solution
-        ☐ Associate a "Login" with each database. keep it locked unless logged in.
-
     Refactor - Modularize code for reuse (basically write better code):
         ☐ Identify repeated code and turn it into functions that can be called
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+    ✘ Implement the windows version of py2app (py2exe) @cancelled(2022-11-18 16:04) @project(New and Changes / Version 4.1 - New - Add support for Windows executable in the build process)
+    ✘ Test it on a VM or something @cancelled(2022-11-18 16:04) @project(New and Changes / Version 4.1 - New - Add support for Windows executable in the build process)
+    ✔ Make the database portion available online @done(2022-11-18 15:21) @project(New and Changes / New - Online Access / Make database accessible online)
+    ✔ Utilize remote.it for push/pull of database to the server @done(2022-11-18 15:21) @project(New and Changes / New - Online Access / Make database accessible online)
+    ✔ Associate a "Login" with each database. store in the settings file @done(2022-11-18 15:28) @project(New and Changes / New - Online Access / Make database accessible online)
+    ✔ Have a Login Window for accessing the database @done(2022-11-18 15:28) @project(New and Changes / New - Online Access / Make database accessible online)
+    ✘ pysimpleguiweb - have to access the server via a public address (look this up in remote.it) https://github.com/PySimpleGUI/PySimpleGUI/issues/2462 is a good reference @cancelled(2022-11-18 10:07) @project(New and Changes / New - Online Access \(may move to version 5\) / Make database accessible online)
+    ✘ Remi - this might be the best solution @cancelled(2022-11-18 10:07) @project(New and Changes / New - Online Access \(may move to version 5\) / Make database accessible online)
     ✘ Rename the recipe_interface and recipe_viewer files to better describe their functions @cancelled(2022-11-17 19:33) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
     ✘ Reorganize the folders to better organize the SQL functions and recipe interfaces and main interface @cancelled(2022-11-17 19:33) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))
     ✔ Clean up layouts of sections of the GUI to not repeat code @done(2022-11-17 18:39) @project(New and Changes / Refactor - Modularize code for reuse \(basically write better code\))

@@ -13,6 +13,13 @@ from utils.sql_functions import *
 from utils.custom_date_picker import popup_get_date
 from utils.make_database import make_database
 from utils.recipe_units import units
+from utils.remote_database_functions import (
+    connect_to_remote_server,
+    close_connection_to_remote_server,
+    get_database_from_remote,
+    send_database_to_remote,
+    check_username_password,
+)
 from recipe_interface import recipes
 from recipe_viewer import recipe_viewer
 from recipe_scrapers import scrape_me
@@ -20,6 +27,7 @@ from recipe_scrapers.settings import RecipeScraperSettings
 from recipe_scrapers.settings import default
 from string import capwords
 from math import ceil
+from time import sleep
 from fractions import Fraction
 from collections import Counter
 
@@ -43,12 +51,55 @@ try:
 except AttributeError:
     wd = os.getcwd()
 
-file_path = os.path.join(wd, "settings.json")
 
-settings = json.load(open(file_path, "r"))
+def login():
+    submit, login_info = sg.Window(
+        "Meal Planner Pro Login",
+        [
+            [
+                sg.Text("Username: ", font=("Arial", 16), expand_x=True),
+                sg.Input("", font=("Arial", 16), key="-USER-", size=(10, 1)),
+            ],
+            [
+                sg.Text("Password: ", font=("Arial", 16), expand_x=True),
+                sg.Input("", font=("Arial", 16), key="-PASS-", size=(10, 1), password_char="*"),
+            ],
+            [sg.Button("Okay"), sg.Button("Cancel")],
+        ],
+        disable_close=False,
+        size=(300, 100),
+    ).read(close=True)
+
+    return submit, login_info
+
+
+settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
+username, password = settings["username"], settings["password"]
+sftp, transport = connect_to_remote_server()
+
+auth = False
+while not auth:
+
+    auth = check_username_password(sftp, username, password)
+    sleep(1)
+    if not auth:
+        submit, login_info = login()
+        if submit == "Okay":
+            username, password = login_info["-USER-"], login_info["-PASS-"]
+            auth = check_username_password(sftp, username, password)
+        if submit == "Cancel":
+            break
+
+    if auth:
+        settings["username"], settings["password"] = username, password
+        json.dump(settings, open(os.path.join(wd, "settings.json"), "w"), indent=4, sort_keys=True)
+        get_database_from_remote(sftp, username, password)
+
+
 db_file = os.path.join(wd, "database.db")
 meal_categories = list(dict.fromkeys(settings["meal_categories"]))
 make_database(db_file)
+send_database_to_remote(sftp, username, password)
 
 today = datetime.date.today()
 today_name = today.strftime("%A")
@@ -72,6 +123,23 @@ blank_plan_dict = {
 }
 
 blank_gui_table = [[day] + [", ".join(meals)] for day, meals in blank_plan_dict["meals"].items()]
+
+
+def update_menu_bar_definition(auth):
+    if auth:
+        menu_bar_layout = [
+            ["&File", ["Load Database", "Export Database", "!Login", "Logout"]],
+            ["Recipes", ["New Recipe", "View Recipes", "Edit recipe"]],
+            ["Help", ["!About", "!How To", "!Feedback"]],
+        ]
+    else:
+
+        menu_bar_layout = [
+            ["&File", ["Load Database", "Export Database", "Login", "!Logout"]],
+            ["Recipes", ["New Recipe", "View Recipes", "Edit recipe"]],
+            ["Help", ["!About", "!How To", "!Feedback"]],
+        ]
+    return menu_bar_layout
 
 
 # --------------------------------- Define Layout ---------------------------------
@@ -482,12 +550,8 @@ main_right_column = [
         element_justification="c",
     )
 ]
-menu_bar_layout = [
-    ["&File", ["Load Database", "Export Database"]],
-    ["Edit", ["!Edit Meal", "!Edit Ingredients"]],
-    ["Recipes", ["New Recipe", "View Recipes", "!Edit recipe"]],
-    ["Help", ["!About", "!How To", "!Feedback"]],
-]
+
+menu_bar_layout = update_menu_bar_definition(auth)
 
 # ----- Full layout -----
 full_layout = [
@@ -802,8 +866,85 @@ plan_ingredients = None
 # Start the window loop
 while True:
     event, values = window.read()
+
     if event == sg.WIN_CLOSED:
+        close_connection_to_remote_server(sftp, transport)
         break
+
+    if event == "Login":
+        settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
+        username, password = settings["username"], settings["password"]
+        if not sftp:
+            sftp, transport = connect_to_remote_server()
+
+        while not auth:
+
+            auth = check_username_password(sftp, username, password)
+            sleep(1)
+            if not auth:
+                submit, login_info = login()
+                if submit == "Okay":
+                    username, password = login_info["-USER-"], login_info["-PASS-"]
+                    auth = check_username_password(sftp, username, password)
+                if submit == "Cancel":
+                    break
+
+            if auth:
+                settings["username"], settings["password"] = username, password
+                json.dump(
+                    settings, open(os.path.join(wd, "settings.json"), "w"), indent=4, sort_keys=True
+                )
+                get_database_from_remote(sftp, username, password)
+                window["-MEAL_LIST-"].update(
+                    values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
+                )
+                meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+                current_plan_dict = read_current_plans(db_file, str(start))
+
+                if not current_plan_dict:
+                    current_plan_dict = blank_plan_dict
+
+                gui_table = [
+                    [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
+                ]
+
+                plan_meals = [
+                    meal.lower()
+                    for meals in current_plan_dict["meals"].values()
+                    for meal in meals
+                    if meal
+                ]
+
+                current_plan_dict = generate_plan_shopping_list(plan_meals)
+                menu_bar_layout = update_menu_bar_definition(auth)
+                window["-MENU-"].update(menu_definition=menu_bar_layout)
+
+    if event == "Logout":
+        settings["password"] = settings["username"] = ""
+        json.dump(settings, open(os.path.join(wd, "settings.json"), "w"), sort_keys=True, indent=4)
+        os.remove(db_file)
+        make_database(db_file)
+        window["-MEAL_LIST-"].update(
+            values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
+        )
+        meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+        current_plan_dict = read_current_plans(db_file, str(start))
+
+        if not current_plan_dict:
+            current_plan_dict = blank_plan_dict
+
+        gui_table = [
+            [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
+        ]
+
+        plan_meals = [
+            meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
+        ]
+
+        current_plan_dict = generate_plan_shopping_list(plan_meals)
+        auth = False
+        menu_bar_layout = update_menu_bar_definition(auth)
+        window["-MENU-"].update(menu_definition=menu_bar_layout)
 
     if event:
         # DEBUG to print out the events and values
@@ -904,6 +1045,7 @@ while True:
                 recipe=json.dumps(recipe),
                 category=new_category,
             )
+            send_database_to_remote(sftp, username, password)
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             window["-MEAL_LIST-"].update(sorted([capwords(meal) for meal in meals.keys()]))
             window["-RECIPE_LINK-"].update(value="Paste Link Here (Optional)")
@@ -988,6 +1130,7 @@ while True:
                 continue
 
             remove_plan(db_file, plan_key)
+            send_database_to_remote(sftp, username, password)
             confirmation = sg.popup_ok(f"Plan for week of {plan_key}\npermentantly deleted")
             continue
 
@@ -1094,6 +1237,7 @@ while True:
         window["-TABLE-"].set_right_click_menu(default_table_right_click)
 
         add_plan(db_file, current_plan_dict, True)
+        send_database_to_remote(sftp, username, password)
 
     if "Delete Item::" in event and values["-TABLE-"]:
         chosen_food = event.split("::")[-1]
@@ -1114,6 +1258,7 @@ while True:
         current_plan_dict = generate_plan_shopping_list(plan_meals)
 
         add_plan(db_file, current_plan_dict, True)
+        send_database_to_remote(sftp, username, password)
 
     if event == "Clear Row::table":
         for row in values["-TABLE-"]:
@@ -1158,6 +1303,7 @@ while True:
         ]
 
         current_plan_dict = generate_plan_shopping_list(plan_meals)
+        send_database_to_remote(sftp, username, password)
 
     if event == "Export Database":
         export_database_path = sg.popup_get_file(
@@ -1199,6 +1345,7 @@ while True:
                     values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
                 )
                 window["-MEAL_INGREDIENTS_LIST-"].update(values=sorted(basic_ingredients))
+                send_database_to_remote(sftp, username, password)
 
             else:
                 sg.popup_ok("Recipe not overwritten")
@@ -1213,6 +1360,7 @@ while True:
                 sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
             )
             window["-MEAL_INGREDIENTS_LIST-"].update([])
+            send_database_to_remote(sftp, username, password)
 
         else:
             error_window(f"Canceled\n{selected_meal} was not deleted")
@@ -1235,11 +1383,7 @@ while True:
 
     if event == "-MEAL_LIST-":
         # Choosing an item from the list of meals will update the ingredients list for that meal
-        menu_bar_layout = [
-            ["&File", ["Load Database", "Export Database"]],
-            ["Recipes", ["New Recipe", "View Recipes", "Edit recipe"]],
-            ["Help", ["!About", "!How To", "!Feedback"]],
-        ]
+        menu_bar_layout = update_menu_bar_definition(auth)
         window["-MENU-"].update(menu_definition=menu_bar_layout)
 
         meal_selection_rightclick_menu_def = (
@@ -1293,12 +1437,7 @@ while True:
         window["-MFILTER-"].update(value="")
         window["-VIEW_RECIPE-"].update(disabled=True)
         window["-CATEGORY_TEXT-"].update(visible=False, value="category")
-        menu_bar_layout = [
-            ["&File", ["Load Database", "Export Database"]],
-            ["Edit", ["!Edit Meal", "!Edit Ingredients"]],
-            ["Recipes", ["New Recipe", "View Recipes", "!Edit recipe"]],
-            ["Help", ["!About", "!How To", "!Feedback"]],
-        ]
+        menu_bar_layout = update_menu_bar_definition(auth)
         window["-MENU-"].update(menu_definition=menu_bar_layout)
         window["-MEAL_LIST-"].set_right_click_menu(["&Right", ["!Edit::recipe", "!Delete::meal"]])
 
@@ -1381,3 +1520,4 @@ while True:
         overwrite = True if current_plan_dict["date"] in all_plans.keys() else False
 
         add_plan(db_file, current_plan_dict, overwrite)
+        send_database_to_remote(sftp, username, password)
