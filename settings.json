@@ -1,6 +1,7 @@
 {
     "export_plan_path": "",
     "export_recipe_path": "",
+    "logged_in": false,
     "meal_categories": [
         "All",
         "Dinner",

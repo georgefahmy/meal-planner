@@ -52,17 +52,19 @@ except AttributeError:
     wd = os.getcwd()
 
 
-def login():
+def login(username="", password=""):
     submit, login_info = sg.Window(
         "Meal Planner Pro Login",
         [
             [
                 sg.Text("Username: ", font=("Arial", 16), expand_x=True),
-                sg.Input("", font=("Arial", 16), key="-USER-", size=(10, 1)),
+                sg.Input(username, font=("Arial", 16), key="-USER-", size=(10, 1)),
             ],
             [
                 sg.Text("Password: ", font=("Arial", 16), expand_x=True),
-                sg.Input("", font=("Arial", 16), key="-PASS-", size=(10, 1), password_char="*"),
+                sg.Input(
+                    password, font=("Arial", 16), key="-PASS-", size=(10, 1), password_char="*"
+                ),
             ],
             [sg.Button("Okay"), sg.Button("Cancel")],
         ],
@@ -74,10 +76,10 @@ def login():
 
 
 settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
-username, password = settings["username"], settings["password"]
-sftp, transport = connect_to_remote_server()
+username, password, logged_in = settings["username"], settings["password"], settings["logged_in"]
+sftp, ssh = connect_to_remote_server()
 
-auth = False
+auth = logged_in
 while not auth:
 
     auth = check_username_password(sftp, username, password)
@@ -91,7 +93,7 @@ while not auth:
             break
 
     if auth:
-        settings["username"], settings["password"] = username, password
+        settings["username"], settings["password"], settings["logged_in"] = username, password, True
         json.dump(settings, open(os.path.join(wd, "settings.json"), "w"), indent=4, sort_keys=True)
         get_database_from_remote(sftp, username, password)
 
@@ -868,21 +870,26 @@ while True:
     event, values = window.read()
 
     if event == sg.WIN_CLOSED:
-        close_connection_to_remote_server(sftp, transport)
+        close_connection_to_remote_server(sftp, ssh)
         break
 
     if event == "Login":
-        settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
-        username, password = settings["username"], settings["password"]
+        with open(os.path.join(wd, "settings.json"), "r") as fp:
+            settings = json.load(fp)
+        username, password, auth = (
+            settings["username"],
+            settings["password"],
+            settings["logged_in"],
+        )
         if not sftp:
-            sftp, transport = connect_to_remote_server()
+            sftp, ssh = connect_to_remote_server()
 
         while not auth:
 
-            auth = check_username_password(sftp, username, password)
+            # auth = check_username_password(sftp, username, password)
             sleep(1)
             if not auth:
-                submit, login_info = login()
+                submit, login_info = login(username, password)
                 if submit == "Okay":
                     username, password = login_info["-USER-"], login_info["-PASS-"]
                     auth = check_username_password(sftp, username, password)
@@ -890,11 +897,16 @@ while True:
                     break
 
             if auth:
-                settings["username"], settings["password"] = username, password
-                json.dump(
-                    settings, open(os.path.join(wd, "settings.json"), "w"), indent=4, sort_keys=True
+                settings["username"], settings["password"], settings["logged_in"] = (
+                    username,
+                    password,
+                    auth,
                 )
+                with open(os.path.join(wd, "settings.json"), "w") as fp:
+                    json.dump(settings, fp, sort_keys=True, indent=4)
+
                 get_database_from_remote(sftp, username, password)
+
                 window["-MEAL_LIST-"].update(
                     values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
                 )
@@ -920,8 +932,12 @@ while True:
                 window["-MENU-"].update(menu_definition=menu_bar_layout)
 
     if event == "Logout":
-        settings["password"] = settings["username"] = ""
-        json.dump(settings, open(os.path.join(wd, "settings.json"), "w"), sort_keys=True, indent=4)
+        send_database_to_remote(sftp, username, password)
+        auth = False
+        # settings["password"] = settings["username"] = ""
+        settings["logged_in"] = False
+        with open(os.path.join(wd, "settings.json"), "w") as fp:
+            json.dump(settings, fp, sort_keys=True, indent=4)
         os.remove(db_file)
         make_database(db_file)
         window["-MEAL_LIST-"].update(
@@ -942,7 +958,7 @@ while True:
         ]
 
         current_plan_dict = generate_plan_shopping_list(plan_meals)
-        auth = False
+
         menu_bar_layout = update_menu_bar_definition(auth)
         window["-MENU-"].update(menu_definition=menu_bar_layout)
 

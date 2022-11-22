@@ -27,14 +27,17 @@ def connect_to_remote_server():
     sftp = ssh.open_sftp()
     if sftp:
         print("Connected to Meal Planner server")
-        return sftp, None
+        return sftp, ssh
     else:
         return None, None
 
 
-def close_connection_to_remote_server(sftp, _):
+def close_connection_to_remote_server(sftp, ssh):
     if sftp:
         sftp.close()
+
+    if ssh:
+        ssh.close()
 
 
 def check_username_password(sftp, username, password):
