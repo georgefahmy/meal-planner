@@ -14,6 +14,7 @@ DATA_FILES = [
     "resources",
     "resources/burger.icns",
     "utils",
+    "server_info.json",
 ]
 OPTIONS = {
     "iconfile": "/Users/GFahmy/Documents/projects/meal-planner/resources/burger.icns",
