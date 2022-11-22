@@ -10,25 +10,31 @@ except AttributeError:
 
 db_file = os.path.join(wd, "database.db")
 settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
+server_info = json.load(open(os.path.join(wd, "server_info.json"), "r"))
 username, password = settings["username"], settings["password"]
 
 
 def connect_to_remote_server():
-    transport = paramiko.Transport(("trading-pi-meal-planner.at.remote.it", 33000))
-    transport.connect(None, "meal-planner", "meal-planner")
-    sftp = paramiko.SFTPClient.from_transport(transport)
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    # The IP address needs to be periodically checked and updated if the external IP address changes
+    ssh.connect(
+        server_info["host_server"],
+        port=server_info["port"],
+        username=server_info["username"],
+        password=server_info["password"],
+    )
+    sftp = ssh.open_sftp()
     if sftp:
         print("Connected to Meal Planner server")
-        return sftp, transport
+        return sftp, None
     else:
         return None, None
 
 
-def close_connection_to_remote_server(sftp, transport):
+def close_connection_to_remote_server(sftp, _):
     if sftp:
         sftp.close()
-    if transport:
-        transport.close()
 
 
 def check_username_password(sftp, username, password):
@@ -49,7 +55,7 @@ def check_username_password(sftp, username, password):
             # password is incorrect
             authentication = False
     else:
-        json_file[username] = {"password": password, "username": username, "email": ""}
+        json_file[username] = {"username": username, "password": password, "email": ""}
         authentication = True
 
     with sftp.open(remote_username_password_file, "w") as fp:

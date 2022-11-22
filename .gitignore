@@ -129,10 +129,11 @@ dmypy.json
 .pyre/
 
 # Custom
-*.DS_Store*
+.DS_Store*
 _backup/
 _push_release.sh
 utils/meal_json.json
 resources/process_pdfs.py
 utils/process_meals_json.py
 resources/recipes*
+server_info.json

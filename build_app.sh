@@ -8,7 +8,7 @@ if [ $INVENV == "True" ]; then
     exit 0
 else
     rm -rf build dist
-    pip3.10 install -r requirements.txt
+    pip install -r requirements.txt
     python3.10 setup.py py2app
     cd dist
     zip -r "Meal Planner PRO.zip" "Meal Planner PRO.app"
