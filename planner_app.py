@@ -74,7 +74,7 @@ def login(username="", password=""):
                     password, font=("Arial", 16), key="-PASS-", size=(10, 1), password_char="*"
                 ),
             ],
-            [sg.Button("Okay"), sg.Button("Cancel")],
+            [sg.Button("Okay", bind_return_key=True), sg.Button("Cancel")],
         ],
         disable_close=False,
         size=(300, 100),
