@@ -52,6 +52,14 @@ except AttributeError:
     wd = os.getcwd()
 
 
+icon_file = wd + "/resources/burger-10956.png"
+sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
+themes = sg.theme_list()
+chosen_theme = choice(themes)
+sg.set_options(alpha_channel=0.99)
+sg.theme("TanBlue")
+
+
 def login(username="", password=""):
     submit, login_info = sg.Window(
         "Meal Planner Pro Login",
@@ -848,13 +856,6 @@ def add_meal_to_right_click_menu(meal_right_click_menu, meal, day):
 
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
-icon_file = wd + "/resources/burger-10956.png"
-sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
-themes = sg.theme_list()
-chosen_theme = choice(themes)
-sg.set_options(alpha_channel=0.99)
-sg.theme("TanBlue")
-
 window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1320, 660), finalize=True)
 window.refresh()
 
