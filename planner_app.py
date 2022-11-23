@@ -109,7 +109,6 @@ while not auth:
 db_file = os.path.join(wd, "database.db")
 meal_categories = list(dict.fromkeys(settings["meal_categories"]))
 make_database(db_file)
-send_database_to_remote(sftp, username, password)
 
 today = datetime.date.today()
 today_name = today.strftime("%A")
@@ -933,7 +932,12 @@ while True:
                 window["-MENU-"].update(menu_definition=menu_bar_layout)
 
     if event == "Logout":
-        send_database_to_remote(sftp, username, password)
+        save_before_logging_out = sg.popup_yes_no("Save Database before logging out?")
+        print(save_before_logging_out)
+        if save_before_logging_out == "Yes":
+            window.perform_long_operation(
+                lambda: send_database_to_remote(sftp, username, password), "Done"
+            )
         auth = False
         # settings["password"] = settings["username"] = ""
         settings["logged_in"] = False
@@ -962,6 +966,7 @@ while True:
 
         menu_bar_layout = update_menu_bar_definition(auth)
         window["-MENU-"].update(menu_definition=menu_bar_layout)
+        window["-MEAL_INGREDIENTS_LIST-"].update([])
 
     if event:
         # DEBUG to print out the events and values
@@ -1012,10 +1017,14 @@ while True:
             )
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             window["-MEAL_LIST-"].update(sorted([capwords(meal) for meal in meals.keys()]))
+            window["-MEAL_INGREDIENTS_LIST-"].update([])
             window["-RECIPE_LINK-"].update(value="Paste Link Here (Optional)")
             recipe = ""
             window["-RECIPE_NOTE-"].update(visible=False)
             window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
+            window.perform_long_operation(
+                lambda: send_database_to_remote(sftp, username, password), "Done"
+            )
 
         else:
             error_window("No Meal Added")
@@ -1062,13 +1071,15 @@ while True:
                 recipe=json.dumps(recipe),
                 category=new_category,
             )
-            send_database_to_remote(sftp, username, password)
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             window["-MEAL_LIST-"].update(sorted([capwords(meal) for meal in meals.keys()]))
             window["-RECIPE_LINK-"].update(value="Paste Link Here (Optional)")
             recipe = ""
             window["-RECIPE_NOTE-"].update(visible=False)
             window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
+            window.perform_long_operation(
+                lambda: send_database_to_remote(sftp, username, password), "Done"
+            )
 
         else:
             error_window("No Meal Added")
@@ -1147,8 +1158,10 @@ while True:
                 continue
 
             remove_plan(db_file, plan_key)
-            send_database_to_remote(sftp, username, password)
             confirmation = sg.popup_ok(f"Plan for week of {plan_key}\npermentantly deleted")
+            window.perform_long_operation(
+                lambda: send_database_to_remote(sftp, username, password), "Done"
+            )
             continue
 
         if confirm == "View Plan":
@@ -1254,7 +1267,9 @@ while True:
         window["-TABLE-"].set_right_click_menu(default_table_right_click)
 
         add_plan(db_file, current_plan_dict, True)
-        send_database_to_remote(sftp, username, password)
+        window.perform_long_operation(
+            lambda: send_database_to_remote(sftp, username, password), "Done"
+        )
 
     if "Delete Item::" in event and values["-TABLE-"]:
         chosen_food = event.split("::")[-1]
@@ -1275,7 +1290,9 @@ while True:
         current_plan_dict = generate_plan_shopping_list(plan_meals)
 
         add_plan(db_file, current_plan_dict, True)
-        send_database_to_remote(sftp, username, password)
+        window.perform_long_operation(
+            lambda: send_database_to_remote(sftp, username, password), "Done"
+        )
 
     if event == "Clear Row::table":
         for row in values["-TABLE-"]:
@@ -1320,7 +1337,9 @@ while True:
         ]
 
         current_plan_dict = generate_plan_shopping_list(plan_meals)
-        send_database_to_remote(sftp, username, password)
+        window.perform_long_operation(
+            lambda: send_database_to_remote(sftp, username, password), "Done"
+        )
 
     if event == "Export Database":
         export_database_path = sg.popup_get_file(
@@ -1362,7 +1381,10 @@ while True:
                     values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
                 )
                 window["-MEAL_INGREDIENTS_LIST-"].update(values=sorted(basic_ingredients))
-                send_database_to_remote(sftp, username, password)
+                window["-MEAL_INGREDIENTS_LIST-"].update([])
+                window.perform_long_operation(
+                    lambda: send_database_to_remote(sftp, username, password), "Done"
+                )
 
             else:
                 sg.popup_ok("Recipe not overwritten")
@@ -1377,7 +1399,9 @@ while True:
                 sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
             )
             window["-MEAL_INGREDIENTS_LIST-"].update([])
-            send_database_to_remote(sftp, username, password)
+            window.perform_long_operation(
+                lambda: send_database_to_remote(sftp, username, password), "Done"
+            )
 
         else:
             error_window(f"Canceled\n{selected_meal} was not deleted")
@@ -1537,4 +1561,6 @@ while True:
         overwrite = True if current_plan_dict["date"] in all_plans.keys() else False
 
         add_plan(db_file, current_plan_dict, overwrite)
-        send_database_to_remote(sftp, username, password)
+        window.perform_long_operation(
+            lambda: send_database_to_remote(sftp, username, password), "Done"
+        )
