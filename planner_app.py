@@ -74,7 +74,7 @@ def login(username="", password=""):
                     password, font=("Arial", 16), key="-PASS-", size=(10, 1), password_char="*"
                 ),
             ],
-            [sg.Button("Okay", bind_return_key=True), sg.Button("Cancel")],
+            [sg.Button("Okay", bind_return_key=True), sg.Button("Cancel (Offline Mode)")],
         ],
         disable_close=False,
         size=(300, 100),
@@ -97,7 +97,7 @@ while not auth:
         if submit == "Okay":
             username, password = login_info["-USER-"], login_info["-PASS-"]
             auth = check_username_password(sftp, username, password)
-        if submit == "Cancel":
+        if submit == "Cancel (Offline Mode)":
             break
 
     if auth:
@@ -138,23 +138,23 @@ def update_menu_bar_definition(auth, sftp):
     if not sftp:
         menu_bar_layout = [
             ["&File", ["Load Database", "Export Database", "!(Offline)Login", "!(Offline)Logout"]],
-            ["Recipes", ["New Recipe", "View Recipes", "Edit recipe"]],
-            ["Help", ["!About", "!How To", "!Feedback"]],
+            ["Recipes", ["New Recipe", "View Recipes", "Edit Recipe"]],
+            ["Help", ["!About", "!How To", "!Feedback", "Debug Window"]],
         ]
         return menu_bar_layout
 
     if auth:
         menu_bar_layout = [
             ["&File", ["Load Database", "Export Database", "!Login", "Logout"]],
-            ["Recipes", ["New Recipe", "View Recipes", "Edit recipe"]],
-            ["Help", ["!About", "!How To", "!Feedback"]],
+            ["Recipes", ["New Recipe", "View Recipes", "Edit Recipe"]],
+            ["Help", ["!About", "!How To", "!Feedback", "Debug Window"]],
         ]
     else:
 
         menu_bar_layout = [
             ["&File", ["Load Database", "Export Database", "Login", "!Logout"]],
-            ["Recipes", ["New Recipe", "View Recipes", "Edit recipe"]],
-            ["Help", ["!About", "!How To", "!Feedback"]],
+            ["Recipes", ["New Recipe", "View Recipes", "Edit Recipe"]],
+            ["Help", ["!About", "!How To", "!Feedback", "Debug Window"]],
         ]
     return menu_bar_layout
 
@@ -872,6 +872,7 @@ meals = {meal: info for meal, info in read_all_meals(db_file).items()}
 
 window["-WEEK-"].update(value="Week of " + picked_date)
 plan_ingredients = None
+debug = False
 
 # Start the window loop
 while True:
@@ -880,6 +881,17 @@ while True:
     if event == sg.WIN_CLOSED:
         close_connection_to_remote_server(sftp, ssh)
         break
+
+    if event == "Debug Window":
+        if debug:
+            debug = False
+
+        if not debug:
+            sg.show_debugger_window()
+            debug = True
+
+    if debug == True:
+        sg.Print(event, values)
 
     if event == "Login":
         with open(os.path.join(wd, "settings.json"), "r") as fp:
@@ -901,7 +913,7 @@ while True:
                 if submit == "Okay":
                     username, password = login_info["-USER-"], login_info["-PASS-"]
                     auth = check_username_password(sftp, username, password)
-                if submit == "Cancel":
+                if submit == "Cancel (Offline Mode)":
                     break
 
             if auth:
@@ -975,10 +987,6 @@ while True:
         menu_bar_layout = update_menu_bar_definition(auth, sftp)
         window["-MENU-"].update(menu_definition=menu_bar_layout)
         window["-MEAL_INGREDIENTS_LIST-"].update([])
-
-    if event:
-        # DEBUG to print out the events and values
-        print(event, values)
 
     if event == "View Recipes":
         recipe_viewer()
@@ -1364,7 +1372,7 @@ while True:
 
         # Future to expand for more options - will need to update the databse for additional columns
 
-    if event == "Edit::recipe" and values["-MEAL_LIST-"]:
+    if event in ("Edit::recipe", "Edit Recipe") and values["-MEAL_LIST-"]:
 
         selected_meal = values["-MEAL_LIST-"][0].lower()
         existing_recipe = read_meal_recipe(db_file, selected_meal)
@@ -1382,13 +1390,12 @@ while True:
                     for ingredient in recipe["ingredients"].values()
                 ]
                 edited_ingredients = ", ".join(sorted(list(set(basic_ingredients))))
-                update_meal_ingredients(db_file, selected_meal, edited_ingredients)
                 update_meal_name(db_file, recipe["title"].lower(), selected_meal)
+                update_meal_ingredients(db_file, recipe["title"].lower(), edited_ingredients)
                 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
                 window["-MEAL_LIST-"].update(
                     values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
                 )
-                window["-MEAL_INGREDIENTS_LIST-"].update(values=sorted(basic_ingredients))
                 window["-MEAL_INGREDIENTS_LIST-"].update([])
                 window.perform_long_operation(
                     lambda: send_database_to_remote(sftp, username, password), "Done"
