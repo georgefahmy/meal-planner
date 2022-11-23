@@ -18,13 +18,17 @@ def connect_to_remote_server():
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     # The IP address needs to be periodically checked and updated if the external IP address changes
-    ssh.connect(
-        server_info["host_server"],
-        port=server_info["port"],
-        username=server_info["username"],
-        password=server_info["password"],
-    )
-    sftp = ssh.open_sftp()
+    try:
+        ssh.connect(
+            server_info["host_server"],
+            port=server_info["port"],
+            username=server_info["username"],
+            password=server_info["password"],
+        )
+        sftp = ssh.open_sftp()
+    except:
+        return None, None
+
     if sftp:
         print("Connected to Meal Planner server")
         return sftp, ssh
@@ -41,7 +45,8 @@ def close_connection_to_remote_server(sftp, ssh):
 
 
 def check_username_password(sftp, username, password):
-
+    if not sftp:
+        return True
     remote_username_password_file = "meal-planner/user_password.json"
     with sftp.open(remote_username_password_file, "r") as fp:
         json_file = json.loads(fp.read(fp.stat().st_size))
@@ -67,6 +72,8 @@ def check_username_password(sftp, username, password):
 
 
 def get_database_from_remote(sftp, username, password):
+    if not sftp:
+        return
     try:
         remote_databases_folder = "meal-planner/databases/"
         database_files = [
@@ -88,6 +95,10 @@ def get_database_from_remote(sftp, username, password):
 
 
 def send_database_to_remote(sftp, username, password):
+
+    if not sftp:
+        return
+
     auth = check_username_password(sftp, username, password)
     if not auth:
         print("Incorrect Username or Password")

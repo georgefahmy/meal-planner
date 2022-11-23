@@ -93,7 +93,7 @@ while not auth:
     auth = check_username_password(sftp, username, password)
     sleep(1)
     if not auth:
-        submit, login_info = login()
+        submit, login_info = login(username, password)
         if submit == "Okay":
             username, password = login_info["-USER-"], login_info["-PASS-"]
             auth = check_username_password(sftp, username, password)
@@ -134,7 +134,15 @@ blank_plan_dict = {
 blank_gui_table = [[day] + [", ".join(meals)] for day, meals in blank_plan_dict["meals"].items()]
 
 
-def update_menu_bar_definition(auth):
+def update_menu_bar_definition(auth, sftp):
+    if not sftp:
+        menu_bar_layout = [
+            ["&File", ["Load Database", "Export Database", "!(Offline)Login", "!(Offline)Logout"]],
+            ["Recipes", ["New Recipe", "View Recipes", "Edit recipe"]],
+            ["Help", ["!About", "!How To", "!Feedback"]],
+        ]
+        return menu_bar_layout
+
     if auth:
         menu_bar_layout = [
             ["&File", ["Load Database", "Export Database", "!Login", "Logout"]],
@@ -560,7 +568,7 @@ main_right_column = [
     )
 ]
 
-menu_bar_layout = update_menu_bar_definition(auth)
+menu_bar_layout = update_menu_bar_definition(auth, sftp)
 
 # ----- Full layout -----
 full_layout = [
@@ -928,7 +936,7 @@ while True:
                 ]
 
                 current_plan_dict = generate_plan_shopping_list(plan_meals)
-                menu_bar_layout = update_menu_bar_definition(auth)
+                menu_bar_layout = update_menu_bar_definition(auth, sftp)
                 window["-MENU-"].update(menu_definition=menu_bar_layout)
 
     if event == "Logout":
@@ -943,8 +951,8 @@ while True:
         settings["logged_in"] = False
         with open(os.path.join(wd, "settings.json"), "w") as fp:
             json.dump(settings, fp, sort_keys=True, indent=4)
-        os.remove(db_file)
-        make_database(db_file)
+        # os.rename(db_file, db_file.split(".")[0] + "_loggedout.db")
+        # make_database(db_file)
         window["-MEAL_LIST-"].update(
             values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
         )
@@ -964,7 +972,7 @@ while True:
 
         current_plan_dict = generate_plan_shopping_list(plan_meals)
 
-        menu_bar_layout = update_menu_bar_definition(auth)
+        menu_bar_layout = update_menu_bar_definition(auth, sftp)
         window["-MENU-"].update(menu_definition=menu_bar_layout)
         window["-MEAL_INGREDIENTS_LIST-"].update([])
 
@@ -1424,7 +1432,7 @@ while True:
 
     if event == "-MEAL_LIST-":
         # Choosing an item from the list of meals will update the ingredients list for that meal
-        menu_bar_layout = update_menu_bar_definition(auth)
+        menu_bar_layout = update_menu_bar_definition(auth, sftp)
         window["-MENU-"].update(menu_definition=menu_bar_layout)
 
         meal_selection_rightclick_menu_def = (
@@ -1478,7 +1486,7 @@ while True:
         window["-MFILTER-"].update(value="")
         window["-VIEW_RECIPE-"].update(disabled=True)
         window["-CATEGORY_TEXT-"].update(visible=False, value="category")
-        menu_bar_layout = update_menu_bar_definition(auth)
+        menu_bar_layout = update_menu_bar_definition(auth, sftp)
         window["-MENU-"].update(menu_definition=menu_bar_layout)
         window["-MEAL_LIST-"].set_right_click_menu(["&Right", ["!Edit::recipe", "!Delete::meal"]])
 
