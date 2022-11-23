@@ -84,27 +84,8 @@ def login(username="", password=""):
 
 
 settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
-username, password, logged_in = settings["username"], settings["password"], settings["logged_in"]
+username, password, auth = settings["username"], settings["password"], settings["logged_in"]
 sftp, ssh = connect_to_remote_server()
-
-auth = logged_in
-while not auth:
-
-    auth = check_username_password(sftp, username, password)
-    sleep(1)
-    if not auth:
-        submit, login_info = login(username, password)
-        if submit == "Okay":
-            username, password = login_info["-USER-"], login_info["-PASS-"]
-            auth = check_username_password(sftp, username, password)
-        if submit == "Cancel (Offline Mode)":
-            break
-
-    if auth:
-        settings["username"], settings["password"], settings["logged_in"] = username, password, True
-        json.dump(settings, open(os.path.join(wd, "settings.json"), "w"), indent=4, sort_keys=True)
-        get_database_from_remote(sftp, username, password)
-
 
 db_file = os.path.join(wd, "database.db")
 meal_categories = list(dict.fromkeys(settings["meal_categories"]))
