@@ -19,6 +19,7 @@ from utils.remote_database_functions import (
     get_database_from_remote,
     send_database_to_remote,
     check_username_password,
+    internet_on,
 )
 from recipe_interface import recipes
 from recipe_viewer import recipe_viewer
@@ -886,8 +887,6 @@ while True:
             sftp, ssh = connect_to_remote_server()
 
         while not auth:
-
-            # auth = check_username_password(sftp, username, password)
             sleep(1)
             if not auth:
                 submit, login_info = login(username, password)

@@ -2,6 +2,7 @@ import paramiko
 import os
 import sys
 import json
+import urllib
 
 try:
     wd = sys._MEIPASS
@@ -14,7 +15,19 @@ server_info = json.load(open(os.path.join(wd, "server_info.json"), "r"))
 username, password = settings["username"], settings["password"]
 
 
+def internet_on():
+    try:
+        urllib.request.urlopen("https://8.8.8.8", timeout=1)
+        return True
+    except urllib.request.URLError as err:
+        return False
+
+
 def connect_to_remote_server():
+
+    if not internet_on():
+        return None, None
+
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     # The IP address needs to be periodically checked and updated if the external IP address changes
@@ -24,6 +37,7 @@ def connect_to_remote_server():
             port=server_info["port"],
             username=server_info["username"],
             password=server_info["password"],
+            timeout=10,
         )
         sftp = ssh.open_sftp()
     except:
@@ -45,8 +59,12 @@ def close_connection_to_remote_server(sftp, ssh):
 
 
 def check_username_password(sftp, username, password):
+    if not internet_on():
+        return True
+
     if not sftp:
         return True
+
     remote_username_password_file = "meal-planner/user_password.json"
     with sftp.open(remote_username_password_file, "r") as fp:
         json_file = json.loads(fp.read(fp.stat().st_size))
@@ -72,8 +90,12 @@ def check_username_password(sftp, username, password):
 
 
 def get_database_from_remote(sftp, username, password):
+    if not internet_on():
+        return
+
     if not sftp:
         return
+
     try:
         remote_databases_folder = "meal-planner/databases/"
         database_files = [
@@ -95,6 +117,8 @@ def get_database_from_remote(sftp, username, password):
 
 
 def send_database_to_remote(sftp, username, password):
+    if not internet_on():
+        return
 
     if not sftp:
         return
@@ -109,9 +133,3 @@ def send_database_to_remote(sftp, username, password):
         sftp.put(database_file, os.path.join(remote_databases_folder, username + "_database.db"))
     except OSError:
         print("Logged out...Please Login again")
-
-
-# sftp, transport = connect_to_remote_server()
-# close_connection_to_remote_server(sftp, transport)
-# send_database_to_remote(sftp, username)
-# get_database_from_remote(sftp, username)
