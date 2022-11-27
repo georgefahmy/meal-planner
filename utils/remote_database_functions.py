@@ -17,7 +17,7 @@ username, password = settings["username"], settings["password"]
 
 def internet_on():
     try:
-        urllib.request.urlopen("https://8.8.8.8", timeout=1)
+        urllib.request.urlopen("https://8.8.8.8", timeout=5)
         return True
     except urllib.request.URLError as err:
         return False
@@ -41,7 +41,17 @@ def connect_to_remote_server():
         )
         sftp = ssh.open_sftp()
     except:
-        return None, None
+        try:
+            ssh.connect(
+                server_info["local_host_server"],
+                port=server_info["port"],
+                username=server_info["username"],
+                password=server_info["password"],
+                timeout=10,
+            )
+            sftp = ssh.open_sftp()
+        except:
+            return None, None
 
     if sftp:
         print("Connected to Meal Planner server")

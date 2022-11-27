@@ -89,8 +89,15 @@ username, password, auth = settings["username"], settings["password"], settings[
 sftp, ssh = connect_to_remote_server()
 
 db_file = os.path.join(wd, "database.db")
-meal_categories = list(dict.fromkeys(settings["meal_categories"]))
 make_database(db_file)
+
+# Get meal and ingredient information from the database
+meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+meal_categories = ["All"] + list(set([capwords(meal["category"]) for meal in meals.values()]))
+
+settings["meal_categories"] = meal_categories
+with open(file_path, "w") as fp:
+    json.dump(settings, fp, sort_keys=True, indent=4)
 
 today = datetime.date.today()
 today_name = today.strftime("%A")
@@ -117,14 +124,6 @@ blank_gui_table = [[day] + [", ".join(meals)] for day, meals in blank_plan_dict[
 
 
 def update_menu_bar_definition(auth, sftp):
-    if not sftp:
-        menu_bar_layout = [
-            ["&File", ["Load Database", "Export Database", "!(Offline)Login", "!(Offline)Logout"]],
-            ["Recipes", ["New Recipe", "View Recipes", "Edit Recipe"]],
-            ["Help", ["!About", "!How To", "!Feedback", "Debug Window"]],
-        ]
-        return menu_bar_layout
-
     if auth:
         menu_bar_layout = [
             ["&File", ["Load Database", "Export Database", "!Login", "Logout"]],
@@ -258,7 +257,7 @@ middle_column = [
                                 size=(6, 10),
                             )
                         ]
-                        for day in ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+                        for day in ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
                     ],
                 ),
             ],
@@ -848,10 +847,6 @@ def add_meal_to_right_click_menu(meal_right_click_menu, meal, day):
 window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1320, 660), finalize=True)
 window.refresh()
 
-# Get meal and ingredient information from the database
-meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-
-
 window["-WEEK-"].update(value="Week of " + picked_date)
 plan_ingredients = None
 debug = False
@@ -912,7 +907,11 @@ while True:
                 )
                 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
                 current_plan_dict = read_current_plans(db_file, str(start))
-
+                window["-CFILTER-"].update(
+                    set_to_index=[0],
+                    values=["All"]
+                    + list(set([capwords(meal["category"]) for meal in meals.values()])),
+                )
                 if not current_plan_dict:
                     current_plan_dict = blank_plan_dict
 
@@ -1017,7 +1016,10 @@ while True:
             window["-RECIPE_LINK-"].update(value="Paste Link Here (Optional)")
             recipe = ""
             window["-RECIPE_NOTE-"].update(visible=False)
-            window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
+            window["-CFILTER-"].update(
+                set_to_index=[0],
+                values=["All"] + list(set([capwords(meal["category"]) for meal in meals.values()])),
+            )
             window.perform_long_operation(
                 lambda: send_database_to_remote(sftp, username, password), "Done"
             )
@@ -1072,7 +1074,10 @@ while True:
             window["-RECIPE_LINK-"].update(value="Paste Link Here (Optional)")
             recipe = ""
             window["-RECIPE_NOTE-"].update(visible=False)
-            window["-CFILTER-"].update(set_to_index=[0], values=meal_categories)
+            window["-CFILTER-"].update(
+                set_to_index=[0],
+                values=["All"] + list(set([capwords(meal["category"]) for meal in meals.values()])),
+            )
             window.perform_long_operation(
                 lambda: send_database_to_remote(sftp, username, password), "Done"
             )
@@ -1336,6 +1341,10 @@ while True:
         window.perform_long_operation(
             lambda: send_database_to_remote(sftp, username, password), "Done"
         )
+        window["-CFILTER-"].update(
+            set_to_index=[0],
+            values=["All"] + list(set([capwords(meal["category"]) for meal in meals.values()])),
+        )
 
     if event == "Export Database":
         export_database_path = sg.popup_get_file(
@@ -1378,6 +1387,11 @@ while True:
                     values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
                 )
                 window["-MEAL_INGREDIENTS_LIST-"].update([])
+                window["-CFILTER-"].update(
+                    set_to_index=[0],
+                    values=["All"]
+                    + list(set([capwords(meal["category"]) for meal in meals.values()])),
+                )
                 window.perform_long_operation(
                     lambda: send_database_to_remote(sftp, username, password), "Done"
                 )
@@ -1393,6 +1407,10 @@ while True:
             meals = {meal: info for meal, info in read_all_meals(db_file).items()}
             window["-MEAL_LIST-"].update(
                 sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
+            )
+            window["-CFILTER-"].update(
+                set_to_index=[0],
+                values=["All"] + list(set([capwords(meal["category"]) for meal in meals.values()])),
             )
             window["-MEAL_INGREDIENTS_LIST-"].update([])
             window.perform_long_operation(
