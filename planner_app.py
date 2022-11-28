@@ -856,6 +856,7 @@ while True:
     event, values = window.read()
 
     if event == sg.WIN_CLOSED:
+        send_database_to_remote(sftp, username, password)
         close_connection_to_remote_server(sftp, ssh)
         break
 
