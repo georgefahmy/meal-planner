@@ -33,21 +33,21 @@ def connect_to_remote_server():
     # The IP address needs to be periodically checked and updated if the external IP address changes
     try:
         ssh.connect(
-            server_info["host_server"],
+            server_info["local_host_server"],
             port=server_info["port"],
             username=server_info["username"],
             password=server_info["password"],
-            timeout=10,
+            timeout=5,
         )
         sftp = ssh.open_sftp()
     except:
         try:
             ssh.connect(
-                server_info["local_host_server"],
+                server_info["host_server"],
                 port=server_info["port"],
                 username=server_info["username"],
                 password=server_info["password"],
-                timeout=10,
+                timeout=5,
             )
             sftp = ssh.open_sftp()
         except:
