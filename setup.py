@@ -23,7 +23,7 @@ OPTIONS = {
 
 setup(
     app=APP,
-    version="4.1.1",
+    version="4.1.2",
     name="Meal Planner PRO",
     url="https://github.com/georgefahmy/meal-planner",
     data_files=DATA_FILES,

@@ -1296,6 +1296,9 @@ while True:
         window.perform_long_operation(
             lambda: send_database_to_remote(sftp, username, password), "Done"
         )
+        window["-TABLE-"].update(values=gui_table)
+        window["-MEAL_LIST-"].update(set_to_index=[])
+        window["-TABLE-"].set_right_click_menu(default_table_right_click)
 
     if event == "Clear Row::table":
         for row in values["-TABLE-"]:
@@ -1312,6 +1315,14 @@ while True:
             ]
 
             current_plan_dict = generate_plan_shopping_list(plan_meals)
+
+            add_plan(db_file, current_plan_dict, True)
+            window.perform_long_operation(
+                lambda: send_database_to_remote(sftp, username, password), "Done"
+            )
+            window["-TABLE-"].update(values=gui_table)
+            window["-MEAL_LIST-"].update(set_to_index=[])
+            window["-TABLE-"].set_right_click_menu(default_table_right_click)
 
     if event == "Load Database":
 
