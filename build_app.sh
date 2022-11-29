@@ -11,6 +11,7 @@ else
     pip3 install -r requirements.txt
     python3 setup.py py2app
     cd dist
+    ln -s /Applications/
     zip -r "Meal Planner PRO.zip" "Meal Planner PRO.app"
     cp -r "Meal Planner PRO.app" /Applications/
     rm -rf "Meal Planner PRO.app"

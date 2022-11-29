@@ -1,13 +1,20 @@
 New and Changes:
     ☐ Improvement - Clean up exported plan formatting "export_plan(selected_plan)"
+    ☐ Improvement - Ensure that changing the date and clearing the plan doesnt mess up the existing plan
     ☐ Improvement - On opening of application, if logged in and a plan exists for the current week, load it.
     ☐ Improvement - Calculation of ingredients with no units (i.e. 1) needs to handle summation
+    ☐ New - add DMG support for installing it easier rather than extracting from a .zip
+    ☐ https://stackoverflow.com/questions/367751/creating-a-dmg
+    ☐ Fancy DMG: https://stackoverflow.com/questions/96882/how-do-i-create-a-nice-looking-dmg-for-mac-os-x-using-command-line-tools
 
     New - Add a window to edit user settings saved in the settings.json file:
-        ☐ Have a button in the menu for opening the settings
+        ☐ Have a button in the menu for opening the user settings
         ☐ Display the different settings available with the current values
         ☐ Allow editing of those values and then save the settings file - this will require utilizing the same file path stuff for the database file path.
         ☐ Think about more user settings that can be customized
+        ☐ Changing theme?
+        ☐ Changing default categories?
+
 
     Refactor - Modularize code for reuse (basically write better code):
         ☐ Identify repeated code and turn it into functions that can be called

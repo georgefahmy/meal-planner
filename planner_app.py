@@ -718,7 +718,15 @@ def process_recipe_link(recipe_link):
     return recipe
 
 
-def generate_plan_shopping_list(plan_meals):
+def generate_plan_shopping_list(current_plan_dict):
+
+    plan_meals = [
+        meal.lower()
+        for meals in current_plan_dict["meals"].values()
+        for meal in meals
+        if meal
+    ]
+
     full_plan_shopping_list = []
     for meal in plan_meals:
         meal_shopping_list = []
@@ -731,8 +739,8 @@ def generate_plan_shopping_list(plan_meals):
 
                 full_plan_shopping_list.extend(
                     [
-                        ((ingredient["units"] + " ") if ingredient["units"] else "")
-                        + ingredient["ingredient"]
+                        ((ingredient["units"].lower() + " " + ingredient["ingredient"].lower()) if ingredient["units"] else ingredient["ingredient"].lower())
+
                     ]
                     * ceil(float(sum(Fraction(s) for s in ingredient["quantity"].split())))
                 )
@@ -740,8 +748,8 @@ def generate_plan_shopping_list(plan_meals):
                 # just add the ingredient to the full list for counting.
                 full_plan_shopping_list.extend(
                     [
-                        ((ingredient["units"] + " ") if ingredient["units"] else "")
-                        + ingredient["ingredient"]
+                        ((ingredient["units"].lower() + " " + ingredient["ingredient"].lower()) if ingredient["units"] else ingredient["ingredient"].lower())
+
                     ]
                 )
 
@@ -841,6 +849,11 @@ def add_meal_to_right_click_menu(meal_right_click_menu, meal, day):
 
     return meal_right_click_menu
 
+def check_if_plan_exists(picked_date):
+    current_plan_dict = read_current_plans(db_file, picked_date)
+    if current_plan_dict:
+        picked_date = str(current_plan_dict["date"])
+        current_plan_dict = generate_plan_shopping_list(current_plan_dict)
 
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
@@ -848,6 +861,7 @@ window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1320, 
 window.refresh()
 
 window["-WEEK-"].update(value="Week of " + picked_date)
+check_if_plan_exists(picked_date)
 plan_ingredients = None
 debug = False
 
@@ -917,24 +931,12 @@ while True:
                 if not current_plan_dict:
                     current_plan_dict = blank_plan_dict
 
-                gui_table = [
-                    [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
-                ]
-
-                plan_meals = [
-                    meal.lower()
-                    for meals in current_plan_dict["meals"].values()
-                    for meal in meals
-                    if meal
-                ]
-
-                current_plan_dict = generate_plan_shopping_list(plan_meals)
+                current_plan_dict = generate_plan_shopping_list(current_plan_dict)
                 menu_bar_layout = update_menu_bar_definition(auth, sftp)
                 window["-MENU-"].update(menu_definition=menu_bar_layout)
 
     if event == "Logout":
         save_before_logging_out = sg.popup_yes_no("Save Database before logging out?")
-        print(save_before_logging_out)
         if save_before_logging_out == "Yes":
             window.perform_long_operation(
                 lambda: send_database_to_remote(sftp, username, password), "Done"
@@ -955,15 +957,7 @@ while True:
         if not current_plan_dict:
             current_plan_dict = blank_plan_dict
 
-        gui_table = [
-            [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
-        ]
-
-        plan_meals = [
-            meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
-        ]
-
-        current_plan_dict = generate_plan_shopping_list(plan_meals)
+        current_plan_dict = generate_plan_shopping_list(current_plan_dict)
 
         menu_bar_layout = update_menu_bar_definition(auth, sftp)
         window["-MENU-"].update(menu_definition=menu_bar_layout)
@@ -1094,9 +1088,16 @@ while True:
         month, day, year = date
         selected_day = datetime.date(year=year, month=month, day=day)
         week_start = selected_day - datetime.timedelta(days=selected_day.weekday() % 7)
-        window["-WEEK-"].update(f"Week of {str(week_start)}")
-        current_plan_dict["date"] = str(week_start)
+
         picked_date = str(week_start)
+
+        current_plan_dict = read_current_plans(db_file, picked_date)
+        if current_plan_dict:
+            picked_date = str(current_plan_dict["date"])
+        else:
+            current_plan_dict = blank_plan_dict
+        current_plan_dict = generate_plan_shopping_list(current_plan_dict)
+        window["-WEEK-"].update(f"Week of {picked_date}")
 
     if event == "-AVAILABLE_PLANS-":
         all_plans = read_all_plans(db_file)
@@ -1131,18 +1132,7 @@ while True:
             if current_plan_dict:
                 picked_date = str(current_plan_dict["date"])
 
-                gui_table = [
-                    [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
-                ]
-
-                plan_meals = [
-                    meal.lower()
-                    for meals in current_plan_dict["meals"].values()
-                    for meal in meals
-                    if meal
-                ]
-
-                current_plan_dict = generate_plan_shopping_list(plan_meals)
+                current_plan_dict = generate_plan_shopping_list(current_plan_dict)
 
             continue
 
@@ -1283,20 +1273,13 @@ while True:
             continue
 
         current_plan_dict["meals"][gui_table[selected_row][0]].remove(chosen_food)
-        gui_table = [
-            [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
-        ]
-        plan_meals = [
-            meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
-        ]
 
-        current_plan_dict = generate_plan_shopping_list(plan_meals)
+        current_plan_dict = generate_plan_shopping_list(current_plan_dict)
 
         add_plan(db_file, current_plan_dict, True)
         window.perform_long_operation(
             lambda: send_database_to_remote(sftp, username, password), "Done"
         )
-        window["-TABLE-"].update(values=gui_table)
         window["-MEAL_LIST-"].update(set_to_index=[])
         window["-TABLE-"].set_right_click_menu(default_table_right_click)
 
@@ -1304,23 +1287,13 @@ while True:
         for row in values["-TABLE-"]:
             current_plan_dict["meals"][gui_table[row][0]] = ""
 
-            gui_table = [
-                [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
-            ]
-            plan_meals = [
-                meal.lower()
-                for meals in current_plan_dict["meals"].values()
-                for meal in meals
-                if meal
-            ]
-
-            current_plan_dict = generate_plan_shopping_list(plan_meals)
+            current_plan_dict = generate_plan_shopping_list(current_plan_dict)
 
             add_plan(db_file, current_plan_dict, True)
             window.perform_long_operation(
                 lambda: send_database_to_remote(sftp, username, password), "Done"
             )
-            window["-TABLE-"].update(values=gui_table)
+
             window["-MEAL_LIST-"].update(set_to_index=[])
             window["-TABLE-"].set_right_click_menu(default_table_right_click)
 
@@ -1342,15 +1315,7 @@ while True:
         if not current_plan_dict:
             current_plan_dict = blank_plan_dict
 
-        gui_table = [
-            [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
-        ]
-
-        plan_meals = [
-            meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
-        ]
-
-        current_plan_dict = generate_plan_shopping_list(plan_meals)
+        current_plan_dict = generate_plan_shopping_list(current_plan_dict)
         window.perform_long_operation(
             lambda: send_database_to_remote(sftp, username, password), "Done"
         )
@@ -1512,11 +1477,8 @@ while True:
     if event == "-PLAN-CLEAR-":
         # Empty out the table and return it to the default values
         current_plan_dict = blank_plan_dict
-        plan_meals = [
-            meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
-        ]
 
-        current_plan_dict = generate_plan_shopping_list(plan_meals)
+        current_plan_dict = generate_plan_shopping_list(current_plan_dict)
 
     if event == "-ADD_TO_PLAN-":
         # Add a selected meal to a day of the week in the plan table
@@ -1573,15 +1535,7 @@ while True:
             else:
                 current_plan_dict["meals"][day] = current_plan_dict["meals"][day] + selected_meal
 
-        gui_table = [
-            [day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()
-        ]
-
-        plan_meals = [
-            meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
-        ]
-
-        current_plan_dict = generate_plan_shopping_list(plan_meals)
+        current_plan_dict = generate_plan_shopping_list(current_plan_dict)
 
         # Check if we're creating a new plan or updating an existing one
         all_plans = read_all_plans(db_file)
