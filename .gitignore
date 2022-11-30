@@ -138,3 +138,4 @@ utils/process_meals_json.py
 resources/recipes*
 server_info.json
 noip.json
+*.dmg
