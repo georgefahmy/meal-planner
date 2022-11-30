@@ -10,10 +10,13 @@ else
     rm -rf build dist
     pip3 install -r requirements.txt
     python3 setup.py py2app
-    ln -s dist/Applications/
-    hdiutil create -srcfolder dist/ -volname "Meal Planner Pro" meal-planner-pro.dmg
-    cp -r "dist/Meal Planner PRO.app" /Applications/
-    rm -rf "dist/Meal Planner PRO.app"
+    cd dist
+    ln -s /Applications/
+    echo "Creating Installation Image"
+    hdiutil create -srcfolder . -volname "Meal Planner Pro" meal-planner-pro.dmg
+    rm -rf "Meal Planner PRO.app"
+    rm ./Applications
+    cd ..
     echo "Creating release and uploading app to github"
     gh release create $VERSION dist/*.dmg -t "Meal Planner PRO $VERSION" -F resources/changelog.md
 fi
