@@ -721,10 +721,7 @@ def process_recipe_link(recipe_link):
 def generate_plan_shopping_list(current_plan_dict):
 
     plan_meals = [
-        meal.lower()
-        for meals in current_plan_dict["meals"].values()
-        for meal in meals
-        if meal
+        meal.lower() for meals in current_plan_dict["meals"].values() for meal in meals if meal
     ]
 
     full_plan_shopping_list = []
@@ -739,8 +736,11 @@ def generate_plan_shopping_list(current_plan_dict):
 
                 full_plan_shopping_list.extend(
                     [
-                        ((ingredient["units"].lower() + " " + ingredient["ingredient"].lower()) if ingredient["units"] else ingredient["ingredient"].lower())
-
+                        (
+                            (ingredient["units"].lower() + " " + ingredient["ingredient"].lower())
+                            if ingredient["units"]
+                            else ingredient["ingredient"].lower()
+                        )
                     ]
                     * ceil(float(sum(Fraction(s) for s in ingredient["quantity"].split())))
                 )
@@ -748,8 +748,11 @@ def generate_plan_shopping_list(current_plan_dict):
                 # just add the ingredient to the full list for counting.
                 full_plan_shopping_list.extend(
                     [
-                        ((ingredient["units"].lower() + " " + ingredient["ingredient"].lower()) if ingredient["units"] else ingredient["ingredient"].lower())
-
+                        (
+                            (ingredient["units"].lower() + " " + ingredient["ingredient"].lower())
+                            if ingredient["units"]
+                            else ingredient["ingredient"].lower()
+                        )
                     ]
                 )
 
@@ -849,11 +852,13 @@ def add_meal_to_right_click_menu(meal_right_click_menu, meal, day):
 
     return meal_right_click_menu
 
+
 def check_if_plan_exists(picked_date):
     current_plan_dict = read_current_plans(db_file, picked_date)
     if current_plan_dict:
         picked_date = str(current_plan_dict["date"])
         current_plan_dict = generate_plan_shopping_list(current_plan_dict)
+
 
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
@@ -903,7 +908,7 @@ while True:
                 submit, login_info = login(username, password)
                 if submit == "Okay":
                     username, password = login_info["-USER-"], login_info["-PASS-"]
-                    auth = check_username_password(sftp, username, password)
+                    auth, new = check_username_password(sftp, username, password)
                 if submit == "Cancel (Offline Mode)":
                     break
 
@@ -916,7 +921,14 @@ while True:
                 with open(os.path.join(wd, "settings.json"), "w") as fp:
                     json.dump(settings, fp, sort_keys=True, indent=4)
 
-                get_database_from_remote(sftp, username, password)
+                if new:
+                    os.remove(db_file)
+                    make_database(db_file)
+                    window.perform_long_operation(
+                        lambda: send_database_to_remote(sftp, username, password), "Done"
+                    )
+                else:
+                    get_database_from_remote(sftp, username, password)
 
                 window["-MEAL_LIST-"].update(
                     values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])

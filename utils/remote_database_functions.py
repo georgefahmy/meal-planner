@@ -70,10 +70,10 @@ def close_connection_to_remote_server(sftp, ssh):
 
 def check_username_password(sftp, username, password):
     if not internet_on():
-        return True
+        return True, False
 
     if not sftp:
-        return True
+        return True, False
 
     remote_username_password_file = "meal-planner/user_password.json"
     with sftp.open(remote_username_password_file, "r") as fp:
@@ -81,22 +81,26 @@ def check_username_password(sftp, username, password):
 
     if not username or not password:
         # add a future update to make usernames an email
-        return False
+        return False, False
 
     if username in json_file:
         stored_password = json_file[username]["password"]
         if stored_password == password:
             authentication = True
+            new = False
         else:
             # password is incorrect
             authentication = False
+            new = False
     else:
         json_file[username] = {"username": username, "password": password, "email": ""}
         authentication = True
+        new = True
 
     with sftp.open(remote_username_password_file, "w") as fp:
         json.dump(json_file, fp, indent=4, sort_keys=True)
-    return authentication
+
+    return authentication, new
 
 
 def get_database_from_remote(sftp, username, password):
