@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = "4.1.3"
+VERSION = open("resources/VERSION","r").read().strip()
 
 APP = ["planner_app.py"]
 DATA_FILES = [
