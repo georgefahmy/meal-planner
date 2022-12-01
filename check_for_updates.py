@@ -3,6 +3,7 @@ import PySimpleGUI as sg
 import requests
 import sys
 from string import capwords
+from utils.remote_database_functions import internet_on
 
 try:
     wd = sys._MEIPASS
@@ -11,14 +12,6 @@ except AttributeError:
 
 FILENAME = "meal-planner-pro.dmg"
 VOLUME_NAME = capwords(FILENAME.replace("-", "\ ").split(".")[0])
-restart = False
-
-version_response = requests.get(
-    "https://raw.githubusercontent.com/georgefahmy/meal-planner/main/resources/VERSION"
-)
-new_version = version_response.text.strip() if version_response.ok else None
-
-current_version = open(wd + "/resources/VERSION", "r").read().strip()
 
 
 def download_new_version(url, file_name):
@@ -32,6 +25,17 @@ def download_new_version(url, file_name):
 # Check if outdated
 def check_for_update():
     restart = False
+
+    if not internet_on():
+        return False
+
+    version_response = requests.get(
+        "https://raw.githubusercontent.com/georgefahmy/meal-planner/main/resources/VERSION"
+    )
+    new_version = version_response.text.strip() if version_response.ok else None
+
+    current_version = open(wd + "/resources/VERSION", "r").read().strip()
+
     if current_version >= new_version:
         print("Version is up to date")
         confirm = False
