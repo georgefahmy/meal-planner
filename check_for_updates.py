@@ -11,6 +11,7 @@ except AttributeError:
 
 FILENAME = "meal-planner-pro.dmg"
 VOLUME_NAME = capwords(FILENAME.replace("-", "\ ").split(".")[0])
+restart = False
 
 version_response = requests.get(
     "https://raw.githubusercontent.com/georgefahmy/meal-planner/main/resources/VERSION"
@@ -30,6 +31,7 @@ def download_new_version(url, file_name):
 
 # Check if outdated
 def check_for_update():
+    restart = False
     if current_version >= new_version:
         print("Version is up to date")
         confirm = False
@@ -67,6 +69,10 @@ def check_for_update():
         )
         os.system("hdiutil detach " + ("/Volumes/" + VOLUME_NAME))
         os.remove(wd + "/resources/" + FILENAME)
+        sg.popup_timed("Reopen Meal Planner Pro to have the new version")
+        restart = True
+
+    return restart
 
 
 # check_for_update()

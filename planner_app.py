@@ -53,7 +53,9 @@ try:
 except AttributeError:
     wd = os.getcwd()
 
-check_for_update()
+restart = check_for_update()
+if restart:
+    exit()
 
 icon_file = wd + "/resources/burger-10956.png"
 sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
@@ -1378,11 +1380,17 @@ while True:
                 window["-MEAL_LIST-"].update(
                     values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
                 )
+                meal_categories = ["All"] + list(
+                    set([capwords(meal["category"]) for meal in meals.values()])
+                )
+
+                settings["meal_categories"] = meal_categories
+                with open(file_path, "w") as fp:
+                    json.dump(settings, fp, sort_keys=True, indent=4)
+
                 window["-MEAL_INGREDIENTS_LIST-"].update([])
                 window["-CFILTER-"].update(
-                    set_to_index=[0],
-                    values=["All"]
-                    + list(set([capwords(meal["category"]) for meal in meals.values()])),
+                    set_to_index=[0], values=meal_categories,
                 )
                 window.perform_long_operation(
                     lambda: send_database_to_remote(sftp, username, password), "Done"
