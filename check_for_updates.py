@@ -59,8 +59,8 @@ def check_for_update():
 
     if confirm == "Download":
         pass
-        download_new_version(new_version_url, wd + "/" + FILENAME)
-        os.system(f"hdiutil attach {wd + '/' + FILENAME}")
+        download_new_version(new_version_url, wd.replace(" ", "\ ") + "/resources/" + FILENAME)
+        os.system(f"hdiutil attach " + wd.replace(" ", "\ ") + "/resources/" + FILENAME)
         os.system(
             ("cp -r /Volumes/" + VOLUME_NAME + "/" + VOLUME_NAME + ".app")
             + (" /Volumes/" + VOLUME_NAME + "/" + "Applications/")
