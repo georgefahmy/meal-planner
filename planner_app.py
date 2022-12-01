@@ -21,6 +21,7 @@ from utils.remote_database_functions import (
     check_username_password,
     internet_on,
 )
+from check_for_updates import check_for_update
 from recipe_interface import recipes
 from recipe_viewer import recipe_viewer
 from recipe_scrapers import scrape_me
@@ -52,6 +53,7 @@ try:
 except AttributeError:
     wd = os.getcwd()
 
+check_for_update()
 
 icon_file = wd + "/resources/burger-10956.png"
 sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
