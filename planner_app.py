@@ -862,6 +862,7 @@ def check_if_plan_exists(picked_date):
     if current_plan_dict:
         picked_date = str(current_plan_dict["date"])
         current_plan_dict = generate_plan_shopping_list(current_plan_dict)
+    return current_plan_dict
 
 
 # --------------------------------- Create the Window ---------------------------------
@@ -870,8 +871,7 @@ window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1320, 
 window.refresh()
 
 window["-WEEK-"].update(value="Week of " + picked_date)
-check_if_plan_exists(picked_date)
-plan_ingredients = None
+current_plan_dict = check_if_plan_exists(picked_date)
 debug = False
 
 # Start the window loop
