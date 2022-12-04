@@ -4,12 +4,12 @@
     "logged_in": false,
     "meal_categories": [
         "All",
-        "Dinner",
-        "Lunch",
+        "Appetizer",
         "Breakfast",
         "Dessert",
+        "Dinner",
         "Fasting",
-        "Appetizer"
+        "Lunch"
     ],
     "password": "",
     "username": ""

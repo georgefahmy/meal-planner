@@ -24,8 +24,13 @@ except AttributeError:
 settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
 db_file = os.path.join(wd, "database.db")
 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-meal_categories = ["All"] + list(set([capwords(meal["category"]) for meal in meals.values()]))
-
+settings["meal_categories"].remove("All")
+meal_categories = ["All"] + list(
+    set(
+        settings["meal_categories"]
+        + list(set([capwords(meal["category"]) for meal in meals.values()]))
+    )
+)
 settings["meal_categories"] = meal_categories
 with open(file_path, "w") as fp:
     json.dump(settings, fp, sort_keys=True, indent=4)
