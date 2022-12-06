@@ -3,6 +3,9 @@ New and Changes:
     ☐ Improvement - Ensure that changing the date and clearing the plan doesnt mess up the existing plan
     ☐ Improvement - On opening of application, if logged in and a plan exists for the current week, load it.
     ☐ Improvement - Calculation of ingredients with no units (i.e. 1) needs to handle summation
+
+    ☐ Improvement/Investigation - google python @dataclass - See how we can utilize a "meal class", "plan class", "remote server class" and adding functions for manipulating meals (recipes, categories, instructions, etc.) and plans and remote connections.
+
     ☐ New - add DMG support for installing it easier rather than extracting from a .zip
     ☐ https://stackoverflow.com/questions/367751/creating-a-dmg
     ☐ Fancy DMG: https://stackoverflow.com/questions/96882/how-do-i-create-a-nice-looking-dmg-for-mac-os-x-using-command-line-tools
