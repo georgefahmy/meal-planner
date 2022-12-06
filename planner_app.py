@@ -92,6 +92,9 @@ settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
 username, password, auth = settings["username"], settings["password"], settings["logged_in"]
 sftp, ssh = connect_to_remote_server()
 
+if username and sftp:
+    get_database_from_remote(sftp, username, password)
+
 db_file = os.path.join(wd, "database.db")
 make_database(db_file)
 
