@@ -100,9 +100,15 @@ make_database(db_file)
 
 # Get meal and ingredient information from the database
 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-meal_categories = ["All"] + list(set([capwords(meal["category"]) for meal in meals.values()]))
+settings["meal_categories"].remove("All")
+meal_categories = ["All"] + list(
+    set(
+        settings["meal_categories"]
+        + list(set([capwords(meal["category"]) for meal in meals.values()]))
+    )
+)
 
-settings["meal_categories"] = meal_categories
+settings["meal_categories"] = sorted(meal_categories)
 with open(file_path, "w") as fp:
     json.dump(settings, fp, sort_keys=True, indent=4)
 
@@ -135,6 +141,7 @@ def update_menu_bar_definition(auth, sftp):
         menu_bar_layout = [
             ["&File", ["Load Database", "Export Database", "!Login", "Logout"]],
             ["Recipes", ["New Recipe", "View Recipes", "Edit Recipe"]],
+            ["User Settings", ["View Settings"]],
             ["Help", ["!About", "!How To", "!Feedback", "Debug Window"]],
         ]
     else:
@@ -142,6 +149,7 @@ def update_menu_bar_definition(auth, sftp):
         menu_bar_layout = [
             ["&File", ["Load Database", "Export Database", "Login", "!Logout"]],
             ["Recipes", ["New Recipe", "View Recipes", "Edit Recipe"]],
+            ["User Settings", ["View Settings"]],
             ["Help", ["!About", "!How To", "!Feedback", "Debug Window"]],
         ]
     return menu_bar_layout
@@ -868,6 +876,91 @@ def check_if_plan_exists(picked_date):
     return current_plan_dict
 
 
+def settings_viewer():
+    settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
+    plan_path = settings["export_plan_path"] if settings["export_plan_path"] else "None"
+    recipe_path = settings["export_recipe_path"] if settings["export_recipe_path"] else "None"
+    meal_categories = settings["meal_categories"]
+    meal_categories.remove("All")
+    username = settings["username"] if settings["username"] else "None"
+    password = settings["password"] if settings["password"] else "None"
+    settings_window = sg.Window(
+        "User Settings",
+        [
+            [sg.Text(f"Username: {username}; Password: {password}", font=("Arial", 16)),],
+            [sg.Text(f"Plan Export Path: {plan_path}", font=("Arial", 16)),],
+            [sg.Text(f"Plan Export Path: {plan_path}", font=("Arial", 16)),],
+            [sg.Text(f"Recipe Export Path: {recipe_path}", font=("Arial", 16)),],
+            [
+                [sg.Text("Meal Categories", font=("Arial", 16), justification="c")],
+                [
+                    sg.Listbox(
+                        meal_categories,
+                        size=(20, 10),
+                        tooltip="Right click to edit",
+                        key="Category_settings",
+                        right_click_menu=["&Right", ["Edit::settings", "Delete::settings"]],
+                    )
+                ],
+                [sg.Button("Add Category", enable_events=True)],
+            ],
+        ],
+        disable_close=False,
+    )
+
+    while True:
+        settings_event, settings_values = settings_window.read()
+        if settings_event == sg.WIN_CLOSED:
+            break
+
+        if settings_event:
+            print(settings_event, settings_values)
+
+        if settings_event == "Edit::settings":
+            updated_category = sg.popup_get_text(
+                "Edit Category", default_text=settings_values["Category_settings"][0]
+            )
+            updated_category = updated_category.replace("('", "").replace("',", "").replace(")", "")
+            if updated_category:
+                meal_categories.remove(settings_values["Category_settings"][0])
+                meal_categories.append(updated_category)
+
+            settings["meal_categories"] = ["All"] + sorted(meal_categories)
+            with open(os.path.join(wd, "settings.json"), "w") as fp:
+                json.dump(settings, fp, sort_keys=True, indent=4)
+
+            meal_categories = settings["meal_categories"]
+            meal_categories.remove("All")
+            settings_window["Category_settings"].update(values=meal_categories)
+
+        if settings_event == "Delete::settings":
+            confirm = sg.popup_ok_cancel("Confirm Delete Category?")
+            if confirm == "OK":
+                meal_categories.remove(settings_values["Category_settings"][0])
+
+            settings["meal_categories"] = ["All"] + sorted(meal_categories)
+            with open(os.path.join(wd, "settings.json"), "w") as fp:
+                json.dump(settings, fp, sort_keys=True, indent=4)
+
+            meal_categories = settings["meal_categories"]
+            meal_categories.remove("All")
+            settings_window["Category_settings"].update(values=meal_categories)
+
+        if settings_event == "Add Category":
+            new_category = sg.popup_get_text("New Category")
+            new_category = new_category.replace("('", "").replace("',", "").replace(")", "")
+            if new_category:
+                meal_categories.append(new_category)
+
+            settings["meal_categories"] = ["All"] + sorted(meal_categories)
+            with open(os.path.join(wd, "settings.json"), "w") as fp:
+                json.dump(settings, fp, sort_keys=True, indent=4)
+
+            meal_categories = settings["meal_categories"]
+            meal_categories.remove("All")
+            settings_window["Category_settings"].update(values=meal_categories)
+
+
 # --------------------------------- Create the Window ---------------------------------
 # Use the full layout to create the window object
 window = sg.Window("Meal Planner PRO", full_layout, resizable=True, size=(1320, 660), finalize=True)
@@ -894,6 +987,9 @@ while True:
         if not debug:
             sg.show_debugger_window()
             debug = True
+
+    if event == "View Settings":
+        settings_viewer()
 
     if debug == True:
         sg.Print(event, values)
@@ -1384,7 +1480,10 @@ while True:
                     values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
                 )
                 meal_categories = ["All"] + list(
-                    set([capwords(meal["category"]) for meal in meals.values()])
+                    set(
+                        settings["meal_categories"]
+                        + list(set([capwords(meal["category"]) for meal in meals.values()]))
+                    )
                 )
 
                 settings["meal_categories"] = meal_categories
