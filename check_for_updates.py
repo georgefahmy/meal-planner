@@ -2,6 +2,7 @@ import os
 import PySimpleGUI as sg
 import requests
 import sys
+from packaging import version
 from string import capwords
 from utils.remote_database_functions import internet_on
 
@@ -36,11 +37,11 @@ def check_for_update():
 
     current_version = open(wd + "/resources/VERSION", "r").read().strip()
 
-    if current_version >= new_version:
+    if version.parse(current_version) >= version.parse(new_version):
         print("Version is up to date")
         confirm = False
 
-    elif current_version < new_version:
+    elif version.parse(current_version) < version.parse(new_version):
         print("New Version available")
         new_version_url = (
             "https://github.com/georgefahmy/meal-planner/releases/download/v"
