@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v4.1.9] - 2022-12-04
 
-Fixed a bug where the plan was not defined upon load.
+Fixed a bug with loading the database from the server
 
 ### Fixed
- - Fixed plan loading bug
+ - Fixed a bug with loading the database from the server before loading the local database
