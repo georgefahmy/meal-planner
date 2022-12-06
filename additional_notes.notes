@@ -4,17 +4,10 @@ New and Changes:
     ☐ Improvement - On opening of application, if logged in and a plan exists for the current week, load it.
     ☐ Improvement - Calculation of ingredients with no units (i.e. 1) needs to handle summation
 
-    ☐ Improvement/Investigation - google python @dataclass - See how we can utilize a "meal class", "plan class", "remote server class" and adding functions for manipulating meals (recipes, categories, instructions, etc.) and plans and remote connections.
+    ☐ Improvement/Investigation - google python @dataclass - See how we can utilize a "meal class", "plan class", "remote server class" and adding functions for manipulating meals (recipes, categories, instructions, etc.) and plans and remote connections. https://codereview.stackexchange.com/questions/185051/python-simple-class-with-sqlite-and-unit-testing
 
-    ☐ New - add DMG support for installing it easier rather than extracting from a .zip
-    ☐ https://stackoverflow.com/questions/367751/creating-a-dmg
-    ☐ Fancy DMG: https://stackoverflow.com/questions/96882/how-do-i-create-a-nice-looking-dmg-for-mac-os-x-using-command-line-tools
 
     New - Add a window to edit user settings saved in the settings.json file:
-        ☐ Have a button in the menu for opening the user settings
-        ☐ Display the different settings available with the current values
-        ☐ Allow editing of those values and then save the settings file - this will require utilizing the same file path stuff for the database file path.
-        ☐ Think about more user settings that can be customized
         ☐ Changing theme?
         ☐ Changing default categories?
 
@@ -24,6 +17,13 @@ New and Changes:
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+    ✔ Have a button in the menu for opening the user settings @done(2022-12-06 14:27) @project(New and Changes / New - Add a window to edit user settings saved in the settings.json file)
+    ✔ Display the different settings available with the current values @done(2022-12-06 14:27) @project(New and Changes / New - Add a window to edit user settings saved in the settings.json file)
+    ✔ Allow editing of those values and then save the settings file - this will require utilizing the same file path stuff for the database file path. @done(2022-12-06 14:27) @project(New and Changes / New - Add a window to edit user settings saved in the settings.json file)
+    ✔ Think about more user settings that can be customized @done(2022-12-06 14:27) @project(New and Changes / New - Add a window to edit user settings saved in the settings.json file)
+    ✔ New - add DMG support for installing it easier rather than extracting from a .zip @done(2022-12-06 14:26) @project(New and Changes)
+    ✔ https://stackoverflow.com/questions/367751/creating-a-dmg @done(2022-12-06 14:26) @project(New and Changes)
+    ✔ Fancy DMG: https://stackoverflow.com/questions/96882/how-do-i-create-a-nice-looking-dmg-for-mac-os-x-using-command-line-tools @done(2022-12-06 14:26) @project(New and Changes)
     ✘ Implement the windows version of py2app (py2exe) @cancelled(2022-11-18 16:04) @project(New and Changes / Version 4.1 - New - Add support for Windows executable in the build process)
     ✘ Test it on a VM or something @cancelled(2022-11-18 16:04) @project(New and Changes / Version 4.1 - New - Add support for Windows executable in the build process)
     ✔ Make the database portion available online @done(2022-11-18 15:21) @project(New and Changes / New - Online Access / Make database accessible online)
