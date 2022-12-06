@@ -881,12 +881,13 @@ def settings_viewer():
     plan_path = settings["export_plan_path"] if settings["export_plan_path"] else "None"
     recipe_path = settings["export_recipe_path"] if settings["export_recipe_path"] else "None"
     meal_categories = settings["meal_categories"]
+    meal_categories.remove("All")
     username = settings["username"] if settings["username"] else "None"
     password = settings["password"] if settings["password"] else "None"
     settings_window = sg.Window(
         "User Settings",
         [
-            [sg.Text(f"Username: {username} Password: {password}", font=("Arial", 16)),],
+            [sg.Text(f"Username: {username}; Password: {password}", font=("Arial", 16)),],
             [sg.Text(f"Plan Export Path: {plan_path}", font=("Arial", 16)),],
             [sg.Text(f"Plan Export Path: {plan_path}", font=("Arial", 16)),],
             [sg.Text(f"Recipe Export Path: {recipe_path}", font=("Arial", 16)),],
@@ -896,7 +897,9 @@ def settings_viewer():
                     sg.Listbox(
                         meal_categories,
                         size=(20, 10),
-                        right_click_menu=["&Right", ["Edit", "Delete"]],
+                        tooltip="Right click to edit",
+                        key="Category_settings",
+                        right_click_menu=["&Right", ["Edit::settings", "Delete::settings"]],
                     )
                 ],
                 [sg.Button("Add Category", enable_events=True)],
@@ -912,6 +915,50 @@ def settings_viewer():
 
         if settings_event:
             print(settings_event, settings_values)
+
+        if settings_event == "Edit::settings":
+            updated_category = sg.popup_get_text(
+                "Edit Category", default_text=settings_values["Category_settings"][0]
+            )
+            updated_category = updated_category.replace("('", "").replace("',", "").replace(")", "")
+            if updated_category:
+                meal_categories.remove(settings_values["Category_settings"][0])
+                meal_categories.append(updated_category)
+
+            settings["meal_categories"] = ["All"] + sorted(meal_categories)
+            with open(os.path.join(wd, "settings.json"), "w") as fp:
+                json.dump(settings, fp, sort_keys=True, indent=4)
+
+            meal_categories = settings["meal_categories"]
+            meal_categories.remove("All")
+            settings_window["Category_settings"].update(values=meal_categories)
+
+        if settings_event == "Delete::settings":
+            confirm = sg.popup_ok_cancel("Confirm Delete Category?")
+            if confirm == "OK":
+                meal_categories.remove(settings_values["Category_settings"][0])
+
+            settings["meal_categories"] = ["All"] + sorted(meal_categories)
+            with open(os.path.join(wd, "settings.json"), "w") as fp:
+                json.dump(settings, fp, sort_keys=True, indent=4)
+
+            meal_categories = settings["meal_categories"]
+            meal_categories.remove("All")
+            settings_window["Category_settings"].update(values=meal_categories)
+
+        if settings_event == "Add Category":
+            new_category = sg.popup_get_text("New Category")
+            new_category = new_category.replace("('", "").replace("',", "").replace(")", "")
+            if new_category:
+                meal_categories.append(new_category)
+
+            settings["meal_categories"] = ["All"] + sorted(meal_categories)
+            with open(os.path.join(wd, "settings.json"), "w") as fp:
+                json.dump(settings, fp, sort_keys=True, indent=4)
+
+            meal_categories = settings["meal_categories"]
+            meal_categories.remove("All")
+            settings_window["Category_settings"].update(values=meal_categories)
 
 
 # --------------------------------- Create the Window ---------------------------------

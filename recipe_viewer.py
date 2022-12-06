@@ -35,9 +35,7 @@ try:
 except AttributeError:
     wd = os.getcwd()
 
-file_path = os.path.join(wd, "settings.json")
-
-settings = json.load(open(file_path, "r"))
+settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
 db_file = os.path.join(wd, "database.db")
 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
 settings["meal_categories"].remove("All")
