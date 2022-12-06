@@ -16,13 +16,13 @@ fixed_units.reverse()
 unit_expression = "|".join(fixed_units)
 match_expression = f"([0-9\/\.\-\s]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s\-\.]*),?\s?(.*)?"
 
+
 @dataclass
-class Ingredient():
+class Ingredient:
     raw: str = ""
+
     def __init__(self, raw):
-        parsed_ingredient = list(
-            re.match(match_expression, raw, flags=re.IGNORECASE).groups()
-        )
+        parsed_ingredient = list(re.match(match_expression, raw, flags=re.IGNORECASE).groups())
         for i, val in enumerate(parsed_ingredient):
             if val:
                 parsed_ingredient[i] = val.strip()
@@ -40,12 +40,12 @@ class Recipe:
     link: str = ""
     recipe_data: str = ""
     category: str = ""
+
     def __init__(self, title, ingredients):
         self.title = title
         self.ingredients = []
         for ingredient in ingredients:
             self.ingredients.append(Ingredient(ingredient))
-
 
 
 @dataclass
@@ -57,6 +57,7 @@ class Plan:
     friday: str = ""
     saturday: str = ""
     sunday: str = ""
+
 
 @dataclass
 class ShoppingList:
