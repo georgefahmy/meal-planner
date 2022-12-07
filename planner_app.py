@@ -889,7 +889,6 @@ def settings_viewer():
         [
             [sg.Text(f"Username: {username}; Password: {password}", font=("Arial", 16)),],
             [sg.Text(f"Plan Export Path: {plan_path}", font=("Arial", 16)),],
-            [sg.Text(f"Plan Export Path: {plan_path}", font=("Arial", 16)),],
             [sg.Text(f"Recipe Export Path: {recipe_path}", font=("Arial", 16)),],
             [
                 [sg.Text("Meal Categories", font=("Arial", 16), justification="c")],
