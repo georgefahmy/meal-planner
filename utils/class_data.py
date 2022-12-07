@@ -1,5 +1,5 @@
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from recipe_units import units
 
 fixed_units = []
@@ -28,7 +28,7 @@ class Ingredient():
                 parsed_ingredient[i] = val.strip()
         self.raw = raw
         self.quantity: int = parsed_ingredient[0]
-        self.unit: str = parsed_ingredient[1]
+        self.units: str = parsed_ingredient[1]
         self.name: str = parsed_ingredient[2]
         self.special_instruction: str = parsed_ingredient[3]
 
@@ -57,4 +57,10 @@ class Plan:
     friday: str = ""
     saturday: str = ""
     sunday: str = ""
-    ingredients: list[int] = field(default_factory=list)
+
+@dataclass
+class ShoppingList:
+    plan: Plan = field(repr=False)
+    ingredients: list[Ingredient] = field(default_factory=list)
+    for f in fields(plan):
+        print(f.name)
