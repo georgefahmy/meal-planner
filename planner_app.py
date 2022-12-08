@@ -160,7 +160,10 @@ def update_menu_bar_definition(auth, sftp):
 # --------------------------------MAIN LEFT COLUMN---------------------------------
 # Top left quadrant - three columns, list of meals, selection checkboxes, submit or cancel
 
-meal_selection_rightclick_menu_def = ["&Right", ["!Edit::recipe", "!Delete::meal"]]
+meal_selection_rightclick_menu_def = [
+    "&Right",
+    ["!View Recipe::meal", "!Edit Recipe::recipe", sg.MENU_SEPARATOR_LINE, "!Delete::meal",],
+]
 
 
 left_column = [
@@ -1563,9 +1566,9 @@ while True:
         window["-MENU-"].update(menu_definition=menu_bar_layout)
 
         meal_selection_rightclick_menu_def = (
-            ["&Right", ["Edit::recipe", "Delete::meal"]]
+            ["&Right", ["View Recipe::meal", "Edit Recipe::recipe", "Delete::meal"]]
             if values["-MEAL_LIST-"]
-            else ["&Right", ["!Edit::recipe", "!Delete::meal"]]
+            else ["&Right", ["!View Recipe::meal", "!Edit Recipe::recipe", "!Delete::meal"]]
         )
 
         window["-MEAL_LIST-"].set_right_click_menu(meal_selection_rightclick_menu_def)
@@ -1589,7 +1592,7 @@ while True:
             visible=True, value=capwords(meals[selected_meal]["category"])
         )
 
-    if event == "-VIEW_RECIPE-":
+    if event == "-VIEW_RECIPE-" or event == "View Recipe::meal":
         w = display_recipe(recipe)
 
     if event in ("-MON-", "-TUE-", "-WED-", "-THU-", "-FRI-", "-SAT-", "-SUN-"):
@@ -1615,7 +1618,9 @@ while True:
         window["-CATEGORY_TEXT-"].update(visible=False, value="category")
         menu_bar_layout = update_menu_bar_definition(auth, sftp)
         window["-MENU-"].update(menu_definition=menu_bar_layout)
-        window["-MEAL_LIST-"].set_right_click_menu(["&Right", ["!Edit::recipe", "!Delete::meal"]])
+        window["-MEAL_LIST-"].set_right_click_menu(
+            ["&Right", ["!View Recipe::meal", "!Edit Recipe::recipe", "!Delete::meal"]]
+        )
 
     if event == "-PLAN-CLEAR-":
         # Empty out the table and return it to the default values
