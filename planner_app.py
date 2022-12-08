@@ -53,16 +53,16 @@ try:
 except AttributeError:
     wd = os.getcwd()
 
-restart = check_for_update()
-if restart:
-    exit()
-
 icon_file = wd + "/resources/burger-10956.png"
 sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
 themes = sg.theme_list()
 chosen_theme = choice(themes)
 sg.set_options(alpha_channel=0.99)
 sg.theme("TanBlue")
+
+restart = check_for_update()
+if restart:
+    exit()
 
 
 def login(username="", password=""):
@@ -844,7 +844,8 @@ def export_plan(selected_plan):
 
 def add_meal_to_right_click_menu(meal_right_click_menu, meal, day):
     meal_sub_menu = [
-        "Delete Item::" + meal,
+        "View Recipe::" + meal,
+        "Edit Recipe::" + meal,
         sg.MENU_SEPARATOR_LINE,
         "&Change Day",
         [
@@ -856,8 +857,10 @@ def add_meal_to_right_click_menu(meal_right_click_menu, meal, day):
             "Saturday::" + meal,
             "Sunday::" + meal,
         ],
+        sg.MENU_SEPARATOR_LINE,
+        "Delete Item::" + meal,
     ]
-    meal_sub_menu[3].pop(day)
+    meal_sub_menu[4].pop(day)
     menu_extension = [meal, meal_sub_menu]
 
     if meal in [meal[0] for meal in meal_right_click_menu[1][3:]]:
@@ -967,6 +970,8 @@ window.refresh()
 
 window["-WEEK-"].update(value="Week of " + picked_date)
 current_plan_dict = check_if_plan_exists(picked_date)
+if not current_plan_dict:
+    current_plan_dict = blank_plan_dict
 debug = False
 
 # Start the window loop
@@ -1377,6 +1382,14 @@ while True:
         window.perform_long_operation(
             lambda: send_database_to_remote(sftp, username, password), "Done"
         )
+    if "View Recipe::" in event and values["-TABLE-"]:
+        chosen_food = event.split("::")[-1]
+
+        if not chosen_food:
+            continue
+
+        recipe = read_meal_recipe(db_file, chosen_food)
+        w = display_recipe(recipe)
 
     if "Delete Item::" in event and values["-TABLE-"]:
         chosen_food = event.split("::")[-1]
@@ -1453,9 +1466,15 @@ while True:
 
         # Future to expand for more options - will need to update the databse for additional columns
 
-    if event in ("Edit::recipe", "Edit Recipe") and values["-MEAL_LIST-"]:
+    if (event in ("Edit::recipe", "Edit Recipe") and values["-MEAL_LIST-"]) or (
+        "Edit Recipe::" in event and values["-TABLE-"]
+    ):
 
-        selected_meal = values["-MEAL_LIST-"][0].lower()
+        if "Edit Recipe::" in event:
+            selected_meal = event.split("::")[-1]
+        else:
+            selected_meal = values["-MEAL_LIST-"][0].lower()
+
         existing_recipe = read_meal_recipe(db_file, selected_meal)
 
         recipe = recipes(capwords(selected_meal), recipe_data=existing_recipe)
@@ -1493,6 +1512,7 @@ while True:
                 window["-CFILTER-"].update(
                     set_to_index=[0], values=meal_categories,
                 )
+                current_plan_dict = generate_plan_shopping_list(current_plan_dict)
                 window.perform_long_operation(
                     lambda: send_database_to_remote(sftp, username, password), "Done"
                 )
