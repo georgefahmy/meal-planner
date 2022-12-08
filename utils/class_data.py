@@ -16,6 +16,7 @@ fixed_units.reverse()
 unit_expression = "|".join(fixed_units)
 match_expression = f"([0-9\/\.\-\s]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s\-\.]*),?\s?(.*)?"
 
+<<<<<<< HEAD
 
 @dataclass
 class Ingredient:
@@ -23,6 +24,15 @@ class Ingredient:
 
     def __init__(self, raw):
         parsed_ingredient = list(re.match(match_expression, raw, flags=re.IGNORECASE).groups())
+=======
+@dataclass
+class Ingredient():
+    raw: str = ""
+    def __init__(self, raw):
+        parsed_ingredient = list(
+            re.match(match_expression, raw, flags=re.IGNORECASE).groups()
+        )
+>>>>>>> 45311a4d42627ea9dbfe0fc08736521c2ccdc9f2
         for i, val in enumerate(parsed_ingredient):
             if val:
                 parsed_ingredient[i] = val.strip()
@@ -40,7 +50,10 @@ class Recipe:
     link: str = ""
     recipe_data: str = ""
     category: str = ""
+<<<<<<< HEAD
 
+=======
+>>>>>>> 45311a4d42627ea9dbfe0fc08736521c2ccdc9f2
     def __init__(self, title, ingredients):
         self.title = title
         self.ingredients = []
@@ -48,6 +61,10 @@ class Recipe:
             self.ingredients.append(Ingredient(ingredient))
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 45311a4d42627ea9dbfe0fc08736521c2ccdc9f2
 @dataclass
 class Plan:
     monday: list[Recipe] = field(default_factory=list)
@@ -58,7 +75,10 @@ class Plan:
     saturday: list[Recipe] = field(default_factory=list)
     sunday: list[Recipe] = field(default_factory=list)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 45311a4d42627ea9dbfe0fc08736521c2ccdc9f2
 @dataclass
 class ShoppingList:
     plan: Plan = field(repr=False)
