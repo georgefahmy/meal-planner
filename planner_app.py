@@ -8,6 +8,7 @@ import base64
 import shutil
 import textwrap
 import re
+import webbrowser
 
 from utils.sql_functions import *
 from utils.custom_date_picker import popup_get_date
@@ -639,6 +640,18 @@ def display_recipe(recipe):
                 justification="l",
             )
         ],
+        [
+            sg.Text(
+                "",
+                key="recipe_link_view",
+                font=("Arial Italic", 12),
+                expand_x=True,
+                enable_events=True,
+                tooltip="Click to Open in browser",
+                justification="l",
+                visible=False,
+            )
+        ],
         [sg.Text("", font=("Arial Italic", 12), expand_x=True, justification="c")],
         [sg.HorizontalSeparator()],
         [sg.Text("Ingredients", font=("Arial Bold", 14), justification="c")],
@@ -670,6 +683,19 @@ def display_recipe(recipe):
         [sg.Text("", font=("Arial Bold", 12), expand_x=True, justification="c")],
     ]
     display_window = sg.Window("Recipe", layout, resizable=True, finalize=True)
+    if meals[recipe["title"].lower()]["recipe_link"]:
+        display_window["recipe_link_view"].update(
+            value=meals[recipe["title"].lower()]["recipe_link"], visible=True
+        )
+    display_window.refresh()
+    while True:
+        event, values = display_window.read()
+        if event == sg.WIN_CLOSED:
+            break
+        if event == "recipe_link_view":
+            webbrowser.open(display_window[event].get())
+            display_window.close()
+            return None
     return display_window
 
 
