@@ -50,18 +50,16 @@ class Recipe:
 
 @dataclass
 class Plan:
-    monday: str = ""
-    tuesday: str = ""
-    wednesday: str = ""
-    thursday: str = ""
-    friday: str = ""
-    saturday: str = ""
-    sunday: str = ""
+    monday: list[Recipe] = field(default_factory=list)
+    tuesday: list[Recipe] = field(default_factory=list)
+    wednesday: list[Recipe] = field(default_factory=list)
+    thursday: list[Recipe] = field(default_factory=list)
+    friday: list[Recipe] = field(default_factory=list)
+    saturday: list[Recipe] = field(default_factory=list)
+    sunday: list[Recipe] = field(default_factory=list)
 
 
 @dataclass
 class ShoppingList:
     plan: Plan = field(repr=False)
     ingredients: list[Ingredient] = field(default_factory=list)
-    for f in fields(plan):
-        print(f.name)
