@@ -163,7 +163,7 @@ def update_menu_bar_definition(auth, sftp):
 
 meal_selection_rightclick_menu_def = [
     "&Right",
-    ["!View Recipe::meal", "!Edit Recipe::recipe", sg.MENU_SEPARATOR_LINE, "!Delete::meal",],
+    ["!View Recipe::meal", "!Edit Recipe::meal", sg.MENU_SEPARATOR_LINE, "!Delete::meal",],
 ]
 
 
@@ -1495,14 +1495,14 @@ while True:
 
         # Future to expand for more options - will need to update the databse for additional columns
 
-    if (event in ("Edit::recipe", "Edit Recipe") and values["-MEAL_LIST-"]) or (
+    if (event in ("Edit Recipe", "Edit Recipe::meal") and values["-MEAL_LIST-"]) or (
         "Edit Recipe::" in event and values["-TABLE-"]
     ):
 
-        if "Edit Recipe::" in event:
-            selected_meal = event.split("::")[-1]
-        else:
+        if "::meal" in event:
             selected_meal = values["-MEAL_LIST-"][0].lower()
+        else:
+            selected_meal = event.split("::")[-1]
 
         existing_recipe = read_meal_recipe(db_file, selected_meal)
 
@@ -1592,9 +1592,9 @@ while True:
         window["-MENU-"].update(menu_definition=menu_bar_layout)
 
         meal_selection_rightclick_menu_def = (
-            ["&Right", ["View Recipe::meal", "Edit Recipe::recipe", "Delete::meal"]]
+            ["&Right", ["View Recipe::meal", "Edit Recipe::meal", "Delete::meal"]]
             if values["-MEAL_LIST-"]
-            else ["&Right", ["!View Recipe::meal", "!Edit Recipe::recipe", "!Delete::meal"]]
+            else ["&Right", ["!View Recipe::meal", "!Edit Recipe::meal", "!Delete::meal"]]
         )
 
         window["-MEAL_LIST-"].set_right_click_menu(meal_selection_rightclick_menu_def)
@@ -1645,7 +1645,7 @@ while True:
         menu_bar_layout = update_menu_bar_definition(auth, sftp)
         window["-MENU-"].update(menu_definition=menu_bar_layout)
         window["-MEAL_LIST-"].set_right_click_menu(
-            ["&Right", ["!View Recipe::meal", "!Edit Recipe::recipe", "!Delete::meal"]]
+            ["&Right", ["!View Recipe::meal", "!Edit Recipe::meal", "!Delete::meal"]]
         )
 
     if event == "-PLAN-CLEAR-":
