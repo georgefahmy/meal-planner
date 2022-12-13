@@ -3,6 +3,7 @@ import json
 import os
 import sys
 from collections import OrderedDict
+from string import capwords
 
 try:
     wd = sys._MEIPASS
@@ -16,7 +17,8 @@ db_file = os.path.join(wd, "database.db")
 
 
 def create_connection(db_file=db_file):
-    """create a database connection to the SQLite database
+    """
+    create a database connection to the SQLite database
         specified by db_file
     :param db_file: database file
     :return: Connection object or None
@@ -154,6 +156,8 @@ def remove_meal(db_file, meal_name):
 
 def add_plan(db_file, plan, overwrite=False):
     conn = create_connection(db_file)
+    cur = conn.cursor()
+
     """
     Create a new category in the Categories table
     :param conn:
@@ -165,27 +169,50 @@ def add_plan(db_file, plan, overwrite=False):
         return ", ".join(in_list)
 
     if overwrite:
-        sql = f"""UPDATE plans SET
-            monday = '{join_list(plan["meals"]["Monday"])}',
-            tuesday = '{join_list(plan["meals"]["Tuesday"])}',
-            wednesday = '{join_list(plan["meals"]["Wednesday"])}',
-            thursday = '{join_list(plan["meals"]["Thursday"])}',
-            friday = '{join_list(plan["meals"]["Friday"])}',
-            saturday = '{join_list(plan["meals"]["Saturday"])}',
-            sunday = '{join_list(plan["meals"]["Sunday"])}',
-            ingredients = '{plan["ingredients"]}' WHERE week_date LIKE '{plan["date"]}'"""
+        sql = f"""
+        UPDATE plans SET
+        monday = ?, tuesday = ?, wednesday = ?, thursday = ?, friday = ?, saturday = ?, sunday = ?,
+        ingredients = ?
+        WHERE week_date LIKE ?
+        """
+
+        cur.execute(
+            sql,
+            (
+                join_list(plan["meals"]["Monday"]),
+                join_list(plan["meals"]["Tuesday"]),
+                join_list(plan["meals"]["Wednesday"]),
+                join_list(plan["meals"]["Thursday"]),
+                join_list(plan["meals"]["Friday"]),
+                join_list(plan["meals"]["Saturday"]),
+                join_list(plan["meals"]["Sunday"]),
+                plan["ingredients"],
+                plan["date"],
+            ),
+        )
+
     else:
-        sql = f"""INSERT OR IGNORE INTO plans
+        sql = f"""
+        INSERT OR IGNORE INTO plans
         (week_date, sunday, monday, tuesday, wednesday, thursday, friday, saturday, ingredients)
-        VALUES(
-        '{plan["date"]}','{join_list(plan["meals"]["Sunday"])}',
-        '{join_list(plan["meals"]["Monday"])}','{join_list(plan["meals"]["Tuesday"])}',
-        '{join_list(plan["meals"]["Wednesday"])}','{join_list(plan["meals"]["Thursday"])}',
-        '{join_list(plan["meals"]["Friday"])}','{join_list(plan["meals"]["Saturday"])}',
-        '{plan["ingredients"]}'
-        )"""
-    cur = conn.cursor()
-    cur.execute(sql)
+        VALUES(?,?,?,?,?,?,?,?,?)
+        """
+
+        cur.execute(
+            sql,
+            (
+                plan["date"],
+                join_list(plan["meals"]["Sunday"]),
+                join_list(plan["meals"]["Monday"]),
+                join_list(plan["meals"]["Tuesday"]),
+                join_list(plan["meals"]["Wednesday"]),
+                join_list(plan["meals"]["Thursday"]),
+                join_list(plan["meals"]["Friday"]),
+                join_list(plan["meals"]["Saturday"]),
+                plan["ingredients"],
+            ),
+        )
+
     conn.commit()
     conn.close()
     return
@@ -216,8 +243,8 @@ def read_all_plans(db_file):
         plan["meals"] = OrderedDict()
         for i, meal in enumerate(list(raw_plan[1:-1])):
 
-            plan["meals"][days_of_week[i].title()] = [
-                meal.title()
+            plan["meals"][capwords(days_of_week[i])] = [
+                capwords(meal)
                 for meal in meal.split(", ")
                 if meal.lower() in read_all_meals(db_file).keys()
             ]
@@ -254,8 +281,8 @@ def read_current_plans(db_file, week_date):
         plan["date"] = current_plan[0]
         plan["meals"] = {}
         for i, meal in enumerate(list(current_plan[1:-1])):
-            plan["meals"][days_of_week[i].title()] = [
-                meal.title()
+            plan["meals"][capwords(days_of_week[i])] = [
+                capwords(meal)
                 for meal in meal.split(", ")
                 if meal.lower() in read_all_meals(db_file).keys()
             ]
