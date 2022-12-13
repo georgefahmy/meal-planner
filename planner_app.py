@@ -1551,6 +1551,14 @@ while True:
                 window["-CFILTER-"].update(
                     set_to_index=[0], values=meal_categories,
                 )
+                # check if the meal that was edited is in the plan, and update it
+                for day in current_plan_dict["meals"].keys():
+                    if selected_meal.lower() in [
+                        meal.lower() for meal in current_plan_dict["meals"][day]
+                    ]:
+                        current_plan_dict["meals"][day].remove(capwords(selected_meal))
+                        current_plan_dict["meals"][day].append(recipe["title"])
+
                 current_plan_dict = generate_plan_shopping_list(current_plan_dict)
                 window.perform_long_operation(
                     lambda: send_database_to_remote(sftp, username, password), "Done"
