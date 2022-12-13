@@ -1,22 +1,22 @@
-New and Changes:
+Improvements:
+    ☐ Improvement - Multiple categories per meal
+    ☐ Improvement (BUG) - apostraphes in titles don't work - need to fix
     ☐ Improvement - Clean up exported plan formatting "export_plan(selected_plan)"
-    ☐ Improvement - Ensure that changing the date and clearing the plan doesnt mess up the existing plan
-    ☐ Improvement - On opening of application, if logged in and a plan exists for the current week, load it.
-    ☐ Improvement - Calculation of ingredients with no units (i.e. 1) needs to handle summation
 
-    ☐ Improvement/Investigation - google python @dataclass - See how we can utilize a "meal class", "plan class", "remote server class" and adding functions for manipulating meals (recipes, categories, instructions, etc.) and plans and remote connections. https://codereview.stackexchange.com/questions/185051/python-simple-class-with-sqlite-and-unit-testing
+New:
+    ☐ Investigation - google python @dataclass - See how we can utilize a "meal class", "plan class", "remote server class" and adding functions for manipulating meals (recipes, categories, instructions, etc.) and plans and remote connections. https://codereview.stackexchange.com/questions/185051/python-simple-class-with-sqlite-and-unit-testing
 
+    ☐ User settings - Changing theme?
+    ☐ User settings - Changing default categories?
 
-    New - Add a window to edit user settings saved in the settings.json file:
-        ☐ Changing theme?
-        ☐ Changing default categories?
-
-
-    Refactor - Modularize code for reuse (basically write better code):
-        ☐ Identify repeated code and turn it into functions that can be called
+Refactor - Modularize code for reuse (basically write better code):
+    ☐ Identify repeated code and turn it into functions that can be called
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+    ✔ Improvement - Ensure that changing the date and clearing the plan doesnt mess up the existing plan @done(2022-12-12 17:21) @project(Improvements)
+    ✔ Improvement - On opening of application, if logged in and a plan exists for the current week, load it. @done(2022-12-12 17:21) @project(Improvements)
+    ✔ Improvement - Calculation of ingredients with no units (i.e. 1) needs to handle summation @done(2022-12-12 17:21) @project(Improvements)
     ✔ Have a button in the menu for opening the user settings @done(2022-12-06 14:27) @project(New and Changes / New - Add a window to edit user settings saved in the settings.json file)
     ✔ Display the different settings available with the current values @done(2022-12-06 14:27) @project(New and Changes / New - Add a window to edit user settings saved in the settings.json file)
     ✔ Allow editing of those values and then save the settings file - this will require utilizing the same file path stuff for the database file path. @done(2022-12-06 14:27) @project(New and Changes / New - Add a window to edit user settings saved in the settings.json file)
