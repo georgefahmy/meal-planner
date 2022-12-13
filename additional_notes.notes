@@ -1,6 +1,6 @@
 Improvements:
     ☐ Improvement - Multiple categories per meal
-    ☐ Improvement (BUG) - apostraphes in titles don't work - need to fix
+    ✔ Improvement (BUG) - apostraphes in titles don't work - need to fix @done(2022-12-12 18:14) @project(Improvements)
     ☐ Improvement - Clean up exported plan formatting "export_plan(selected_plan)"
 
 New:
