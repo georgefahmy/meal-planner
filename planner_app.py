@@ -1139,7 +1139,12 @@ while True:
 
         meal_categories = list(dict.fromkeys(settings["meal_categories"]))
         meal_categories.append(capwords(new_category))
-        meal_categories = list(dict.fromkeys(meal_categories))
+        meal_categories = ["All"] + list(
+            set(
+                settings["meal_categories"]
+                + list(set([capwords(meal["category"]) for meal in meals.values()]))
+            )
+        )
 
         settings["meal_categories"] = meal_categories
         with open(file_path, "w") as fp:
@@ -1198,7 +1203,12 @@ while True:
 
         meal_categories = list(dict.fromkeys(settings["meal_categories"]))
         meal_categories.append(capwords(new_category))
-        meal_categories = list(dict.fromkeys(meal_categories))
+        meal_categories = ["All"] + list(
+            set(
+                settings["meal_categories"]
+                + list(set([capwords(meal["category"]) for meal in meals.values()]))
+            )
+        )
 
         settings["meal_categories"] = meal_categories
         with open(file_path, "w") as fp:
