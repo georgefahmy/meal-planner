@@ -17,6 +17,6 @@ else
     rm -rf "Meal Planner PRO.app"
     rm ./Applications
     cd ..
-    echo "Creating release and uploading app to github"
+    echo "Creating release $VERSION and uploading app to github"
     gh release create $VERSION dist/*.dmg -t "Meal Planner PRO $VERSION" -F resources/changelog.md
 fi
