@@ -104,12 +104,22 @@ meals = {meal: info for meal, info in read_all_meals(db_file).items()}
 settings["meal_categories"].remove("All")
 meal_categories = ["All"] + list(
     set(
-        settings["meal_categories"]
-        + list(set([capwords(meal["category"]) for meal in meals.values()]))
+        sorted(
+            [
+                category
+                for category in list(
+                    set(
+                        settings["meal_categories"]
+                        + list(set([capwords(meal["category"]) for meal in meals.values()]))
+                    )
+                )
+                if category
+            ]
+        )
     )
 )
 
-settings["meal_categories"] = sorted(meal_categories)
+settings["meal_categories"] = meal_categories
 with open(file_path, "w") as fp:
     json.dump(settings, fp, sort_keys=True, indent=4)
 
@@ -1141,8 +1151,18 @@ while True:
         meal_categories.append(capwords(new_category))
         meal_categories = ["All"] + list(
             set(
-                settings["meal_categories"]
-                + list(set([capwords(meal["category"]) for meal in meals.values()]))
+                sorted(
+                    [
+                        category
+                        for category in list(
+                            set(
+                                settings["meal_categories"]
+                                + list(set([capwords(meal["category"]) for meal in meals.values()]))
+                            )
+                        )
+                        if category
+                    ]
+                )
             )
         )
 
@@ -1205,8 +1225,18 @@ while True:
         meal_categories.append(capwords(new_category))
         meal_categories = ["All"] + list(
             set(
-                settings["meal_categories"]
-                + list(set([capwords(meal["category"]) for meal in meals.values()]))
+                sorted(
+                    [
+                        category
+                        for category in list(
+                            set(
+                                settings["meal_categories"]
+                                + list(set([capwords(meal["category"]) for meal in meals.values()]))
+                            )
+                        )
+                        if category
+                    ]
+                )
             )
         )
 
@@ -1538,8 +1568,25 @@ while True:
                 )
                 meal_categories = ["All"] + list(
                     set(
-                        settings["meal_categories"]
-                        + list(set([capwords(meal["category"]) for meal in meals.values()]))
+                        sorted(
+                            [
+                                category
+                                for category in list(
+                                    set(
+                                        settings["meal_categories"]
+                                        + list(
+                                            set(
+                                                [
+                                                    capwords(meal["category"])
+                                                    for meal in meals.values()
+                                                ]
+                                            )
+                                        )
+                                    )
+                                )
+                                if category
+                            ]
+                        )
                     )
                 )
 
