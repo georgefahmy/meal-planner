@@ -54,13 +54,7 @@ def check_for_update():
         update_window = sg.Window(
             "Meal Planner Pro Update Available",
             [
-                [
-                    sg.Text(
-                        "Update available Would you like to download?",
-                        font=("Arial", 16),
-                        key="title",
-                    )
-                ],
+                [sg.Text("Update available...", font=("Arial", 16), key="title",)],
                 [sg.Text("", font=("Arial", 13), key="p_status", size=(50, 1)),],
                 [
                     sg.ProgressBar(
@@ -72,8 +66,16 @@ def check_for_update():
                     ),
                 ],
                 [
-                    sg.Button("Download", auto_size_button=True),
-                    sg.Button("Cancel", auto_size_button=True),
+                    sg.Button("Download", key="d_b", auto_size_button=True),
+                    sg.Button("Cancel", key="c_b", auto_size_button=True),
+                ],
+                [
+                    sg.Text(
+                        "Window will close...Reopen Meal Planner Pro",
+                        font=("Arial", 16),
+                        key="Done_status",
+                        visible=False,
+                    ),
                 ],
             ],
             disable_close=False,
@@ -83,13 +85,17 @@ def check_for_update():
 
         while True:
             update_event, values = update_window.read()
-            if update_event in ("Cancel", sg.WIN_CLOSED):
+            if update_event:
+                print(update_event, values)
+            if update_event in ("c_b", sg.WIN_CLOSED):
                 update_window.close()
                 break
 
-            if update_event == "Download":
+            if update_event == "d_b":
 
                 update_window["progress"].update(visible=True)
+                update_window["d_b"].update(disabled=True)
+                update_window["c_b"].update(disabled=True)
                 update_window["progress"].update(10)
                 update_window["p_status"].update(value="Downloading")
                 download_new_version(new_version_url, wd + "/resources/" + FILENAME)
@@ -110,9 +116,9 @@ def check_for_update():
                 update_window["p_status"].update(value="Done!")
                 os.remove(wd + "/resources/" + FILENAME)
                 update_window["progress"].update(100)
-                update_window["title"].update(value="Reopen Meal Planner Pro")
                 restart = True
-                sleep(2)
+                update_window["Done_status"].update(visble=True)
+                sleep(5)
                 update_window.close()
                 break
 

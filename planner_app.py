@@ -102,18 +102,15 @@ make_database(db_file)
 # Get meal and ingredient information from the database
 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
 settings["meal_categories"].remove("All")
-meal_categories = ["All"] + list(
-    set(
-        sorted(
+meal_categories = sorted(
+    ["All"]
+    + list(
+        set(
             [
                 category
-                for category in list(
-                    set(
-                        settings["meal_categories"]
-                        + list(set([capwords(meal["category"]) for meal in meals.values()]))
-                    )
-                )
-                if category
+                for category in settings["meal_categories"]
+                + [capwords(meal["category"]) for meal in meals.values()]
+                if category and category != "All"
             ]
         )
     )
@@ -1149,18 +1146,15 @@ while True:
 
         meal_categories = list(dict.fromkeys(settings["meal_categories"]))
         meal_categories.append(capwords(new_category))
-        meal_categories = ["All"] + list(
-            set(
-                sorted(
+        meal_categories = sorted(
+            ["All"]
+            + list(
+                set(
                     [
                         category
-                        for category in list(
-                            set(
-                                settings["meal_categories"]
-                                + list(set([capwords(meal["category"]) for meal in meals.values()]))
-                            )
-                        )
-                        if category
+                        for category in settings["meal_categories"]
+                        + [capwords(meal["category"]) for meal in meals.values()]
+                        if category and category != "All"
                     ]
                 )
             )
@@ -1223,18 +1217,15 @@ while True:
 
         meal_categories = list(dict.fromkeys(settings["meal_categories"]))
         meal_categories.append(capwords(new_category))
-        meal_categories = ["All"] + list(
-            set(
-                sorted(
+        meal_categories = sorted(
+            ["All"]
+            + list(
+                set(
                     [
                         category
-                        for category in list(
-                            set(
-                                settings["meal_categories"]
-                                + list(set([capwords(meal["category"]) for meal in meals.values()]))
-                            )
-                        )
-                        if category
+                        for category in settings["meal_categories"]
+                        + [capwords(meal["category"]) for meal in meals.values()]
+                        if category and category != "All"
                     ]
                 )
             )
@@ -1566,25 +1557,15 @@ while True:
                 window["-MEAL_LIST-"].update(
                     values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
                 )
-                meal_categories = ["All"] + list(
-                    set(
-                        sorted(
+                meal_categories = sorted(
+                    ["All"]
+                    + list(
+                        set(
                             [
                                 category
-                                for category in list(
-                                    set(
-                                        settings["meal_categories"]
-                                        + list(
-                                            set(
-                                                [
-                                                    capwords(meal["category"])
-                                                    for meal in meals.values()
-                                                ]
-                                            )
-                                        )
-                                    )
-                                )
-                                if category
+                                for category in settings["meal_categories"]
+                                + [capwords(meal["category"]) for meal in meals.values()]
+                                if category and category != "All"
                             ]
                         )
                     )
