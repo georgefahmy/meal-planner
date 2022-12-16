@@ -813,7 +813,7 @@ def generate_plan_shopping_list(current_plan_dict):
         plan_ingredients.append(f"{count} {capwords(ingredient)}")
 
     current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
-    plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
+    plan_ingredients = "\n".join(sorted(plan_ingredients, key=int, reverse=True))
 
     gui_table = [[day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()]
 

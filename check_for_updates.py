@@ -117,7 +117,7 @@ def check_for_update():
                 os.remove(wd + "/resources/" + FILENAME)
                 update_window["progress"].update(100)
                 restart = True
-                update_window["Done_status"].update(visble=True)
+                update_window["Done_status"].update(visible=True)
                 sleep(5)
                 update_window.close()
                 break
