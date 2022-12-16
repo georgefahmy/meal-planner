@@ -33,6 +33,7 @@ from math import ceil
 from time import sleep
 from fractions import Fraction
 from collections import Counter
+from natsort import natsorted, ns
 
 if sys.version_info.minor >= 10:
     from itertools import pairwise
@@ -813,7 +814,7 @@ def generate_plan_shopping_list(current_plan_dict):
         plan_ingredients.append(f"{count} {capwords(ingredient)}")
 
     current_plan_dict["ingredients"] = ", ".join(plan_ingredients)
-    plan_ingredients = "\n".join(sorted(plan_ingredients, reverse=True))
+    plan_ingredients = "\n".join(natsorted(plan_ingredients, alg=ns.IGNORECASE, reverse=True))
 
     gui_table = [[day] + [", ".join(meals)] for day, meals in current_plan_dict["meals"].items()]
 
