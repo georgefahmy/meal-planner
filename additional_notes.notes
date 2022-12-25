@@ -1,19 +1,20 @@
 Improvements:
     ☐ Improvement - Multiple categories per meal
-    ✔ Improvement (BUG) - apostraphes in titles don't work - need to fix @done(2022-12-12 18:14) @project(Improvements)
     ☐ Improvement - Clean up exported plan formatting "export_plan(selected_plan)"
+    ☐ Improvement - Add Copy Plan button. load a plan, copy it to a new date.
 
 New:
     ☐ Investigation - google python @dataclass - See how we can utilize a "meal class", "plan class", "remote server class" and adding functions for manipulating meals (recipes, categories, instructions, etc.) and plans and remote connections. https://codereview.stackexchange.com/questions/185051/python-simple-class-with-sqlite-and-unit-testing
 
-    ☐ User settings - Changing theme?
-    ☐ User settings - Changing default categories?
 
 Refactor - Modularize code for reuse (basically write better code):
     ☐ Identify repeated code and turn it into functions that can be called
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+    ✔ Improvement (BUG) - apostraphes in titles don't work - need to fix @done(2022-12-12 18:14) @project(Improvements)
+    ✘ User settings - Changing theme? @cancelled(2022-12-19 14:40) @project(New)
+    ✘ User settings - Changing default categories? @cancelled(2022-12-19 14:40) @project(New)
     ✔ Improvement - Ensure that changing the date and clearing the plan doesnt mess up the existing plan @done(2022-12-12 17:21) @project(Improvements)
     ✔ Improvement - On opening of application, if logged in and a plan exists for the current week, load it. @done(2022-12-12 17:21) @project(Improvements)
     ✔ Improvement - Calculation of ingredients with no units (i.e. 1) needs to handle summation @done(2022-12-12 17:21) @project(Improvements)
