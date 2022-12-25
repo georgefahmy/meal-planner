@@ -69,14 +69,6 @@ def check_for_update():
                     sg.Button("Download", key="d_b", auto_size_button=True),
                     sg.Button("Cancel", key="c_b", auto_size_button=True),
                 ],
-                [
-                    sg.Text(
-                        "Window will close...Reopen Meal Planner Pro",
-                        font=("Arial", 16),
-                        key="Done_status",
-                        visible=False,
-                    ),
-                ],
             ],
             disable_close=False,
             size=(300, 150),
@@ -92,12 +84,12 @@ def check_for_update():
                 break
 
             if update_event == "d_b":
-
-                update_window["progress"].update(visible=True)
-                update_window["d_b"].update(disabled=True)
-                update_window["c_b"].update(disabled=True)
-                update_window["progress"].update(10)
                 update_window["p_status"].update(value="Downloading")
+                update_window["progress"].update(visible=True)
+                update_window["d_b"].update(visible=False)
+                update_window["c_b"].update(visible=False)
+                update_window["progress"].update(10)
+
                 download_new_version(new_version_url, wd + "/resources/" + FILENAME)
                 update_window["progress"].update(30)
                 update_window["p_status"].update(value="Installing...")
@@ -113,16 +105,12 @@ def check_for_update():
 
                 os.system("hdiutil detach " + ("/Volumes/" + VOLUME_NAME))
                 update_window["progress"].update(80)
-                update_window["p_status"].update(value="Done!")
+                update_window["p_status"].update(value="Done!...Please Restart...")
                 os.remove(wd + "/resources/" + FILENAME)
                 update_window["progress"].update(100)
                 restart = True
-                update_window["Done_status"].update(visible=True)
                 sleep(5)
                 update_window.close()
                 break
 
     return restart
-
-
-# check_for_update()
