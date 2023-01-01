@@ -729,7 +729,9 @@ def process_recipe_link(recipe_link):
     except:
         return recipe
 
-    recipe["title"] = capwords(scraped_recipe.schema) if capwords(scraped_recipe.schema) else ""
+    recipe["title"] = (
+        capwords(scraped_recipe.schema.title()) if capwords(scraped_recipe.schema.title()) else ""
+    )
     recipe["directions"] = (
         re.sub("\n", " ", scraped_recipe.schema.instructions())
         if scraped_recipe.schema.instructions()
