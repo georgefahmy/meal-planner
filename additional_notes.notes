@@ -4,14 +4,12 @@ Improvements:
     ☐ Improvement - Add Copy Plan button. load a plan, copy it to a new date.
 
 New:
-    ☐ Investigation - google python @dataclass - See how we can utilize a "meal class", "plan class", "remote server class" and adding functions for manipulating meals (recipes, categories, instructions, etc.) and plans and remote connections. https://codereview.stackexchange.com/questions/185051/python-simple-class-with-sqlite-and-unit-testing
-
-
-Refactor - Modularize code for reuse (basically write better code):
-    ☐ Identify repeated code and turn it into functions that can be called
+    ☐ Complete refactor of the interface to utilize customtkinter to modernize the interface.
 
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
+    ✘ Investigation - google python @dataclass - See how we can utilize a "meal class", "plan class", "remote server class" and adding functions for manipulating meals (recipes, categories, instructions, etc.) and plans and remote connections. https://codereview.stackexchange.com/questions/185051/python-simple-class-with-sqlite-and-unit-testing @cancelled(2023-01-02 00:04) @project(New)
+    ✔ Identify repeated code and turn it into functions that can be called @done(2023-01-02 00:04) @project(Refactor - Modularize code for reuse \(basically write better code\))
     ✔ Improvement (BUG) - apostraphes in titles don't work - need to fix @done(2022-12-12 18:14) @project(Improvements)
     ✘ User settings - Changing theme? @cancelled(2022-12-19 14:40) @project(New)
     ✘ User settings - Changing default categories? @cancelled(2022-12-19 14:40) @project(New)
