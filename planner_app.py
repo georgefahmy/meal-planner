@@ -1011,6 +1011,7 @@ window["-WEEK-"].update(value="Week of " + picked_date)
 current_plan_dict = check_if_plan_exists(picked_date)
 if not current_plan_dict:
     current_plan_dict = blank_plan_dict
+    current_plan_dict["date"] = picked_date
 debug = False
 
 # Start the window loop
@@ -1278,8 +1279,11 @@ while True:
             picked_date = str(current_plan_dict["date"])
         else:
             current_plan_dict = blank_plan_dict
+            current_plan_dict["date"] = picked_date
+
         current_plan_dict = generate_plan_shopping_list(current_plan_dict)
         window["-WEEK-"].update(f"Week of {picked_date}")
+        window["-MFILTER-"].set_focus(force=True)
 
     if event == "-AVAILABLE_PLANS-":
         all_plans = read_all_plans(db_file)
