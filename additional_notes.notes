@@ -1,7 +1,9 @@
 Improvements:
-    ☐ Improvement - Multiple categories per meal
-    ☐ Improvement - Clean up exported plan formatting "export_plan(selected_plan)"
-    ☐ Improvement - Add Copy Plan button. load a plan, copy it to a new date.
+    ☐ P1 - Improvement - Multiple categories per meal
+    ☐ P3 - Improvement - Clean up exported plan formatting "export_plan(selected_plan)"
+    ☐ P2 - Improvement - Add Copy Plan button. load a plan, copy it to a new date.
+    ☐ P0 - Fix - Selecting date doesnt clear previous week
+    ☐ P0 - Fix - Clear button after changing date doesnt work
 
 New:
     ☐ Complete refactor of the interface to utilize customtkinter to modernize the interface.
