@@ -2,8 +2,7 @@ Improvements:
     ☐ P1 - Improvement - Multiple categories per meal
     ☐ P3 - Improvement - Clean up exported plan formatting "export_plan(selected_plan)"
     ☐ P2 - Improvement - Add Copy Plan button. load a plan, copy it to a new date.
-    ☐ P0 - Fix - Selecting date doesnt clear previous week
-    ☐ P0 - Fix - Clear button after changing date doesnt work
+    ☐ P1 - Add notes section for brainstorming - add a dropdown or a button to open a separate window
 
 New:
     ☐ Complete refactor of the interface to utilize customtkinter to modernize the interface.
@@ -11,6 +10,7 @@ New:
 ＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿
 Archive:
     ✔ Improvement - Add additional unit support (Tbsp., t., etc.) @done(2023-01-06 09:05) @project(Improvements)
+    ✔ P0 - Fix - Selecting date doesnt clear previous week
     ✘ Investigation - google python @dataclass - See how we can utilize a "meal class", "plan class", "remote server class" and adding functions for manipulating meals (recipes, categories, instructions, etc.) and plans and remote connections. https://codereview.stackexchange.com/questions/185051/python-simple-class-with-sqlite-and-unit-testing @cancelled(2023-01-02 00:04) @project(New)
     ✔ Identify repeated code and turn it into functions that can be called @done(2023-01-02 00:04) @project(Refactor - Modularize code for reuse \(basically write better code\))
     ✔ Improvement (BUG) - apostraphes in titles don't work - need to fix @done(2022-12-12 18:14) @project(Improvements)

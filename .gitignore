@@ -139,3 +139,4 @@ resources/recipes*
 server_info.json
 noip.json
 *.dmg
+*.notes
