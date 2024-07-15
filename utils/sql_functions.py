@@ -42,7 +42,7 @@ def add_meal(
     :return id:
     """
     values = (meal, ingredients, recipe_link, recipe, category)
-    sql = f"""
+    sql = """
         INSERT OR IGNORE INTO meals (meal, ingredients, recipe_link, recipe_data, category)
         VALUES(?,?,?,?,?)
         """
@@ -76,7 +76,7 @@ def read_specific_meals(db_file, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
     cur.execute(
-        f"SELECT meal, ingredients FROM meals WHERE meal LIKE ? ", (selected_meal,)
+        "SELECT meal, ingredients FROM meals WHERE meal LIKE ? ", (selected_meal,)
     )
     raw_meal = cur.fetchall()[0]
     meal = {}
@@ -89,7 +89,7 @@ def update_meal_name(db_file, new_meal_name, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
     cur.execute(
-        f"UPDATE meals SET meal = ? WHERE meal LIKE ?", (new_meal_name, selected_meal)
+        "UPDATE meals SET meal = ? WHERE meal LIKE ?", (new_meal_name, selected_meal)
     )
     conn.commit()
     conn.close()
@@ -100,7 +100,7 @@ def update_meal_recipe(db_file, recipe_data, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
     cur.execute(
-        f"UPDATE meals SET recipe_data = ? WHERE meal LIKE ? ",
+        "UPDATE meals SET recipe_data = ? WHERE meal LIKE ? ",
         (recipe_data, selected_meal),
     )
     conn.commit()
@@ -111,7 +111,7 @@ def update_meal_recipe(db_file, recipe_data, selected_meal):
 def read_meal_recipe(db_file, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(f"SELECT recipe_data FROM meals WHERE meal LIKE ?", (selected_meal,))
+    cur.execute("SELECT recipe_data FROM meals WHERE meal LIKE ?", (selected_meal,))
     recipe = cur.fetchone()
     if recipe:
         try:
@@ -126,7 +126,7 @@ def read_meal_recipe(db_file, selected_meal):
 def read_all_recipes(db_file):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(f"SELECT meal, recipe_data FROM meals WHERE LENGTH(recipe_data) > 10")
+    cur.execute("SELECT meal, recipe_data FROM meals WHERE LENGTH(recipe_data) > 10")
     meals = cur.fetchall()
     available_meals = {}
     for meal in meals:
@@ -139,7 +139,7 @@ def update_meal_category(db_file, new_category, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
     cur.execute(
-        f"UPDATE meals SET category = ? WHERE meal LIKE ? ",
+        "UPDATE meals SET category = ? WHERE meal LIKE ? ",
         (new_category, selected_meal),
     )
     conn.commit()
@@ -151,7 +151,7 @@ def update_meal_ingredients(db_file, meal_name, ingredients):
     conn = create_connection(db_file)
     cur = conn.cursor()
     cur.execute(
-        f"UPDATE meals SET ingredients = ? WHERE meal LIKE ? ", (ingredients, meal_name)
+        "UPDATE meals SET ingredients = ? WHERE meal LIKE ? ", (ingredients, meal_name)
     )
     conn.commit()
     conn.close()
@@ -162,7 +162,7 @@ def remove_meal(db_file, meal_name):
     conn = create_connection(db_file)
     cur = conn.cursor()
     print(meal_name)
-    cur.execute(f"DELETE FROM meals WHERE meal LIKE ? ", (meal_name,))
+    cur.execute("DELETE FROM meals WHERE meal LIKE ? ", (meal_name,))
     conn.commit()
     conn.close()
     return
@@ -183,7 +183,7 @@ def add_plan(db_file, plan, overwrite=False):
         return ", ".join(in_list)
 
     if overwrite:
-        sql = f"""
+        sql = """
         UPDATE plans SET
         monday = ?, tuesday = ?, wednesday = ?, thursday = ?, friday = ?, saturday = ?, sunday = ?,
         ingredients = ?
@@ -206,7 +206,7 @@ def add_plan(db_file, plan, overwrite=False):
         )
 
     else:
-        sql = f"""
+        sql = """
         INSERT OR IGNORE INTO plans
         (week_date, sunday, monday, tuesday, wednesday, thursday, friday, saturday, ingredients)
         VALUES(?,?,?,?,?,?,?,?,?)
@@ -272,7 +272,7 @@ def read_current_plans(db_file, week_date):
     conn = create_connection(db_file)
     cur = conn.cursor()
     cur.execute(
-        f"""SELECT
+        """SELECT
         week_date, monday, tuesday, wednesday, thursday, friday, saturday, sunday, ingredients
         FROM plans WHERE week_date LIKE ? """,
         (week_date,),
@@ -308,7 +308,7 @@ def read_current_plans(db_file, week_date):
 def remove_plan(db_file, plan_date):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(f"DELETE FROM plans WHERE week_date LIKE ? ", (plan_date,))
+    cur.execute("DELETE FROM plans WHERE week_date LIKE ? ", (plan_date,))
     conn.commit()
     conn.close()
     return True

@@ -799,7 +799,9 @@ for unit in units:
 
 fixed_units.reverse()
 unit_expression = "|".join(fixed_units)
-match_expression = f"([0-9/.-s]*)?s?({unit_expression})?s*?([a-zA-Z0-9s-.]*),?s?(.*)?"
+match_expression = (
+    f"([0-9\/\.\-\s]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s\-\.]*),?\s?(.*)?"
+)
 
 
 def process_recipe_link(recipe_link):

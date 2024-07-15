@@ -42,7 +42,6 @@ def check_for_update():
 
     if version.parse(current_version) >= version.parse(new_version):
         print("Version is up to date")
-        confirm = False
 
     elif version.parse(current_version) < version.parse(new_version):
         print("New Version available")
@@ -104,10 +103,7 @@ def check_for_update():
                 update_window["progress"].update(30)
                 update_window["p_status"].update(value="Installing...")
                 os.system(
-                    f"hdiutil attach "
-                    + wd.replace(" ", "\ ")
-                    + "/resources/"
-                    + FILENAME
+                    "hdiutil attach " + wd.replace(" ", "\ ") + "/resources/" + FILENAME
                 )
                 update_window["progress"].update(50)
                 update_window["p_status"].update(value="Removing old files...")
