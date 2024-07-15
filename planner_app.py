@@ -17,7 +17,7 @@ from time import sleep
 import PySimpleGUI as sg
 from natsort import natsorted, ns
 from recipe_scrapers import scrape_me
-from recipe_scrapers.settings import RecipeScraperSettings, default
+from recipe_scrapers.settings import RecipeScraperSettings
 
 from check_for_updates import check_for_update
 from recipe_interface import recipes

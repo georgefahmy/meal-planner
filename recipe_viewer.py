@@ -1,23 +1,21 @@
 import base64
-import datetime
 import json
 import os
 import re
-import shutil
 import sys
 import textwrap
-from pprint import pprint
-from random import choice
 from string import capwords
 
 import PySimpleGUI as sg
-from recipe_scrapers import scrape_me
 
 from recipe_interface import recipes
-from utils.custom_date_picker import popup_get_date
-from utils.make_database import make_database
-from utils.recipe_units import units
-from utils.sql_functions import *
+from utils.sql_functions import (
+    add_meal,
+    file_path,
+    read_all_meals,
+    read_all_recipes,
+    remove_meal,
+)
 
 if sys.version_info.minor >= 10:
     from itertools import pairwise

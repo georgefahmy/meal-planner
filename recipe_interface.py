@@ -1,21 +1,14 @@
 import base64
-import datetime
 import json
 import os
 import re
-import shutil
 import sys
-import textwrap
-from pprint import pprint
-from random import choice
 from string import capwords
 
 import PySimpleGUI as sg
 
-from utils.custom_date_picker import popup_get_date
-from utils.make_database import make_database
 from utils.recipe_units import units
-from utils.sql_functions import *
+from utils.sql_functions import file_path, read_all_meals
 
 try:
     wd = sys._MEIPASS
@@ -320,7 +313,6 @@ Available units and abbreviations:
                 )
                 recipe_window.refresh()
                 recipe_window["column"].contents_changed()
-                new_row = recipe_window.FindElementWithFocus().Key
                 i += 1
 
         if "remove_ingredient" in event:
@@ -343,7 +335,7 @@ Available units and abbreviations:
             recipe["ingredients"] = {}
 
             for element in recipe_window.element_list():
-                if type(element) == sg.InputText:
+                if element is sg.InputText:
                     if "ingredient" in element.Key:
                         if recipe_window[element.Key].get():
                             raw_ingredients.append(recipe_window[element.Key].get())
@@ -354,11 +346,11 @@ Available units and abbreviations:
                     if "recipe_subtitle" in element.key:
                         recipe["subtitle"] = recipe_window[element.Key].get()
 
-                if type(element) == sg.Combo:
+                if element is sg.Combo:
                     if "recipe_category" in element.key:
                         recipe["recipe_category"] = recipe_window[element.Key].get()
 
-                if type(element) == sg.Multiline:
+                if element is sg.Multiline:
                     if "directions" in element.Key:
 
                         directions = (
