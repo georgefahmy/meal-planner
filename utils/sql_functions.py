@@ -1,6 +1,6 @@
-import sqlite3
 import json
 import os
+import sqlite3
 import sys
 from collections import OrderedDict
 from string import capwords
@@ -31,7 +31,9 @@ def create_connection(db_file=db_file):
     return conn
 
 
-def add_meal(db_file, meal, ingredients=None, recipe_link=None, recipe=None, category=None):
+def add_meal(
+    db_file, meal, ingredients=None, recipe_link=None, recipe=None, category=None
+):
     conn = create_connection(db_file)
     """
     Create a new category in the Categories table
@@ -54,7 +56,9 @@ def add_meal(db_file, meal, ingredients=None, recipe_link=None, recipe=None, cat
 def read_all_meals(db_file):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute("SELECT meal, ingredients, recipe_link, recipe_data, category FROM meals")
+    cur.execute(
+        "SELECT meal, ingredients, recipe_link, recipe_data, category FROM meals"
+    )
     all_meals = cur.fetchall()
     meals = {}
     for meal in all_meals:
@@ -71,7 +75,9 @@ def read_all_meals(db_file):
 def read_specific_meals(db_file, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(f"SELECT meal, ingredients FROM meals WHERE meal LIKE ? ", (selected_meal,))
+    cur.execute(
+        f"SELECT meal, ingredients FROM meals WHERE meal LIKE ? ", (selected_meal,)
+    )
     raw_meal = cur.fetchall()[0]
     meal = {}
     meal[raw_meal[0]] = raw_meal[1].split(", ")
@@ -82,7 +88,9 @@ def read_specific_meals(db_file, selected_meal):
 def update_meal_name(db_file, new_meal_name, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(f"UPDATE meals SET meal = ? WHERE meal LIKE ?", (new_meal_name, selected_meal))
+    cur.execute(
+        f"UPDATE meals SET meal = ? WHERE meal LIKE ?", (new_meal_name, selected_meal)
+    )
     conn.commit()
     conn.close()
     return
@@ -92,7 +100,8 @@ def update_meal_recipe(db_file, recipe_data, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
     cur.execute(
-        f"UPDATE meals SET recipe_data = ? WHERE meal LIKE ? ", (recipe_data, selected_meal)
+        f"UPDATE meals SET recipe_data = ? WHERE meal LIKE ? ",
+        (recipe_data, selected_meal),
     )
     conn.commit()
     conn.close()
@@ -129,7 +138,10 @@ def read_all_recipes(db_file):
 def update_meal_category(db_file, new_category, selected_meal):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(f"UPDATE meals SET category = ? WHERE meal LIKE ? ", (new_category, selected_meal))
+    cur.execute(
+        f"UPDATE meals SET category = ? WHERE meal LIKE ? ",
+        (new_category, selected_meal),
+    )
     conn.commit()
     conn.close()
     return
@@ -138,7 +150,9 @@ def update_meal_category(db_file, new_category, selected_meal):
 def update_meal_ingredients(db_file, meal_name, ingredients):
     conn = create_connection(db_file)
     cur = conn.cursor()
-    cur.execute(f"UPDATE meals SET ingredients = ? WHERE meal LIKE ? ", (ingredients, meal_name))
+    cur.execute(
+        f"UPDATE meals SET ingredients = ? WHERE meal LIKE ? ", (ingredients, meal_name)
+    )
     conn.commit()
     conn.close()
     return

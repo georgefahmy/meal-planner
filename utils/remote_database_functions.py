@@ -1,8 +1,9 @@
-import paramiko
+import json
 import os
 import sys
-import json
 import urllib
+
+import paramiko
 
 try:
     wd = sys._MEIPASS
@@ -117,7 +118,9 @@ def get_database_from_remote(sftp, username, password):
             for database in sftp.listdir(remote_databases_folder)
             if database.endswith(".db")
         ]
-        database_file = [file for file in database_files if username == file.split("_")[0]]
+        database_file = [
+            file for file in database_files if username == file.split("_")[0]
+        ]
         if not database_file:
             return None
         database_file = database_file[0]
@@ -144,6 +147,9 @@ def send_database_to_remote(sftp, username, password):
     try:
         remote_databases_folder = "meal-planner/databases/"
         database_file = os.path.join(wd, "database.db")
-        sftp.put(database_file, os.path.join(remote_databases_folder, username + "_database.db"))
+        sftp.put(
+            database_file,
+            os.path.join(remote_databases_folder, username + "_database.db"),
+        )
     except OSError:
         print("Logged out...Please Login again")

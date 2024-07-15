@@ -1,6 +1,7 @@
-import PySimpleGUI as sg
 import datetime
 import itertools
+
+import PySimpleGUI as sg
 
 
 def popup_get_date(
@@ -90,7 +91,9 @@ def popup_get_date(
         [window[(week, day)].update("") for day in range(7) for week in range(6)]
         weeks = sg.calendar.monthcalendar(year, month)
         month_days = list(
-            itertools.chain.from_iterable([[0 for _ in range(8 - begin_at_sunday_plus)]] + weeks)
+            itertools.chain.from_iterable(
+                [[0 for _ in range(8 - begin_at_sunday_plus)]] + weeks
+            )
         )
         if month_days[6] == 0:
             month_days = month_days[7:]
@@ -146,7 +149,13 @@ def popup_get_date(
 
     layout = [
         [
-            sg.B("◄◄", font=arrow_font, border_width=0, key="-YEAR-DOWN-", pad=((10, 2), 2)),
+            sg.B(
+                "◄◄",
+                font=arrow_font,
+                border_width=0,
+                key="-YEAR-DOWN-",
+                pad=((10, 2), 2),
+            ),
             sg.B("◄", font=arrow_font, border_width=0, key="-MON-DOWN-", pad=(0, 2)),
             sg.Text(
                 "{} {}".format(mon_names[cur_month - 1], cur_year),
@@ -241,22 +250,30 @@ def popup_get_date(
             elif cur_month < 1:
                 cur_month = 12
                 cur_year -= 1
-            window["-MON-YEAR-"].update("{} {}".format(mon_names[cur_month - 1], cur_year))
+            window["-MON-YEAR-"].update(
+                "{} {}".format(mon_names[cur_month - 1], cur_year)
+            )
             update_days(window, cur_month, cur_year, begin_at_sunday_plus)
             if prev_choice:
                 window[prev_choice].update(
-                    background_color=sg.theme_background_color(), text_color=sg.theme_text_color()
+                    background_color=sg.theme_background_color(),
+                    text_color=sg.theme_text_color(),
                 )
         elif type(event) is tuple:
             if window[event].DisplayText != "":
-                chosen_mon_day_year = cur_month, int(window[event].DisplayText), cur_year
+                chosen_mon_day_year = (
+                    cur_month,
+                    int(window[event].DisplayText),
+                    cur_year,
+                )
                 if prev_choice:
                     window[prev_choice].update(
                         background_color=sg.theme_background_color(),
                         text_color=sg.theme_text_color(),
                     )
                 window[event].update(
-                    background_color=sg.theme_text_color(), text_color=sg.theme_background_color()
+                    background_color=sg.theme_text_color(),
+                    text_color=sg.theme_background_color(),
                 )
                 prev_choice = event
                 if close_when_chosen:

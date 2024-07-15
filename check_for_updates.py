@@ -1,11 +1,13 @@
 import os
+import sys
+from string import capwords
+from time import sleep
+
 import PySimpleGUI as sg
 import requests
-import sys
 from packaging import version
-from string import capwords
+
 from utils.remote_database_functions import internet_on
-from time import sleep
 
 try:
     wd = sys._MEIPASS
@@ -54,8 +56,16 @@ def check_for_update():
         update_window = sg.Window(
             "Meal Planner Pro Update Available",
             [
-                [sg.Text("Update available...", font=("Arial", 16), key="title",)],
-                [sg.Text("", font=("Arial", 13), key="p_status", size=(50, 1)),],
+                [
+                    sg.Text(
+                        "Update available...",
+                        font=("Arial", 16),
+                        key="title",
+                    )
+                ],
+                [
+                    sg.Text("", font=("Arial", 13), key="p_status", size=(50, 1)),
+                ],
                 [
                     sg.ProgressBar(
                         max_value=100,
@@ -93,7 +103,12 @@ def check_for_update():
                 download_new_version(new_version_url, wd + "/resources/" + FILENAME)
                 update_window["progress"].update(30)
                 update_window["p_status"].update(value="Installing...")
-                os.system(f"hdiutil attach " + wd.replace(" ", "\ ") + "/resources/" + FILENAME)
+                os.system(
+                    f"hdiutil attach "
+                    + wd.replace(" ", "\ ")
+                    + "/resources/"
+                    + FILENAME
+                )
                 update_window["progress"].update(50)
                 update_window["p_status"].update(value="Removing old files...")
                 os.system(

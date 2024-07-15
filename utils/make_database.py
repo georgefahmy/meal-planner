@@ -1,6 +1,6 @@
-import sqlite3 as s
 import json
 import os
+import sqlite3 as s
 import sys
 
 try:

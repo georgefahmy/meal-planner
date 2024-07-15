@@ -1,22 +1,23 @@
-from random import choice
-import PySimpleGUI as sg
+import base64
 import datetime
 import json
 import os
-import sys
-import base64
-import shutil
-import textwrap
 import re
+import shutil
+import sys
+import textwrap
+from pprint import pprint
+from random import choice
+from string import capwords
 
-from utils.sql_functions import *
+import PySimpleGUI as sg
+from recipe_scrapers import scrape_me
+
+from recipe_interface import recipes
 from utils.custom_date_picker import popup_get_date
 from utils.make_database import make_database
 from utils.recipe_units import units
-from pprint import pprint
-from recipe_interface import recipes
-from recipe_scrapers import scrape_me
-from string import capwords
+from utils.sql_functions import *
 
 if sys.version_info.minor >= 10:
     from itertools import pairwise
@@ -66,7 +67,13 @@ def open_recipes_window(meals):
     available_recipe_window = sg.Window(
         "Available Recipes",
         [
-            [sg.Text("Available Recipes to View", font=("Arial Bold", 18), justification="c")],
+            [
+                sg.Text(
+                    "Available Recipes to View",
+                    font=("Arial Bold", 18),
+                    justification="c",
+                )
+            ],
             [
                 sg.Listbox(
                     meals,
@@ -102,7 +109,10 @@ def matchingKeys(dictionary, searchString):
         key
         for key, val in dictionary.items()
         if searchString.lower() in key.lower()
-        or any(searchString.lower() in s["ingredient"].lower() for s in val["ingredients"].values())
+        or any(
+            searchString.lower() in s["ingredient"].lower()
+            for s in val["ingredients"].values()
+        )
         or searchString.lower() in val["recipe_category"]
     ]
     return filtered_meals
@@ -123,7 +133,11 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
                         [
                             [
                                 sg.Button("New", key="new_recipe", enable_events=True),
-                                sg.Button("Import Recipe", key="import_recipe", enable_events=True),
+                                sg.Button(
+                                    "Import Recipe",
+                                    key="import_recipe",
+                                    enable_events=True,
+                                ),
                                 sg.Button(
                                     "Export Recipe",
                                     key="export_recipe",
@@ -137,13 +151,20 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
                     ),
                     sg.Text("Search: "),
                     sg.Input(
-                        key="-RFILTER-", font=("Arial", 14), enable_events=True, expand_x=True
+                        key="-RFILTER-",
+                        font=("Arial", 14),
+                        enable_events=True,
+                        expand_x=True,
                     ),
                     sg.Column(
                         [
                             [
-                                sg.Button("Clear", key="clear_recipe", enable_events=True),
-                                sg.Button("Close", key="close_window", enable_events=True),
+                                sg.Button(
+                                    "Clear", key="clear_recipe", enable_events=True
+                                ),
+                                sg.Button(
+                                    "Close", key="close_window", enable_events=True
+                                ),
                             ]
                         ],
                         element_justification="r",
@@ -164,7 +185,13 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
             sg.Frame(
                 "Available Recipes",
                 [
-                    [sg.Text("Available Recipes", font=("Arial Bold", 18), justification="c")],
+                    [
+                        sg.Text(
+                            "Available Recipes",
+                            font=("Arial Bold", 18),
+                            justification="c",
+                        )
+                    ],
                     [
                         sg.Listbox(
                             meals,
@@ -189,7 +216,14 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
             "",
             [
                 [sg.Text("", font=("Arial Bold", 18), justification="l", key="title")],
-                [sg.Text("", font=("Arial Italic", 12), justification="l", key="subtitle",)],
+                [
+                    sg.Text(
+                        "",
+                        font=("Arial Italic", 12),
+                        justification="l",
+                        key="subtitle",
+                    )
+                ],
             ],
             relief="flat",
             visible=False,
@@ -224,7 +258,15 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
                         element_justification="l",
                     ),
                     sg.Column(
-                        layout=[[sg.Text("", font=("Arial Bold", 12), justification="l",)]],
+                        layout=[
+                            [
+                                sg.Text(
+                                    "",
+                                    font=("Arial Bold", 12),
+                                    justification="l",
+                                )
+                            ]
+                        ],
                         expand_x=True,
                         element_justification="c",
                     ),
@@ -262,7 +304,14 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
                         key="instruction_header",
                     )
                 ],
-                [sg.Text("", font=("Arial", 12), justification="l", key="instructions",)],
+                [
+                    sg.Text(
+                        "",
+                        font=("Arial", 12),
+                        justification="l",
+                        key="instructions",
+                    )
+                ],
             ],
             relief="flat",
             expand_x=True,
@@ -285,7 +334,11 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
     icon_file = wd + "/resources/burger-10956.png"
     sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
     recipe_window = sg.Window(
-        "Recipe Interface", layout=layout, resizable=True, size=(900, 600), finalize=True,
+        "Recipe Interface",
+        layout=layout,
+        resizable=True,
+        size=(900, 600),
+        finalize=True,
     )
     meals = {meal: info for meal, info in read_all_meals(db_file).items()}
     available_meals = read_all_recipes(db_file)
@@ -319,13 +372,17 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
 
             selected_meal = values["available_meals"][0].lower()
             available_meals = read_all_recipes(db_file)
-            meals = [capwords(meal) for meal, recipe in available_meals.items() if recipe]
+            meals = [
+                capwords(meal) for meal, recipe in available_meals.items() if recipe
+            ]
             recipe = json.loads(available_meals[selected_meal])
             settings = json.load(open(file_path, "r"))
             export_plan_path = settings["export_plan_path"]
 
             if not export_plan_path:
-                export_recipe_path = sg.popup_get_folder("Export Recipe", title="Export Recipe")
+                export_recipe_path = sg.popup_get_folder(
+                    "Export Recipe", title="Export Recipe"
+                )
                 settings["export_recipe_path"] = export_recipe_path
                 with open(file_path, "w") as fp:
                     json.dump(settings, fp, sort_keys=True, indent=4)
@@ -355,11 +412,15 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
 
             for file in import_files_path:
                 if not file.endswith(".rcp"):
-                    sg.popup_ok("Not a valid Recipe file", title="ERROR", font=("Arial", 14))
+                    sg.popup_ok(
+                        "Not a valid Recipe file", title="ERROR", font=("Arial", 14)
+                    )
                     continue
 
                 if not os.path.isfile(file):
-                    sg.popup_ok("File does not exist!", title="ERROR", font=("Arial", 14))
+                    sg.popup_ok(
+                        "File does not exist!", title="ERROR", font=("Arial", 14)
+                    )
                     continue
 
                 with open(file, "r") as fp:
@@ -395,8 +456,12 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
                         recipe=json.dumps(recipe),
                         category=new_category,
                     )
-                    meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-                available_meals = [capwords(meal_name) for meal_name in read_all_recipes(db_file)]
+                    meals = {
+                        meal: info for meal, info in read_all_meals(db_file).items()
+                    }
+                available_meals = [
+                    capwords(meal_name) for meal_name in read_all_recipes(db_file)
+                ]
                 recipe_window["available_meals"].update(values=sorted(available_meals))
 
         if event == "Delete Recipe":
@@ -410,7 +475,8 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
             if not recipe:
                 continue
             basic_ingredients = [
-                ingredient["ingredient"] for ingredient in recipe["ingredients"].values()
+                ingredient["ingredient"]
+                for ingredient in recipe["ingredients"].values()
             ]
             new_meal = recipe["title"].lower()
             new_ingredients = ", ".join(basic_ingredients).lower()
@@ -435,7 +501,9 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
                     category=new_category,
                 )
                 meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-            available_meals = [capwords(meal_name) for meal_name in read_all_recipes(db_file)]
+            available_meals = [
+                capwords(meal_name) for meal_name in read_all_recipes(db_file)
+            ]
             recipe_window["available_meals"].update(values=sorted(available_meals))
 
         if event in ("available_meals"):
@@ -446,7 +514,9 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
             selected_meal = values["available_meals"][0].lower()
             recipe_window["export_recipe"].update(visible=True)
             available_meals = read_all_recipes(db_file)
-            meals = [capwords(meal) for meal, recipe in available_meals.items() if recipe]
+            meals = [
+                capwords(meal) for meal, recipe in available_meals.items() if recipe
+            ]
             recipe = json.loads(available_meals[selected_meal])
             if not recipe:
                 continue
@@ -462,9 +532,11 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
                             "".join(
                                 [
                                     ing["ingredient"] if ing["ingredient"] else "",
-                                    (", " + ing["special_instruction"])
-                                    if ing["special_instruction"]
-                                    else "",
+                                    (
+                                        (", " + ing["special_instruction"])
+                                        if ing["special_instruction"]
+                                        else ""
+                                    ),
                                 ]
                             ),
                         ]
@@ -491,7 +563,9 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
 
             recipe_window["ingredients_frame"].update(visible=True)
             recipe_window["left_ingredients"].update(value="\n".join(left_ingredients))
-            recipe_window["right_ingredients"].update(value="\n".join(right_ingredients))
+            recipe_window["right_ingredients"].update(
+                value="\n".join(right_ingredients)
+            )
 
             recipe_window["instructions_frame"].update(visible=True)
             recipe_window["instructions"].update(
@@ -502,3 +576,8 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
         if event == "clear_recipe":
             recipe_window["export_recipe"].update(visible=False)
             clear_all_elements(recipe_window)
+
+
+if __name__ == "__main__":
+    sg.theme("Reddit")
+    recipe_viewer()

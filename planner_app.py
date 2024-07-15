@@ -17,7 +17,11 @@ from time import sleep
 import PySimpleGUI as sg
 from natsort import natsorted, ns
 from recipe_scrapers import scrape_me
+<<<<<<< HEAD
 from recipe_scrapers.settings import RecipeScraperSettings
+=======
+from recipe_scrapers.settings import RecipeScraperSettings, default
+>>>>>>> 638e195 (lots of ugly updates)
 
 from check_for_updates import check_for_update
 from recipe_interface import recipes
@@ -30,6 +34,7 @@ from utils.remote_database_functions import (
     close_connection_to_remote_server,
     connect_to_remote_server,
     get_database_from_remote,
+<<<<<<< HEAD
     send_database_to_remote,
 )
 from utils.sql_functions import (
@@ -47,6 +52,12 @@ from utils.sql_functions import (
     update_meal_name,
     update_meal_recipe,
 )
+=======
+    internet_on,
+    send_database_to_remote,
+)
+from utils.sql_functions import *
+>>>>>>> 638e195 (lots of ugly updates)
 
 if sys.version_info.minor >= 10:
     from itertools import pairwise
@@ -72,8 +83,8 @@ icon_file = wd + "/resources/burger-10956.png"
 sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
 themes = sg.theme_list()
 chosen_theme = choice(themes)
-sg.set_options(alpha_channel=0.99)
-sg.theme("TanBlue")
+# sg.set_options(alpha_channel=0.99)
+sg.theme("Reddit")
 
 restart = check_for_update()
 if restart:
@@ -675,13 +686,17 @@ def display_recipe(recipe):
     if not recipe:
         return
 
-    if type(recipe) == str:
+    if recipe is str:
         # print("recipe not converted to dict, converting now")
         recipe = json.loads(recipe)
 
     ingredients = [
         re.sub(
+<<<<<<< HEAD
             "s+",
+=======
+            "\\s+",
+>>>>>>> 638e195 (lots of ugly updates)
             " ",
             " ".join(
                 [
@@ -690,9 +705,11 @@ def display_recipe(recipe):
                     "".join(
                         [
                             ing["ingredient"] if ing["ingredient"] else "",
-                            (", " + ing["special_instruction"])
-                            if ing["special_instruction"]
-                            else "",
+                            (
+                                (", " + ing["special_instruction"])
+                                if ing["special_instruction"]
+                                else ""
+                            ),
                         ]
                     ),
                 ]
@@ -797,7 +814,11 @@ for unit in units:
 
 fixed_units.reverse()
 unit_expression = "|".join(fixed_units)
+<<<<<<< HEAD
 match_expression = f"([0-9/.-s]*)?s?({unit_expression})?s*?([a-zA-Z0-9s-.]*),?s?(.*)?"
+=======
+match_expression = f"([0-9\\/\\.\\-\\s]*)?\\s?({unit_expression})?\\s*?([a-zA-Z0-9\\s\\-\\.]*),?\\s?(.*)?"
+>>>>>>> 638e195 (lots of ugly updates)
 
 
 def process_recipe_link(recipe_link):
@@ -830,8 +851,13 @@ def process_recipe_link(recipe_link):
 
     ingredients = {}
     for i, raw_ingredient in enumerate(raw_ingredients):
+<<<<<<< HEAD
         raw_ingredient = re.sub(" (,", ",", raw_ingredient)
         raw_ingredient = re.sub(" )", "", raw_ingredient)
+=======
+        raw_ingredient = re.sub(" \\(,", ",", raw_ingredient)
+        raw_ingredient = re.sub(" \\)", "", raw_ingredient)
+>>>>>>> 638e195 (lots of ugly updates)
         raw_ingredient = re.sub(",", "", raw_ingredient)
 
         ingredients[f"ingredient_{i}"] = {}

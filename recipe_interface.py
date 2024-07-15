@@ -1,20 +1,21 @@
-from random import choice
-import PySimpleGUI as sg
+import base64
 import datetime
 import json
 import os
-import sys
-import base64
-import shutil
-import textwrap
 import re
+import shutil
+import sys
+import textwrap
+from pprint import pprint
+from random import choice
+from string import capwords
 
-from utils.sql_functions import *
+import PySimpleGUI as sg
+
 from utils.custom_date_picker import popup_get_date
 from utils.make_database import make_database
 from utils.recipe_units import units
-from pprint import pprint
-from string import capwords
+from utils.sql_functions import *
 
 try:
     wd = sys._MEIPASS
@@ -46,7 +47,10 @@ def new_ingredient(i):
         [
             sg.Input(font=font, key=("ingredient", i), expand_x=True, focus=True),
             sg.Button(
-                "X", font=("Arial Bold", 14), key=("remove_ingredient", i), enable_events=True,
+                "X",
+                font=("Arial Bold", 14),
+                key=("remove_ingredient", i),
+                enable_events=True,
             ),
         ],
     ]
@@ -88,9 +92,17 @@ def recipes(meal_title=None, recipe_data=None):
                     ),
                 ],
                 [
-                    sg.Text("Subtitle (optional)", font=font, size=(16, 1), pad=((5, 5), (5, 5)),),
+                    sg.Text(
+                        "Subtitle (optional)",
+                        font=font,
+                        size=(16, 1),
+                        pad=((5, 5), (5, 5)),
+                    ),
                     sg.Input(
-                        font=font, key="recipe_subtitle", expand_x=True, pad=((5, 5), (5, 5)),
+                        font=font,
+                        key="recipe_subtitle",
+                        expand_x=True,
+                        pad=((5, 5), (5, 5)),
                     ),
                 ],
                 [
@@ -126,10 +138,14 @@ def recipes(meal_title=None, recipe_data=None):
                                     "Press 'Enter' to add another ingredient",
                                     font=("Arial Italic", 12),
                                 ),
-                                sg.Button("(i) Tips", key="tips_button", enable_events=True),
+                                sg.Button(
+                                    "(i) Tips", key="tips_button", enable_events=True
+                                ),
                             ],
                             [
-                                sg.Input(font=font, key=("ingredient", 0), expand_x=True),
+                                sg.Input(
+                                    font=font, key=("ingredient", 0), expand_x=True
+                                ),
                                 sg.Button(
                                     "Submit",
                                     visible=False,
@@ -144,7 +160,11 @@ def recipes(meal_title=None, recipe_data=None):
                     ),
                 ],
                 [sg.Text("Directions", font=("Arial Bold", 14))],
-                [sg.Multiline(font=font, key="directions", expand_x=True, size=(30, 5))],
+                [
+                    sg.Multiline(
+                        font=font, key="directions", expand_x=True, size=(30, 5)
+                    )
+                ],
             ],
             expand_x=True,
             key=("recipe_frame", 0),
@@ -211,12 +231,16 @@ Available units and abbreviations:
 
     fixed_units.reverse()
     unit_expression = "|".join(fixed_units)
-    match_expression = f"([0-9\/\.\-\s]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s\-\.]*),?\s?(.*)?"
+    match_expression = (
+        f"([0-9\/\.\-\s]*)?\s?({unit_expression})?\s*?([a-zA-Z0-9\s\-\.]*),?\s?(.*)?"
+    )
 
     i = 1
     if recipe_data:
         if recipe_data["recipe_category"]:
-            recipe_window["recipe_category"].update(value=recipe_data["recipe_category"])
+            recipe_window["recipe_category"].update(
+                value=recipe_data["recipe_category"]
+            )
 
         if recipe_data["directions"]:
             recipe_window["directions"].update(value=recipe_data["directions"])
@@ -238,7 +262,8 @@ Available units and abbreviations:
                 )
                 recipe_window[("ingredient", i)].update(value=ingredient)
                 recipe_window.extend_layout(
-                    recipe_window[("ingredient_frame", 0)], new_ingredient(i + 1),
+                    recipe_window[("ingredient_frame", 0)],
+                    new_ingredient(i + 1),
                 )
         recipe_window.refresh()
         recipe_window["column"].contents_changed()
@@ -257,10 +282,24 @@ Available units and abbreviations:
             sg.Window(
                 "Recipe Tips",
                 [
-                    [sg.Text("Tips and Tricks", font=("Arial Bold", 14), justification="c")],
+                    [
+                        sg.Text(
+                            "Tips and Tricks",
+                            font=("Arial Bold", 14),
+                            justification="c",
+                        )
+                    ],
                     [
                         sg.Column(
-                            [[sg.Text(tip_text, font=font, justification="l",)]],
+                            [
+                                [
+                                    sg.Text(
+                                        tip_text,
+                                        font=font,
+                                        justification="l",
+                                    )
+                                ]
+                            ],
                             scrollable=True,
                             vertical_scroll_only=True,
                             pad=((0, 0), (10, 50)),
@@ -276,7 +315,8 @@ Available units and abbreviations:
 
             if "ingredient" in current_element_key:
                 recipe_window.extend_layout(
-                    recipe_window[("ingredient_frame", 0)], new_ingredient(i),
+                    recipe_window[("ingredient_frame", 0)],
+                    new_ingredient(i),
                 )
                 recipe_window.refresh()
                 recipe_window["column"].contents_changed()
@@ -331,9 +371,13 @@ Available units and abbreviations:
 
             for j, raw_ingredient in enumerate(raw_ingredients):
                 recipe["ingredients"][f"ingredient_{j}"] = {}
-                recipe["ingredients"][f"ingredient_{j}"]["raw_ingredient"] = raw_ingredient
+                recipe["ingredients"][f"ingredient_{j}"][
+                    "raw_ingredient"
+                ] = raw_ingredient
                 parsed_ingredient = list(
-                    re.match(match_expression, raw_ingredient, flags=re.IGNORECASE).groups()
+                    re.match(
+                        match_expression, raw_ingredient, flags=re.IGNORECASE
+                    ).groups()
                 )
 
                 for i, val in enumerate(parsed_ingredient):

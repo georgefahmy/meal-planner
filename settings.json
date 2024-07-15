@@ -1,16 +1,19 @@
 {
     "export_plan_path": "",
     "export_recipe_path": "",
-    "logged_in": false,
+    "logged_in": true,
     "meal_categories": [
+        "",
         "All",
         "Appetizer",
         "Breakfast",
+        "Casserole,dinner",
         "Dessert",
         "Dinner",
         "Fasting",
-        "Lunch"
+        "Lunch",
+        "Sides"
     ],
-    "password": "",
-    "username": ""
+    "password": "password",
+    "username": "fahmy"
 }
