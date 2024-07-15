@@ -20,7 +20,7 @@ def internet_on():
     try:
         urllib.request.urlopen("https://8.8.8.8", timeout=5)
         return True
-    except urllib.request.URLError as err:
+    except urllib.request.URLError:
         return False
 
 

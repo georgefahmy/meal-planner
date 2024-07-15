@@ -17,11 +17,7 @@ from time import sleep
 import PySimpleGUI as sg
 from natsort import natsorted, ns
 from recipe_scrapers import scrape_me
-<<<<<<< HEAD
-from recipe_scrapers.settings import RecipeScraperSettings
-=======
 from recipe_scrapers.settings import RecipeScraperSettings, default
->>>>>>> 638e195 (lots of ugly updates)
 
 from check_for_updates import check_for_update
 from recipe_interface import recipes
@@ -34,7 +30,6 @@ from utils.remote_database_functions import (
     close_connection_to_remote_server,
     connect_to_remote_server,
     get_database_from_remote,
-<<<<<<< HEAD
     send_database_to_remote,
 )
 from utils.sql_functions import (
@@ -52,12 +47,6 @@ from utils.sql_functions import (
     update_meal_name,
     update_meal_recipe,
 )
-=======
-    internet_on,
-    send_database_to_remote,
-)
-from utils.sql_functions import *
->>>>>>> 638e195 (lots of ugly updates)
 
 if sys.version_info.minor >= 10:
     from itertools import pairwise
@@ -692,11 +681,7 @@ def display_recipe(recipe):
 
     ingredients = [
         re.sub(
-<<<<<<< HEAD
             "s+",
-=======
-            "\\s+",
->>>>>>> 638e195 (lots of ugly updates)
             " ",
             " ".join(
                 [
@@ -814,11 +799,7 @@ for unit in units:
 
 fixed_units.reverse()
 unit_expression = "|".join(fixed_units)
-<<<<<<< HEAD
 match_expression = f"([0-9/.-s]*)?s?({unit_expression})?s*?([a-zA-Z0-9s-.]*),?s?(.*)?"
-=======
-match_expression = f"([0-9\\/\\.\\-\\s]*)?\\s?({unit_expression})?\\s*?([a-zA-Z0-9\\s\\-\\.]*),?\\s?(.*)?"
->>>>>>> 638e195 (lots of ugly updates)
 
 
 def process_recipe_link(recipe_link):
@@ -851,13 +832,8 @@ def process_recipe_link(recipe_link):
 
     ingredients = {}
     for i, raw_ingredient in enumerate(raw_ingredients):
-<<<<<<< HEAD
         raw_ingredient = re.sub(" (,", ",", raw_ingredient)
         raw_ingredient = re.sub(" )", "", raw_ingredient)
-=======
-        raw_ingredient = re.sub(" \\(,", ",", raw_ingredient)
-        raw_ingredient = re.sub(" \\)", "", raw_ingredient)
->>>>>>> 638e195 (lots of ugly updates)
         raw_ingredient = re.sub(",", "", raw_ingredient)
 
         ingredients[f"ingredient_{i}"] = {}
