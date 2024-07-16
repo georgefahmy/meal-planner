@@ -59,21 +59,23 @@ def popup_get_date(
     :rtype:                      None | (int, int, int)
     """
 
-    if month_names is not None and len(month_names) != 12:
-        if not SUPPRESS_ERROR_POPUPS:
-            popup_error(
-                "Incorrect month names list specified. Must have 12 entries.",
-                "Your list:",
-                month_names,
-            )
+    if month_names is not None and len(month_names) != 12 and not SUPPRESS_ERROR_POPUPS:
+        popup_error(
+            "Incorrect month names list specified. Must have 12 entries.",
+            "Your list:",
+            month_names,
+        )
 
-    if day_abbreviations is not None and len(day_abbreviations) != 7:
-        if not SUPPRESS_ERROR_POPUPS:
-            popup_error(
-                "Incorrect day abbreviation list. Must have 7 entries.",
-                "Your list:",
-                day_abbreviations,
-            )
+    if (
+        day_abbreviations is not None
+        and len(day_abbreviations) != 7
+        and not SUPPRESS_ERROR_POPUPS
+    ):
+        popup_error(
+            "Incorrect day abbreviation list. Must have 7 entries.",
+            "Your list:",
+            day_abbreviations,
+        )
 
     day_font = ("Arial", 16)
     mon_year_font = ("Arial", 17)
@@ -82,10 +84,7 @@ def popup_get_date(
     now = datetime.datetime.now()
     cur_month, cur_day, cur_year = now.month, now.day, now.year
     cur_month = start_mon or cur_month
-    if start_mon is not None:
-        cur_day = start_day
-    else:
-        cur_day = cur_day
+    cur_day = start_day if start_mon is not None else cur_day
     cur_year = start_year or cur_year
 
     def update_days(window, month, year, begin_at_sunday_plus):

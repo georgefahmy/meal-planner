@@ -15,7 +15,11 @@ db_file = os.path.join(wd, "database.db")
 
 
 def make_database(db_file=db_file):
-    create_meals_table = """
+    conn = s.connect(db_file)
+    c = conn.cursor()
+
+    if conn:
+        create_meals_table = """
         CREATE TABLE IF NOT EXISTS meals
         (
             id integer PRIMARY KEY,
@@ -27,7 +31,8 @@ def make_database(db_file=db_file):
         );
     """
 
-    create_plan_table = """
+        c.execute(create_meals_table)
+        create_plan_table = """
         CREATE TABLE IF NOT EXISTS plans
         (
             id integer PRIMARY KEY,
@@ -43,11 +48,6 @@ def make_database(db_file=db_file):
         );
     """
 
-    conn = s.connect(db_file)
-    c = conn.cursor()
-
-    if conn:
-        c.execute(create_meals_table)
         c.execute(create_plan_table)
         conn.commit()
     else:

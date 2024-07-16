@@ -28,8 +28,6 @@ def download_new_version(url, file_name):
 
 # Check if outdated
 def check_for_update():
-    restart = False
-
     if not internet_on():
         return False
 
@@ -38,19 +36,15 @@ def check_for_update():
     )
     new_version = version_response.text.strip() if version_response.ok else None
 
-    current_version = open(wd + "/resources/VERSION", "r").read().strip()
+    current_version = open(f"{wd}/resources/VERSION", "r").read().strip()
 
+    restart = False
     if version.parse(current_version) >= version.parse(new_version):
         print("Version is up to date")
 
     elif version.parse(current_version) < version.parse(new_version):
         print("New Version available")
-        new_version_url = (
-            "https://github.com/georgefahmy/meal-planner/releases/download/v"
-            + new_version
-            + "/"
-            + FILENAME
-        )
+        new_version_url = f"https://github.com/georgefahmy/meal-planner/releases/download/v{new_version}/{FILENAME}"
 
         update_window = sg.Window(
             "Meal Planner Pro Update Available",
@@ -99,7 +93,7 @@ def check_for_update():
                 update_window["c_b"].update(visible=False)
                 update_window["progress"].update(10)
 
-                download_new_version(new_version_url, wd + "/resources/" + FILENAME)
+                download_new_version(new_version_url, f"{wd}/resources/{FILENAME}")
                 update_window["progress"].update(30)
                 update_window["p_status"].update(value="Installing...")
                 os.system(
@@ -108,16 +102,18 @@ def check_for_update():
                 update_window["progress"].update(50)
                 update_window["p_status"].update(value="Removing old files...")
                 os.system(
-                    ("cp -r /Volumes/" + VOLUME_NAME + "/" + VOLUME_NAME + ".app")
-                    + (" /Volumes/" + VOLUME_NAME + "/" + "Applications/")
+                    (
+                        f"cp -r /Volumes/{VOLUME_NAME}/{VOLUME_NAME}.app"
+                        + f" /Volumes/{VOLUME_NAME}/Applications/"
+                    )
                 )
                 update_window["progress"].update(65)
                 update_window["p_status"].update(value="Cleaning up download")
 
-                os.system("hdiutil detach " + ("/Volumes/" + VOLUME_NAME))
+                os.system(f"hdiutil detach /Volumes/{VOLUME_NAME}")
                 update_window["progress"].update(80)
                 update_window["p_status"].update(value="Done!...Please Restart...")
-                os.remove(wd + "/resources/" + FILENAME)
+                os.remove(f"{wd}/resources/{FILENAME}")
                 update_window["progress"].update(100)
                 restart = True
                 sleep(5)

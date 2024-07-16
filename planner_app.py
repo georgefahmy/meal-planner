@@ -685,11 +685,11 @@ def display_recipe(recipe):
             " ",
             " ".join(
                 [
-                    ing["quantity"] if ing["quantity"] else "",
-                    ing["units"] if ing["units"] else "",
+                    ing["quantity"] or "",
+                    ing["units"] or "",
                     "".join(
                         [
-                            ing["ingredient"] if ing["ingredient"] else "",
+                            ing["ingredient"] or "",
                             (
                                 (", " + ing["special_instruction"])
                                 if ing["special_instruction"]
@@ -811,26 +811,14 @@ def process_recipe_link(recipe_link):
     except:
         return recipe
 
-    recipe["title"] = (
-        capwords(scraped_recipe.schema.title())
-        if capwords(scraped_recipe.schema.title())
-        else ""
-    )
+    recipe["title"] = capwords(scraped_recipe.schema.title()) or ""
     recipe["directions"] = (
         re.sub("\n", " ", scraped_recipe.schema.instructions())
         if scraped_recipe.schema.instructions()
         else ""
     )
-    recipe["recipe_category"] = (
-        scraped_recipe.schema.category()
-        if scraped_recipe.schema.category()
-        else "Dinner"
-    )
-    raw_ingredients = (
-        scraped_recipe.schema.ingredients()
-        if scraped_recipe.schema.ingredients()
-        else []
-    )
+    recipe["recipe_category"] = scraped_recipe.schema.category() or "Dinner"
+    raw_ingredients = scraped_recipe.schema.ingredients() or []
 
     ingredients = {}
     for i, raw_ingredient in enumerate(raw_ingredients):
@@ -1027,14 +1015,12 @@ def check_if_plan_exists(picked_date):
 
 def settings_viewer():
     settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
-    plan_path = settings["export_plan_path"] if settings["export_plan_path"] else "None"
-    recipe_path = (
-        settings["export_recipe_path"] if settings["export_recipe_path"] else "None"
-    )
+    plan_path = settings["export_plan_path"] or "None"
+    recipe_path = settings["export_recipe_path"] or "None"
     meal_categories = settings["meal_categories"]
     meal_categories.remove("All")
-    username = settings["username"] if settings["username"] else "None"
-    password = settings["password"] if settings["password"] else "None"
+    username = settings["username"] or "None"
+    password = settings["password"] or "None"
     settings_window = sg.Window(
         "User Settings",
         [
@@ -1081,10 +1067,9 @@ def settings_viewer():
             updated_category = sg.popup_get_text(
                 "Edit Category", default_text=settings_values["Category_settings"][0]
             )
-            updated_category = (
+            if updated_category := (
                 updated_category.replace("('", "").replace("',", "").replace(")", "")
-            )
-            if updated_category:
+            ):
                 meal_categories.remove(settings_values["Category_settings"][0])
                 meal_categories.append(updated_category)
 
@@ -1111,10 +1096,9 @@ def settings_viewer():
 
         if settings_event == "Add Category":
             new_category = sg.popup_get_text("New Category")
-            new_category = (
+            if new_category := (
                 new_category.replace("('", "").replace("',", "").replace(")", "")
-            )
-            if new_category:
+            ):
                 meal_categories.append(new_category)
 
             settings["meal_categories"] = ["All"] + sorted(meal_categories)
@@ -1242,10 +1226,7 @@ while True:
             values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
         )
         meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-        current_plan_dict = read_current_plans(db_file, str(start))
-
-        if not current_plan_dict:
-            current_plan_dict = blank_plan_dict
+        current_plan_dict = read_current_plans(db_file, str(start)) or blank_plan_dict
 
         current_plan_dict = generate_plan_shopping_list(current_plan_dict)
 
@@ -1264,9 +1245,7 @@ while True:
         new_recipe = values["-RECIPE_LINK-"].lower()
 
         recipe = process_recipe_link(new_recipe)
-        recipe["recipe_category"] = (
-            recipe["recipe_category"] if recipe["recipe_category"] else "Dinner"
-        )
+        recipe["recipe_category"] = recipe["recipe_category"] or "Dinner"
         recipe = recipes(capwords(recipe["title"]), recipe_data=recipe)
 
         if not recipe:
@@ -1678,10 +1657,7 @@ while True:
             values=sorted([capwords(meal) for meal in read_all_meals(db_file).keys()])
         )
         meals = {meal: info for meal, info in read_all_meals(db_file).items()}
-        current_plan_dict = read_current_plans(db_file, str(start))
-
-        if not current_plan_dict:
-            current_plan_dict = blank_plan_dict
+        current_plan_dict = read_current_plans(db_file, str(start)) or blank_plan_dict
 
         current_plan_dict = generate_plan_shopping_list(current_plan_dict)
         window.perform_long_operation(

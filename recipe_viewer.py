@@ -36,12 +36,14 @@ except AttributeError:
 
 settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
 db_file = os.path.join(wd, "database.db")
-meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+meals = dict(read_all_meals(db_file).items())
 settings["meal_categories"].remove("All")
 meal_categories = ["All"] + list(
     set(
-        settings["meal_categories"]
-        + list(set([capwords(meal["category"]) for meal in meals.values()]))
+        (
+            settings["meal_categories"]
+            + list({capwords(meal["category"]) for meal in meals.values()})
+        )
     )
 )
 settings["meal_categories"] = sorted(meal_categories)
@@ -92,18 +94,16 @@ def open_recipes_window(meals):
         if event in (sg.WIN_CLOSED, "Cancel"):
             available_recipe_window.close()
             return None
-            break
 
         if event == "Okay":
             if not values["selected_meal"]:
                 continue
             available_recipe_window.close()
             return values["selected_meal"][0].lower()
-            break
 
 
 def matchingKeys(dictionary, searchString):
-    filtered_meals = [
+    return [
         key
         for key, val in dictionary.items()
         if searchString.lower() in key.lower()
@@ -113,10 +113,9 @@ def matchingKeys(dictionary, searchString):
         )
         or searchString.lower() in val["recipe_category"]
     ]
-    return filtered_meals
 
 
-def recipe_viewer(meals=None, settings=settings, file_path=file_path):
+def make_layout(meals):
     if not meals:
         available_meals = read_all_recipes(db_file)
         meals = [capwords(meal) for meal, recipe in available_meals.items() if recipe]
@@ -327,9 +326,14 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
             ],
         ],
     ]
+    return layout
 
-    # Use the full layout to create the window object
-    icon_file = wd + "/resources/burger-10956.png"
+
+def recipe_viewer(meals=None, settings=settings, file_path=file_path):
+
+    layout = make_layout(meals)
+
+    icon_file = f"{wd}/resources/burger-10956.png"
     sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
     recipe_window = sg.Window(
         "Recipe Interface",
@@ -338,7 +342,7 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
         size=(900, 600),
         finalize=True,
     )
-    meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+    meals = dict(read_all_meals(db_file).items())
     available_meals = read_all_recipes(db_file)
     while True:
         event, values = recipe_window.read()
@@ -349,8 +353,6 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
         if event:
             # DEBUG to print out the events and values
             print(event, values)
-            pass
-
         if event == "-RFILTER-":
             # Typing in the search box will filter the main meal list based on the name of the meal
             # as well as ingredients in any meal
@@ -389,7 +391,7 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
                 continue
 
             if recipe["title"] not in export_recipe_path:
-                export_recipe_path = export_recipe_path + "/" + f"{recipe['title']}.rcp"
+                export_recipe_path = f"{export_recipe_path}/" + f"{recipe['title']}.rcp"
 
             with open(export_recipe_path, "w") as fp:
                 json.dump(recipe, fp, indent=4, sort_keys=True)
@@ -454,9 +456,7 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
                         recipe=json.dumps(recipe),
                         category=new_category,
                     )
-                    meals = {
-                        meal: info for meal, info in read_all_meals(db_file).items()
-                    }
+                    meals = dict(read_all_meals(db_file).items())
                 available_meals = [
                     capwords(meal_name) for meal_name in read_all_recipes(db_file)
                 ]
@@ -498,7 +498,7 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
                     recipe=json.dumps(recipe),
                     category=new_category,
                 )
-                meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+                meals = dict(read_all_meals(db_file).items())
             available_meals = [
                 capwords(meal_name) for meal_name in read_all_recipes(db_file)
             ]
@@ -525,11 +525,11 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
                     " ",
                     " ".join(
                         [
-                            ing["quantity"] if ing["quantity"] else "",
-                            ing["units"] if ing["units"] else "",
+                            ing["quantity"] or "",
+                            ing["units"] or "",
                             "".join(
                                 [
-                                    ing["ingredient"] if ing["ingredient"] else "",
+                                    ing["ingredient"] or "",
                                     (
                                         (", " + ing["special_instruction"])
                                         if ing["special_instruction"]

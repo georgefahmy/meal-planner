@@ -17,12 +17,14 @@ except AttributeError:
 
 settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
 db_file = os.path.join(wd, "database.db")
-meals = {meal: info for meal, info in read_all_meals(db_file).items()}
+meals = dict(read_all_meals(db_file).items())
 settings["meal_categories"].remove("All")
 meal_categories = ["All"] + list(
     set(
-        settings["meal_categories"]
-        + list(set([capwords(meal["category"]) for meal in meals.values()]))
+        (
+            settings["meal_categories"]
+            + list({capwords(meal["category"]) for meal in meals.values()})
+        )
     )
 )
 settings["meal_categories"] = meal_categories
@@ -181,7 +183,7 @@ def recipes(meal_title=None, recipe_data=None):
         ],
     ]
     # Use the full layout to create the window object
-    icon_file = wd + "/resources/burger-10956.png"
+    icon_file = f"{wd}/resources/burger-10956.png"
     sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
     recipe_window = sg.Window(
         "Recipe Interface",
@@ -218,7 +220,7 @@ Available units and abbreviations:
             fixed_unit = []
             for character in detailed_unit:
                 if character == ".":
-                    character = r"\{}".format(character)
+                    character = f"\{character}"
                 fixed_unit.append(character)
             fixed_units.append("".join(fixed_unit))
 
@@ -248,10 +250,10 @@ Available units and abbreviations:
                 ingredient_name = ingredient_dict["ingredient"]
                 special_instruction = ingredient_dict["special_instruction"]
                 ingredient = (
-                    ((quantity + " ") if quantity else "")
-                    + ((str(ing_units) + " ") if ing_units else "")
+                    (f"{quantity} " if quantity else "")
+                    + (f"{str(ing_units)} " if ing_units else "")
                     + capwords(ingredient_name)
-                    + ((", " + special_instruction) if special_instruction else "")
+                    + (f", {special_instruction}" if special_instruction else "")
                 )
                 recipe_window[("ingredient", i)].update(value=ingredient)
                 recipe_window.extend_layout(
@@ -265,11 +267,6 @@ Available units and abbreviations:
         event, values = recipe_window.read()
         if event == sg.WIN_CLOSED:
             break
-
-        if event:
-            # DEBUG to print out the events and values
-            # print(event, values)
-            pass
 
         if event == "tips_button":
             sg.Window(
@@ -316,7 +313,7 @@ Available units and abbreviations:
                 i += 1
 
         if "remove_ingredient" in event:
-            icon_file = wd + "/resources/burger-10956.png"
+            icon_file = f"{wd}/resources/burger-10956.png"
             sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
             row = recipe_window.FindElementWithFocus().Key
             recipe_window[event].Widget.destroy()
@@ -328,65 +325,7 @@ Available units and abbreviations:
             recipe_window["column"].contents_changed()
 
         if event == "save_recipe":
-            icon_file = wd + "/resources/burger-10956.png"
-            sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
-            raw_ingredients = []
-            recipe = {}
-            recipe["ingredients"] = {}
-
-            for element in recipe_window.element_list():
-                if element is sg.InputText:
-                    if "ingredient" in element.Key:
-                        if recipe_window[element.Key].get():
-                            raw_ingredients.append(recipe_window[element.Key].get())
-
-                    if "recipe_title" in element.key:
-                        recipe["title"] = recipe_window[element.Key].get()
-
-                    if "recipe_subtitle" in element.key:
-                        recipe["subtitle"] = recipe_window[element.Key].get()
-
-                if element is sg.Combo:
-                    if "recipe_category" in element.key:
-                        recipe["recipe_category"] = recipe_window[element.Key].get()
-
-                if element is sg.Multiline:
-                    if "directions" in element.Key:
-
-                        directions = (
-                            recipe_window["directions"].get()
-                            if recipe_window[element.Key].get()
-                            else ""
-                        )
-            if not raw_ingredients:
-                raw_ingredients = [recipe["title"]]
-
-            for j, raw_ingredient in enumerate(raw_ingredients):
-                recipe["ingredients"][f"ingredient_{j}"] = {}
-                recipe["ingredients"][f"ingredient_{j}"][
-                    "raw_ingredient"
-                ] = raw_ingredient
-                parsed_ingredient = list(
-                    re.match(
-                        match_expression, raw_ingredient, flags=re.IGNORECASE
-                    ).groups()
-                )
-
-                for i, val in enumerate(parsed_ingredient):
-                    if val:
-                        parsed_ingredient[i] = val.strip()
-
-                parsed_ingredient = tuple(parsed_ingredient)
-                (
-                    recipe["ingredients"][f"ingredient_{j}"]["quantity"],
-                    recipe["ingredients"][f"ingredient_{j}"]["units"],
-                    recipe["ingredients"][f"ingredient_{j}"]["ingredient"],
-                    recipe["ingredients"][f"ingredient_{j}"]["special_instruction"],
-                ) = parsed_ingredient
-
-            recipe["directions"] = directions
-            recipe_window.close()
-            return recipe
+            return return_window(recipe_window, match_expression)
 
         if event == "clear_recipe":
             icon_file = wd + "/resources/burger-10956.png"
@@ -395,6 +334,58 @@ Available units and abbreviations:
                 "Are you sure you want to clear?",
                 icon=base64.b64encode(open(str(icon_file), "rb").read()),
             )
-            if not confirm == "OK":
+            if confirm != "OK":
                 continue
             clear_all_elements(recipe_window)
+
+
+# TODO Rename this here and in `recipes`
+def return_window(recipe_window, match_expression):
+    icon_file = f"{wd}/resources/burger-10956.png"
+    sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
+    raw_ingredients = []
+    recipe = {"ingredients": {}}
+    for element in recipe_window.element_list():
+        if element is sg.InputText:
+            if "ingredient" in element.Key and recipe_window[element.Key].get():
+                raw_ingredients.append(recipe_window[element.Key].get())
+
+            if "recipe_title" in element.key:
+                recipe["title"] = recipe_window[element.Key].get()
+
+            if "recipe_subtitle" in element.key:
+                recipe["subtitle"] = recipe_window[element.Key].get()
+
+        if element is sg.Combo and "recipe_category" in element.key:
+            recipe["recipe_category"] = recipe_window[element.Key].get()
+
+        if element is sg.Multiline and "directions" in element.Key:
+            directions = (
+                recipe_window["directions"].get()
+                if recipe_window[element.Key].get()
+                else ""
+            )
+    if not raw_ingredients:
+        raw_ingredients = [recipe["title"]]
+
+    for j, raw_ingredient in enumerate(raw_ingredients):
+        recipe["ingredients"][f"ingredient_{j}"] = {"raw_ingredient": raw_ingredient}
+        parsed_ingredient = list(
+            re.match(match_expression, raw_ingredient, flags=re.IGNORECASE).groups()
+        )
+
+        for i, val in enumerate(parsed_ingredient):
+            if val:
+                parsed_ingredient[i] = val.strip()
+
+        parsed_ingredient = tuple(parsed_ingredient)
+        (
+            recipe["ingredients"][f"ingredient_{j}"]["quantity"],
+            recipe["ingredients"][f"ingredient_{j}"]["units"],
+            recipe["ingredients"][f"ingredient_{j}"]["ingredient"],
+            recipe["ingredients"][f"ingredient_{j}"]["special_instruction"],
+        ) = parsed_ingredient
+
+    recipe["directions"] = directions
+    recipe_window.close()
+    return recipe
