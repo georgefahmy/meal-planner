@@ -197,7 +197,7 @@ def recipes(meal_title=None, recipe_data=None):
     available_units = "\n".join(
         ["\t".join(unit) for unit in [[unit[0], ", ".join(unit[1:])] for unit in units]]
     )
-    tip_text = f"""
+    tip_text = """
 Enter ingredient information as follows:
     quantity units ingredient, special instructions (units and special instructions optional)
 
