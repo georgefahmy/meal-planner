@@ -18,7 +18,8 @@ except AttributeError:
 settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
 db_file = os.path.join(wd, "database.db")
 meals = dict(read_all_meals(db_file).items())
-settings["meal_categories"].remove("All")
+if "ALL" in settings["meal_categories"]:
+    settings["meal_categories"].remove("All")
 meal_categories = ["All"] + list(
     set(
         (
