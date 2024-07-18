@@ -328,7 +328,7 @@ Available units and abbreviations:
             return return_window(recipe_window, match_expression)
 
         if event == "clear_recipe":
-            icon_file = wd + "/resources/burger-10956.png"
+            icon_file = f"{wd}/resources/burger-10956.png"
             sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
             confirm = sg.popup_ok_cancel(
                 "Are you sure you want to clear?",
@@ -339,15 +339,14 @@ Available units and abbreviations:
             clear_all_elements(recipe_window)
 
 
-# TODO Rename this here and in `recipes`
 def return_window(recipe_window, match_expression):
     icon_file = f"{wd}/resources/burger-10956.png"
     sg.set_options(icon=base64.b64encode(open(str(icon_file), "rb").read()))
     raw_ingredients = []
     recipe = {"ingredients": {}}
     for element in recipe_window.element_list():
-        if element is sg.InputText:
-            if "ingredient" in element.Key and recipe_window[element.Key].get():
+        if element.Type is sg.ELEM_TYPE_INPUT_TEXT:
+            if "ingredient" in element.key and recipe_window[element.Key].get():
                 raw_ingredients.append(recipe_window[element.Key].get())
 
             if "recipe_title" in element.key:
@@ -356,17 +355,20 @@ def return_window(recipe_window, match_expression):
             if "recipe_subtitle" in element.key:
                 recipe["subtitle"] = recipe_window[element.Key].get()
 
-        if element is sg.Combo and "recipe_category" in element.key:
+        if (
+            element.Type is sg.ELEM_TYPE_INPUT_COMBO
+            and "recipe_category" in element.key
+        ):
             recipe["recipe_category"] = recipe_window[element.Key].get()
 
-        if element is sg.Multiline and "directions" in element.Key:
+        if element.Type is sg.ELEM_TYPE_INPUT_MULTILINE and "directions" in element.key:
             directions = (
                 recipe_window["directions"].get()
-                if recipe_window[element.Key].get()
+                if recipe_window[element.key].get()
                 else ""
             )
     if not raw_ingredients:
-        raw_ingredients = [recipe["title"]]
+        raw_ingredients = [recipe.get("title")]
 
     for j, raw_ingredient in enumerate(raw_ingredients):
         recipe["ingredients"][f"ingredient_{j}"] = {"raw_ingredient": raw_ingredient}

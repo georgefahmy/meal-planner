@@ -1014,7 +1014,8 @@ def check_if_plan_exists(picked_date):
 
 
 def settings_viewer():
-    settings = json.load(open(os.path.join(wd, "settings.json"), "r"))
+    with open(os.path.join(wd, "settings.json"), "r") as fp:
+        settings = json.load(fp)
     plan_path = settings["export_plan_path"] or "None"
     recipe_path = settings["export_recipe_path"] or "None"
     meal_categories = settings["meal_categories"]
@@ -1108,6 +1109,9 @@ def settings_viewer():
             meal_categories = settings["meal_categories"]
             meal_categories.remove("All")
             settings_window["Category_settings"].update(values=meal_categories)
+
+    with open(os.path.join(wd, "settings.json"), "w") as fp:
+        settings = json.dump(settings, fp, indent=4)
 
 
 # --------------------------------- Create the Window ---------------------------------
