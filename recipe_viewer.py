@@ -89,8 +89,8 @@ def open_recipes_window(meals):
     )
     while True:
         event, values = available_recipe_window.read()
-        if event:
-            print(event, values)
+        # if event:
+        # print(event, values)
         if event in (sg.WIN_CLOSED, "Cancel"):
             available_recipe_window.close()
             return None
@@ -350,9 +350,9 @@ def recipe_viewer(meals=None, settings=settings, file_path=file_path):
             recipe_window.close()
             break
 
-        if event:
-            # DEBUG to print out the events and values
-            print(event, values)
+        # if event:
+        # DEBUG to print out the events and values
+        # print(event, values)
         if event == "-RFILTER-":
             # Typing in the search box will filter the main meal list based on the name of the meal
             # as well as ingredients in any meal

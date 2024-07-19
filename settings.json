@@ -3,9 +3,11 @@
     "export_recipe_path": "",
     "logged_in": true,
     "meal_categories": [
+        "",
         "All",
         "Appetizer",
         "Breakfast",
+        "Casserole,dinner",
         "Dessert",
         "Dinner",
         "Fasting",
